@@ -4,10 +4,9 @@ import lombok.Data;
 
 /**
  * @author hrh13
- * @date 2021/7/16
+ * @date 2021/7/27
  */
 @Data
-public class UpdateDto {
-
-    private String passWord;
+public class RoleDto {
+    String roleName;
 }

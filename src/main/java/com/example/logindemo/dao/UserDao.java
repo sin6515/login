@@ -20,11 +20,12 @@ public interface UserDao extends JpaRepository<UserEntity, Integer> {
 
     @Override
     public void deleteById(Integer id);
-    @Transactional
-    @Modifying
-    @Query("update UserEntity d set d.passWord=?1 , d.gmt_modified=?2  where d.id=?3")
-    Integer updatePassWordById(String pd,long modfied, Integer id);
 
     @Query("select id from UserEntity where account=?1")
     Integer findIdByAccount(String account);
+
+    @Transactional
+    @Modifying
+    @Query("update UserEntity d set d.passWord=?1 , d.gmt_modified=?2  where d.id=?3")
+    Integer updatePassWordById(String pd, long modfied, Integer userid);
 }
