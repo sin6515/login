@@ -7,6 +7,8 @@ import com.example.logindemo.entity.RoleEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 import static com.example.logindemo.dto.ConstantValue.*;
 
 /**
@@ -35,6 +37,10 @@ public class RoleService {
         } else {
             return returnValueService.failState(ROLE, ADD_FAILED, roleName, BAD_REQUEST_CODE);
         }
+    }
+
+    public List<Integer> findRole(Integer employeeId) {
+        return employeeRoleDao.findRoleIdByEmployeeId(employeeId);
     }
 
     public String deleteRole(Integer roleId) {
