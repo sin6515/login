@@ -9,7 +9,7 @@ import lombok.Data;
  */
 @Data
 @JSONType(orders = {"id","account","passWord","gmtCreate"})
- public class LoginDto {
+public class LoginDto {
     private Integer id;
     private String account;
     private String passWord;
