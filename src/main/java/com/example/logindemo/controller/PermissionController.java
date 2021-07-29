@@ -25,7 +25,7 @@ public class PermissionController {
 
     @PutMapping("/permissions")
     public String updatePermission(@RequestBody UpdatePermissionDto updatePermissionDTO) {
-        return permissionService.updatePermission(updatePermissionDTO.getRoleId(),updatePermissionDTO.getPermissionName1(),
+        return permissionService.updatePermission(updatePermissionDTO.getRoleId(), updatePermissionDTO.getPermissionName1(),
                 updatePermissionDTO.getPermissionName2());
     }
 

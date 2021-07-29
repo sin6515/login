@@ -10,10 +10,11 @@ import javax.persistence.*;
  */
 @Entity
 @Data
-@Table(name = "employee",uniqueConstraints = @UniqueConstraint(columnNames = "employee_account"))
+@Table(name = "employee")
+
 public class EmployeeEntity {
     @Id
-    @GeneratedValue(strategy= GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @Column(name = "employee_account")
@@ -27,7 +28,8 @@ public class EmployeeEntity {
 
     private long gmt_create;
     private long gmt_modified;
-    public EmployeeEntity(String account,String passWord,String nickname,long gmt_create){
+
+    public EmployeeEntity(String account, String passWord, String nickname, long gmt_create) {
         setAccount(account);
         setPassWord(passWord);
         setNickname(nickname);

@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.concurrent.TimeUnit;
 
+import static com.example.logindemo.dto.ConstantValue.*;
+
 /**
  * @author hrh13
  * @date 2021/7/20
@@ -22,23 +24,21 @@ public class RedisService {
     private UserDao userDao;
     @Autowired
     private EmployeeDao employeeDao;
-    String USER_NAME = "user";
-    String EMPLOYEE_NAME = "employee";
 
-    public String addRedis(LoginDto loginDtO, String name) {
-        String id = "";
-        if (name.equals(USER_NAME)) {
+
+    public void addRedis(LoginDto loginDtO, String name) {
+        String id;
+        if (name.equals(USER)) {
             loginDtO.setId(userDao.findIdByAccount(loginDtO.getAccount()));
-            id = "login_user:" + loginDtO.getId();
+            id = REDIS_USER + loginDtO.getId();
         } else {
             loginDtO.setId(employeeDao.findIdByAccount(loginDtO.getAccount()));
-            id = "login_employee:" + loginDtO.getId();
+            id = REDIS_EMPLOYEE + loginDtO.getId();
         }
         loginDtO.setGmtCreate(System.currentTimeMillis());
         String jsonStr = JSON.toJSONString(loginDtO);
         stringRedisTemplate.opsForValue().set(id, jsonStr);
-        stringRedisTemplate.expire(id, 3, TimeUnit.DAYS);
-        return "登陆成功！";
+        stringRedisTemplate.expire(id, TIME_OUT, TimeUnit.DAYS);
     }
 
     public boolean hasKey(Integer id) {

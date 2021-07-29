@@ -24,6 +24,8 @@ public class PermissionService {
     private RoleService roleService;
     @Autowired
     private RedisService redisService;
+    @Autowired
+    private ReturnValueService returnValueService;
 
     public String findIsPermission(String permissionName, Integer employeeId) {
 
@@ -40,8 +42,7 @@ public class PermissionService {
             }
             return FAILED;
         }
-        return NOLOGIN;
-
+        return NO_LOGIN;
     }
 
     public void savePermission(String name) {
@@ -60,12 +61,12 @@ public class PermissionService {
                 if (rolePermissionDao.findByRoleIdAndPermissionId(roleId, permissionId).isEmpty()) {
                     RolePermissionEntity rolePermissionEntity = new RolePermissionEntity(roleId, permissionId, System.currentTimeMillis());
                     rolePermissionDao.save(rolePermissionEntity);
-                    return "成功添加权限" + permissionName + "!";
+                    return returnValueService.succeedState(PERMISSION, ADD_SUCCEED, permissionName, OK_CODE);
                 } else {
-                    return "该角色已拥有权限" + permissionName + "!";
+                    return returnValueService.failState(PERMISSION, ADD_FAILED, permissionName, REPEAT_ASK_CODE);
                 }
             } else {
-                return "不存在该角色!";
+                return returnValueService.failState(PERMISSION, ADD_FAILED, roleId, NOT_FOUND_CODE);
             }
         } else {
             return "请输入正确的权限名如:" + ADD + "," + UPDATE + "," + Find + "," + DELETE;
@@ -81,12 +82,13 @@ public class PermissionService {
                 Integer permissionId = permissionDao.findIdByPermissionName(permissionName);
                 if (!rolePermissionDao.findByRoleIdAndPermissionId(roleId, permissionId).isEmpty()) {
                     rolePermissionDao.deleteByRoleIdAndPermissionId(roleId, permissionId);
-                    return "成功收回权限" + permissionName + "!";
+                    return returnValueService.succeedState(PERMISSION, DELETE_SUCCEED, permissionName, OK_CODE);
                 } else {
-                    return "该角色未拥有权限" + permissionName + "!";
+                    return returnValueService.failState(PERMISSION,  DELETE_FAILED, permissionName, FORBIDDEN_CODE);
+
                 }
             } else {
-                return "不存在该角色!";
+                return returnValueService.failState(PERMISSION, DELETE_FAILED,roleId, NOT_FOUND_CODE);
             }
         } else {
             return "请输入正确的权限名如:" + ADD + "," + UPDATE + "," + Find + "," + DELETE;
@@ -110,12 +112,12 @@ public class PermissionService {
                     Integer permissionId2 = permissionDao.findIdByPermissionName(permissionName2);
                     rolePermissionDao.updatePermissionId2ByRoleIdAndPermissionId1(permissionId2, System.currentTimeMillis(),
                             roleId, permissionId1);
-                    return "成功更改权限" + permissionName1 + "为" + permissionName2 + "!";
+                    return returnValueService.succeedState(ROLE, UPDATE_SUCCEED, permissionName2, OK_CODE);
                 } else {
-                    return "该角色未拥有权限" + permissionName1 + "!";
+                    return returnValueService.failState(PERMISSION, UPDATE_FAILED,permissionName1, NOT_FOUND_CODE);
                 }
             } else {
-                return "不存在该角色!";
+                return returnValueService.failState(PERMISSION, UPDATE_FAILED,roleId, NOT_FOUND_CODE);
             }
         } else {
             return "请输入正确的权限名如:" + ADD + "," + UPDATE + "," + Find + "," + DELETE;

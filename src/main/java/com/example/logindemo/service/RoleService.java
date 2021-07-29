@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import static com.example.logindemo.dto.ConstantValue.*;
+
 /**
  * @author hrh13
  * @date 2021/7/26
@@ -23,11 +25,18 @@ public class RoleService {
     private RedisService redisService;
     @Autowired
     private RolePermissionDao rolePermissionDao;
+    @Autowired
+    private ReturnValueService returnValueService;
 
     public String addRole(String roleName) {
-        RoleEntity roleEntity = new RoleEntity(roleName, System.currentTimeMillis());
-        roleDao.save(roleEntity);
-        return "添加角色成功！角色"+roleName+"的id为"+roleDao.findIdByRoleName(roleName);
+        if (!roleDao.existsByRoleName(roleName)) {
+            RoleEntity roleEntity = new RoleEntity(roleName, System.currentTimeMillis());
+            roleDao.save(roleEntity);
+            Integer roleId = roleDao.findIdByRoleName(roleName);
+            return returnValueService.succeedState(ROLE, ADD_SUCCEED, roleId, OK_CODE);
+        } else {
+            return returnValueService.failState(ROLE, ADD_FAILED, roleName, BAD_REQUEST_CODE);
+        }
     }
 
     public List<Integer> findRole(Integer employeeId) {
@@ -40,17 +49,19 @@ public class RoleService {
                     employeeRoleDao.findByEmployeeIdAndRoleId(employeeId, roleId2).isEmpty() &&
                     roleDao.existsById(roleId2)) {
 
-                employeeRoleDao.updateRoleId1ByRoleId2(roleId1, System.currentTimeMillis(), roleId2);
-                return "更改角色成功！";
+                employeeRoleDao.updateRoleId1ByRoleId2(roleId2, System.currentTimeMillis(), employeeId, roleId1);
+                return returnValueService.succeedState(ROLE, UPDATE_SUCCEED, roleId2, OK_CODE);
             } else if (employeeRoleDao.findByEmployeeIdAndRoleId(employeeId, roleId1).isEmpty()) {
-                return "该员工未拥有编号" + roleId1 + "的角色！";
+                return returnValueService.failState(ROLE, UPDATE_FAILED, roleId1, NOT_FOUND_CODE);
+
             } else if (!employeeRoleDao.findByEmployeeIdAndRoleId(employeeId, roleId2).isEmpty()) {
-                return "该员工已拥有编号" + roleId2 + "的角色！";
-            } else  {
-                return "角色"+roleId2 + "不存在！";
+                return returnValueService.failState(ROLE, UPDATE_FAILED, roleId2, REPEAT_ASK_CODE);
+            } else {
+                return returnValueService.failState(ROLE, UPDATE_FAILED, roleId2, NOT_FOUND_CODE);
+
             }
         } else {
-            return "请先登录帐号！";
+            return returnValueService.failState(ROLE, UPDATE_FAILED, employeeId, NO_LOGIN_CODE);
         }
 
     }
@@ -60,9 +71,10 @@ public class RoleService {
             roleDao.deleteById(roleId);
             employeeRoleDao.deleteByRoleId(roleId);
             rolePermissionDao.deleteByRoleId(roleId);
-            return "删除角色成功！";
+            return returnValueService.succeedState(ROLE, DELETE_SUCCEED, roleId, OK_CODE);
         } else {
-            return "角色不存在！";
+            return returnValueService.failState(ROLE, DELETE_FAILED, roleId, NOT_FOUND_CODE);
+
         }
 
 

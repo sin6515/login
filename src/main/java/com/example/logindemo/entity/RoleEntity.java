@@ -9,7 +9,7 @@ import javax.persistence.*;
  * @date 2021/7/22
  */
 @Entity
-@Table(name = "role", uniqueConstraints = @UniqueConstraint(columnNames = "role_name"))
+@Table(name = "role")
 @Data
 public class RoleEntity {
     @Id

@@ -23,72 +23,84 @@ public class EmployeeService {
     private PermissionService permissionService;
     @Autowired
     private UserDao userDao;
-    public void addEmployee(AddDto addDto) {
-        EmployeeEntity employeeEntity = new EmployeeEntity(addDto.getAccount(), DigestUtils.md5DigestAsHex(addDto.getPassWord().getBytes()),
-                addDto.getNickname(), System.currentTimeMillis());
-        employeeDao.save(employeeEntity);
+    @Autowired
+    private ReturnValueService returnValueService;
+    @Autowired
+    private RedisService redisService;
+
+    public String addEmployee(AddDto addDto) {
+        if (employeeDao.findByAccount(addDto.getAccount()).isEmpty()) {
+            EmployeeEntity employeeEntity = new EmployeeEntity(addDto.getAccount(), DigestUtils.md5DigestAsHex(addDto.getPassWord().getBytes()),
+                    addDto.getNickname(), System.currentTimeMillis());
+            employeeDao.save(employeeEntity);
+            Integer employeeId = employeeDao.findIdByAccount(addDto.getAccount());
+            return returnValueService.succeedState(USER, REGISTER_SUCCEED, employeeId, OK_CODE);
+        } else {
+            return returnValueService.failState(USER, ADD_FAILED, addDto.getAccount(), BAD_REQUEST_CODE);
+        }
+
     }
 
     public String loginEmployee(LoginDto loginDTO) {
         loginDTO.setPassWord(DigestUtils.md5DigestAsHex(loginDTO.getPassWord().getBytes()));
         if (employeeDao.findByAccount(loginDTO.getAccount()).isEmpty()) {
-            return "用户不存在！";
+            return returnValueService.failState(USER, LOGIN_ERROR_ACCOUNT, loginDTO.getAccount(), BAD_REQUEST_CODE);
         } else if (employeeDao.findByAccountAndPassWord(loginDTO.getAccount(),
                 loginDTO.getPassWord()).isEmpty()) {
-            return "密码错误！";
+            return returnValueService.failState(USER, LOGIN_ERROR_PASSWORD, loginDTO.getAccount(), BAD_REQUEST_CODE);
         } else {
-            return "succeed";
+            redisService.addRedis(loginDTO, EMPLOYEE);
+            return returnValueService.succeedState(USER, LOGIN_SUCCEED, loginDTO.getAccount(), OK_CODE);
         }
     }
 
-    public Object findUser(Integer employeeId,Integer userId) {
-        String permissionName = "find";
+    public String findUser(Integer employeeId, Integer userId) {
+        String permissionName = Find;
         if (SUCCEED.equals(permissionService.findIsPermission(permissionName, employeeId))) {
-            if (userDao.existsById(userId)){
-                return userDao.findById(userId);
+            if (userDao.existsById(userId)) {
+//                String jsonStr = JSON.toJSONString(userDao.findById(userId));
+//                return jsonStr;
+
+             return returnValueService.succeedFindState(userDao.findById(userId).get());
+            } else {
+                return returnValueService.failState(EMPLOYEE, FIND_FAILED, userId, NOT_FOUND_CODE);
             }
-            else{
-                return "不存在用户"+userId;
-            }
-        } else if(FAILED.equals(permissionService.findIsPermission(permissionName, employeeId))){
-            return "抱歉，您没有查询的权限！";
-        }
-        else {
-            return "请先登录帐号！";
+        } else if (FAILED.equals(permissionService.findIsPermission(permissionName, employeeId))) {
+            return returnValueService.failState(EMPLOYEE, FIND_FAILED, employeeId, FORBIDDEN_CODE);
+        } else {
+            return returnValueService.failState(EMPLOYEE, FIND_FAILED, employeeId, NO_LOGIN_CODE);
         }
     }
 
-    public String deleteUser(Integer employeeId,Integer userId) {
-        String permissionName = "delete";
+    public String deleteUser(Integer employeeId, Integer userId) {
+        String permissionName = DELETE;
         if (SUCCEED.equals(permissionService.findIsPermission(permissionName, employeeId))) {
             if (userDao.existsById(userId)) {
                 userDao.deleteById(userId);
-                return "succeed";
+                return returnValueService.succeedState(EMPLOYEE, DELETE_SUCCEED, userId, OK_CODE);
             } else {
-                return "该用户不存在";
+                return returnValueService.failState(EMPLOYEE, DELETE_FAILED, userId, NOT_FOUND_CODE);
             }
-        } else if(FAILED.equals(permissionService.findIsPermission(permissionName, employeeId))){
-            return "抱歉，您没有注销的权限！";
-        }
-        else {
-            return "请先登录帐号！";
+        } else if (FAILED.equals(permissionService.findIsPermission(permissionName, employeeId))) {
+            return returnValueService.failState(EMPLOYEE, DELETE_FAILED, employeeId, FORBIDDEN_CODE);
+        } else {
+            return returnValueService.failState(EMPLOYEE, DELETE_FAILED, employeeId, NO_LOGIN_CODE);
         }
     }
 
-    public String updateEmployee(Integer employeeId,Integer userId, String pd) {
-        String permissionName = "update";
+    public String updateUser(Integer employeeId, Integer userId, String pd) {
+        String permissionName = UPDATE;
         if (SUCCEED.equals(permissionService.findIsPermission(permissionName, employeeId))) {
             if (userDao.existsById(userId)) {
                 userDao.updatePassWordById(DigestUtils.md5DigestAsHex(pd.getBytes()), System.currentTimeMillis(), userId);
-                return "更新成功";
+                return returnValueService.succeedState(EMPLOYEE, UPDATE_SUCCEED, userId, OK_CODE);
             } else {
-                return "该用户不存在";
+                return returnValueService.failState(EMPLOYEE, UPDATE_FAILED, userId, NOT_FOUND_CODE);
             }
-        } else if(FAILED.equals(permissionService.findIsPermission(permissionName, employeeId))){
-            return "抱歉，您没有更改密码的权限！";
-        }
-        else {
-            return "请先登录帐号！";
+        } else if (FAILED.equals(permissionService.findIsPermission(permissionName, employeeId))) {
+            return returnValueService.failState(EMPLOYEE, UPDATE_FAILED, employeeId, FORBIDDEN_CODE);
+        } else {
+            return returnValueService.failState(EMPLOYEE, UPDATE_FAILED, employeeId, NO_LOGIN_CODE);
         }
     }
 }

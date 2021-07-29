@@ -38,7 +38,7 @@ public interface EmployeeRoleDao extends JpaRepository<EmployeeRoleEntity, Integ
 
     @Transactional
     @Modifying
-    @Query("update EmployeeRoleEntity d set d.roleId=?1 , d.gmt_modified=?2 where d.roleId=?3")
-    Integer updateRoleId1ByRoleId2(Integer roleId1, long modfied, Integer roleId2);
+    @Query("update EmployeeRoleEntity d set d.roleId=?1 , d.gmt_modified=?2 where d.employeeId=?3 and d.roleId=?4")
+    Integer updateRoleId1ByRoleId2(Integer roleId2, long modfied, Integer employee, Integer roleId1);
 
 }

@@ -16,7 +16,9 @@ import javax.transaction.Transactional;
 public interface RoleDao extends JpaRepository<RoleEntity, Integer> {
     @Query("select id from RoleEntity where roleName=?1")
     Integer findIdByRoleName(String roleName);
-
+    @Query("select roleName from RoleEntity where id=?1")
+    Integer findRoleNameById(Integer roleId);
+    boolean existsByRoleName(String roleName);
     @Transactional
     @Modifying
     @Query("update RoleEntity d set d.roleName=?1 , d.gmt_modified=?2 where d.id=?3")
