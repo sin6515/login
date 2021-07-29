@@ -23,4 +23,5 @@ public interface RoleDao extends JpaRepository<RoleEntity, Integer> {
     @Modifying
     @Query("update RoleEntity d set d.roleName=?1 , d.gmt_modified=?2 where d.id=?3")
     void updateRoleNameById(String name2, long modfied, Integer roleId);
+
 }

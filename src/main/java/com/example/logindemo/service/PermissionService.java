@@ -69,7 +69,7 @@ public class PermissionService {
                 return returnValueService.failState(PERMISSION, ADD_FAILED, roleId, NOT_FOUND_CODE);
             }
         } else {
-            return "请输入正确的权限名如:" + ADD + "," + UPDATE + "," + Find + "," + DELETE;
+            return returnValueService.failState(PERMISSION, ADD_FAILED,permissionName, ERROR_INPUT_CODE);
         }
 
     }
@@ -91,7 +91,7 @@ public class PermissionService {
                 return returnValueService.failState(PERMISSION, DELETE_FAILED,roleId, NOT_FOUND_CODE);
             }
         } else {
-            return "请输入正确的权限名如:" + ADD + "," + UPDATE + "," + Find + "," + DELETE;
+            return returnValueService.failState(PERMISSION, DELETE_FAILED,permissionName, ERROR_INPUT_CODE);
         }
 
     }
@@ -120,7 +120,7 @@ public class PermissionService {
                 return returnValueService.failState(PERMISSION, UPDATE_FAILED,roleId, NOT_FOUND_CODE);
             }
         } else {
-            return "请输入正确的权限名如:" + ADD + "," + UPDATE + "," + Find + "," + DELETE;
+            return returnValueService.failState(PERMISSION, UPDATE_FAILED,permissionName1+" and "+permissionName2, ERROR_INPUT_CODE);
         }
 
     }

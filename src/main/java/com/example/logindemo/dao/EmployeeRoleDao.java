@@ -23,9 +23,6 @@ public interface EmployeeRoleDao extends JpaRepository<EmployeeRoleEntity, Integ
     List<EmployeeRoleEntity> findByEmployeeIdAndRoleId(Integer employeeId, Integer roleId);
 
     @Transactional
-    public void deleteByEmployeeId(Integer userId);
-
-    @Transactional
     public void deleteByRoleId(Integer roleId);
 
     @Transactional
@@ -40,5 +37,6 @@ public interface EmployeeRoleDao extends JpaRepository<EmployeeRoleEntity, Integ
     @Modifying
     @Query("update EmployeeRoleEntity d set d.roleId=?1 , d.gmt_modified=?2 where d.employeeId=?3 and d.roleId=?4")
     Integer updateRoleId1ByRoleId2(Integer roleId2, long modfied, Integer employee, Integer roleId1);
+
 
 }

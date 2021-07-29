@@ -1,8 +1,6 @@
 package com.example.logindemo.controller;
 
-import com.example.logindemo.dto.AddEmployeeRoleDto;
 import com.example.logindemo.dto.RoleDto;
-import com.example.logindemo.dto.UpdateRoleDto;
 import com.example.logindemo.service.EmployeeRoleService;
 import com.example.logindemo.service.RoleService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,15 +21,6 @@ public class RoleController {
     @PostMapping("/roles")
     public String addRole(@RequestBody RoleDto roleDTO) {
         return roleService.addRole(roleDTO.getRoleName());
-    }
-    @PostMapping("/roles/add")
-    public String addEmployeeRole(@RequestBody AddEmployeeRoleDto addEmployeeRoleDto) {
-        return employeeRoleService.addEmployeeRole(addEmployeeRoleDto.getEmployeeId(),addEmployeeRoleDto.getRoleId());
-    }
-
-    @PutMapping("/roles")
-    public String updatePermission(@RequestBody UpdateRoleDto updateRoleDto) {
-        return roleService.updateRole(updateRoleDto.getEmployeeId(),updateRoleDto.getRoleId1(),updateRoleDto.getRoleId2());
     }
 
     @DeleteMapping("/roles/{id}")
