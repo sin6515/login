@@ -34,7 +34,7 @@ public class EmployeeController {
     }
 
     @GetMapping(path = "/employees/{employeeId}/users/{userId}")
-    public Object find(@PathVariable("employeeId") Integer employeeId, @PathVariable("userId") Integer userId) {
+    public ReturnValue find(@PathVariable("employeeId") Integer employeeId, @PathVariable("userId") Integer userId) {
         return employeeService.findUser(employeeId, userId);
     }
 
