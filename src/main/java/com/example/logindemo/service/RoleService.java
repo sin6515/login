@@ -35,9 +35,9 @@ public class RoleService {
             roleDao.save(roleEntity);
             Integer roleId = roleDao.findIdByRoleName(roleName);
             ReturnDetailValue returnDetailValue = new ReturnDetailValue(roleId);
-            return returnValueService.succeedState( ADD_SUCCEED,      returnDetailValue);
+            return returnValueService.succeedState(ADD_SUCCEED, returnDetailValue);
         } else {
-            return returnValueService.failState(ROLE, ADD_FAILED, roleName, BAD_REQUEST_CODE);
+            return returnValueService.failState(ROLE, ADD_FAILED, roleName, REPEAT_ASK_CODE);
         }
     }
 
@@ -51,7 +51,7 @@ public class RoleService {
             employeeRoleDao.deleteByRoleId(roleId);
             rolePermissionDao.deleteByRoleId(roleId);
             ReturnDetailValue returnDetailValue = new ReturnDetailValue(roleId);
-            return returnValueService.succeedState(DELETE_SUCCEED,      returnDetailValue);
+            return returnValueService.succeedState(DELETE_SUCCEED, returnDetailValue);
         } else {
             return returnValueService.failState(ROLE, DELETE_FAILED, roleId, NOT_FOUND_CODE);
 

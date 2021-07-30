@@ -33,7 +33,7 @@ public class UserService {
             ReturnDetailValue returnDetailValue = new ReturnDetailValue(userId);
             return returnValueService.succeedState(REGISTER_SUCCEED, returnDetailValue);
         } else {
-            return returnValueService.failState(USER, ADD_FAILED, addDto.getAccount(), BAD_REQUEST_CODE);
+            return returnValueService.failState(USER, REGISTER_FAILED, addDto.getAccount(), REPEAT_ASK_CODE);
         }
     }
 

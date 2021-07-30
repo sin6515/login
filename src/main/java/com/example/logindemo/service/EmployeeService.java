@@ -38,7 +38,7 @@ public class EmployeeService {
             ReturnDetailValue returnDetailValue = new ReturnDetailValue(employeeId);
             return returnValueService.succeedState(REGISTER_SUCCEED, returnDetailValue);
         } else {
-            return returnValueService.failState(USER, ADD_FAILED, addDto.getAccount(), BAD_REQUEST_CODE);
+            return returnValueService.failState(EMPLOYEE, REGISTER_FAILED, addDto.getAccount(), REPEAT_ASK_CODE);
         }
 
     }
@@ -61,7 +61,8 @@ public class EmployeeService {
         String permissionName = Find;
         if (SUCCEED.equals(permissionService.findIsPermission(permissionName, employeeId))) {
             if (userDao.existsById(userId)) {
-                return returnValueService.succeedFindState(userDao.findById(userId).get());
+                ReturnDetailValue returnDetailValue = new ReturnDetailValue(userDao.findById(userId).get());
+                return returnValueService.succeedState(FIND_SUCCEED, returnDetailValue);
             } else {
                 return returnValueService.failState(EMPLOYEE, FIND_FAILED, userId, NOT_FOUND_CODE);
             }

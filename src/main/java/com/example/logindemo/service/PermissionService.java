@@ -63,7 +63,7 @@ public class PermissionService {
                     RolePermissionEntity rolePermissionEntity = new RolePermissionEntity(roleId, permissionId, System.currentTimeMillis());
                     rolePermissionDao.save(rolePermissionEntity);
                     ReturnDetailValue returnDetailValue = new ReturnDetailValue(permissionName);
-                    return returnValueService.succeedState(ADD_SUCCEED,     returnDetailValue);
+                    return returnValueService.succeedState(ADD_SUCCEED, returnDetailValue);
                 } else {
                     return returnValueService.failState(PERMISSION, ADD_FAILED, permissionName, REPEAT_ASK_CODE);
                 }
@@ -85,9 +85,9 @@ public class PermissionService {
                 if (!rolePermissionDao.findByRoleIdAndPermissionId(roleId, permissionId).isEmpty()) {
                     rolePermissionDao.deleteByRoleIdAndPermissionId(roleId, permissionId);
                     ReturnDetailValue returnDetailValue = new ReturnDetailValue(permissionName);
-                    return returnValueService.succeedState(DELETE_SUCCEED,     returnDetailValue);
+                    return returnValueService.succeedState(DELETE_SUCCEED, returnDetailValue);
                 } else {
-                    return returnValueService.failState(PERMISSION, DELETE_FAILED, permissionName, FORBIDDEN_CODE);
+                    return returnValueService.failState(PERMISSION, DELETE_FAILED, permissionName, NOT_FOUND_CODE);
 
                 }
             } else {
@@ -116,7 +116,7 @@ public class PermissionService {
                     rolePermissionDao.updatePermissionId2ByRoleIdAndPermissionId1(permissionId2, System.currentTimeMillis(),
                             roleId, permissionId1);
                     ReturnDetailValue returnDetailValue = new ReturnDetailValue(permissionName2);
-                    return returnValueService.succeedState(UPDATE_SUCCEED,     returnDetailValue);
+                    return returnValueService.succeedState(UPDATE_SUCCEED, returnDetailValue);
                 } else {
                     return returnValueService.failState(PERMISSION, UPDATE_FAILED, permissionName1, NOT_FOUND_CODE);
                 }

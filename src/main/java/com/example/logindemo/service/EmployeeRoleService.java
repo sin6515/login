@@ -23,6 +23,7 @@ public class EmployeeRoleService {
     private RoleDao roleDao;
     @Autowired
     private ReturnValueService returnValueService;
+
     public String addEmployeeRole(Integer employeeId, Integer roleId) {
         if (redisService.hasKey(employeeId)) {
             if (roleDao.existsById(roleId)) {
@@ -30,10 +31,10 @@ public class EmployeeRoleService {
                     EmployeeRoleEntity employeeRoleEntity = new EmployeeRoleEntity(employeeId,
                             roleId, System.currentTimeMillis());
                     employeeRoleDao.save(employeeRoleEntity);
-                    ReturnDetailValue returnDetailValue=new ReturnDetailValue(employeeId);
-                    return returnValueService.succeedState(ADD_SUCCEED,  returnDetailValue);
+                    ReturnDetailValue returnDetailValue = new ReturnDetailValue(employeeId);
+                    return returnValueService.succeedState(ADD_SUCCEED, returnDetailValue);
                 } else {
-                    return returnValueService.failState(ROLE, ADD_FAILED, roleId, BAD_REQUEST_CODE);
+                    return returnValueService.failState(EMPLOYEE_ROLE, ADD_FAILED, roleId, REPEAT_ASK_CODE);
                 }
             } else {
                 return returnValueService.failState(ROLE, ADD_FAILED, roleId, NOT_FOUND_CODE);
@@ -48,8 +49,8 @@ public class EmployeeRoleService {
             if (!employeeRoleDao.findByEmployeeId(employeeId).isEmpty()) {
                 if (!employeeRoleDao.findByEmployeeIdAndRoleId(employeeId, roleId).isEmpty()) {
                     employeeRoleDao.deleteByEmployeeIdAndRoleId(employeeId, roleId);
-                    ReturnDetailValue returnDetailValue=new ReturnDetailValue(employeeId);
-                    return returnValueService.succeedState(DELETE_SUCCEED,  returnDetailValue);
+                    ReturnDetailValue returnDetailValue = new ReturnDetailValue(employeeId);
+                    return returnValueService.succeedState(DELETE_SUCCEED, returnDetailValue);
                 } else {
                     return returnValueService.failState(EMPLOYEE, DELETE_FAILED, roleId, NOT_FOUND_CODE);
                 }
@@ -68,8 +69,8 @@ public class EmployeeRoleService {
                     roleDao.existsById(roleId2)) {
 
                 employeeRoleDao.updateRoleId1ByRoleId2(roleId2, System.currentTimeMillis(), employeeId, roleId1);
-                ReturnDetailValue returnDetailValue=new ReturnDetailValue(roleId2);
-                return returnValueService.succeedState( UPDATE_SUCCEED,  returnDetailValue);
+                ReturnDetailValue returnDetailValue = new ReturnDetailValue(roleId2);
+                return returnValueService.succeedState(UPDATE_SUCCEED, returnDetailValue);
             } else if (employeeRoleDao.findByEmployeeIdAndRoleId(employeeId, roleId1).isEmpty()) {
                 return returnValueService.failState(ROLE, UPDATE_FAILED, roleId1, NOT_FOUND_CODE);
 
