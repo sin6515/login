@@ -1,7 +1,10 @@
 package com.example.logindemo.service;
 
-import com.example.logindemo.dao.*;
+import com.example.logindemo.dao.PermissionDao;
+import com.example.logindemo.dao.RoleDao;
+import com.example.logindemo.dao.RolePermissionDao;
 import com.example.logindemo.dto.ReturnDetailValue;
+import com.example.logindemo.dto.ReturnValue;
 import com.example.logindemo.entity.PermissionEntity;
 import com.example.logindemo.entity.RolePermissionEntity;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,7 +54,7 @@ public class PermissionService {
         permissionDao.save(permissionEntity);
     }
 
-    public String addPermission(Integer roleId, String permissionName) {
+    public ReturnValue addPermission(Integer roleId, String permissionName) {
         if (permissionName.equals(ADD) || permissionName.equals(UPDATE) ||
                 permissionName.equals(Find) || permissionName.equals(DELETE)) {
             if (roleDao.existsById(roleId)) {
@@ -77,7 +80,7 @@ public class PermissionService {
     }
 
 
-    public String deletePermission(Integer roleId, String permissionName) {
+    public ReturnValue deletePermission(Integer roleId, String permissionName) {
         if (permissionName.equals(ADD) || permissionName.equals(UPDATE) ||
                 permissionName.equals(Find) || permissionName.equals(DELETE)) {
             if (roleDao.existsById(roleId)) {
@@ -100,7 +103,7 @@ public class PermissionService {
     }
 
 
-    public String updatePermission(Integer roleId, String permissionName1, String permissionName2) {
+    public ReturnValue updatePermission(Integer roleId, String permissionName1, String permissionName2) {
         boolean flag1 = permissionName1.equals(ADD) || permissionName1.equals(UPDATE) ||
                 permissionName1.equals(Find) || permissionName1.equals(DELETE);
         boolean flag2 = permissionName2.equals(ADD) || permissionName2.equals(UPDATE) ||

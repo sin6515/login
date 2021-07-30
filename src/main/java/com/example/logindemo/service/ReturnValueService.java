@@ -1,7 +1,5 @@
 package com.example.logindemo.service;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.example.logindemo.dto.ReturnDetailValue;
 import com.example.logindemo.dto.ReturnValue;
 import org.springframework.stereotype.Service;
@@ -14,14 +12,13 @@ import static com.example.logindemo.dto.ConstantValue.*;
  */
 @Service
 public class ReturnValueService {
-    public String succeedState(String message, ReturnDetailValue returnDetailValue) {
+    public ReturnValue succeedState(String message, ReturnDetailValue returnDetailValue) {
         ReturnValue returnValue;
         returnValue = new ReturnValue(SUCCEED, OK_CODE, message, returnDetailValue);
-        String jsonStr = JSON.toJSONString(returnValue, SerializerFeature.PrettyFormat);
-        return jsonStr;
+        return returnValue;
     }
 
-    public String failState(String object, String message, Object detail, Integer code) {
+    public ReturnValue failState(String object, String message, Object detail, Integer code) {
         ReturnDetailValue returnDetailValue;
         ReturnValue returnValue;
         if (NO_LOGIN_CODE.equals(code)) {
@@ -51,8 +48,7 @@ public class ReturnValueService {
             returnDetailValue = new ReturnDetailValue(String.valueOf(detail), message);
             returnValue = new ReturnValue(FAILED, BAD_REQUEST, code, LOGIN_FAILED, returnDetailValue);
         }
-        String jsonStr = JSON.toJSONString(returnValue, SerializerFeature.PrettyFormat);
-        return jsonStr;
+        return returnValue;
 
     }
 

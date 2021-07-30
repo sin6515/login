@@ -4,6 +4,7 @@ import com.example.logindemo.dao.EmployeeRoleDao;
 import com.example.logindemo.dao.RoleDao;
 import com.example.logindemo.dao.RolePermissionDao;
 import com.example.logindemo.dto.ReturnDetailValue;
+import com.example.logindemo.dto.ReturnValue;
 import com.example.logindemo.entity.RoleEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,7 +30,7 @@ public class RoleService {
     @Autowired
     private ReturnValueService returnValueService;
 
-    public String addRole(String roleName) {
+    public ReturnValue addRole(String roleName) {
         if (!roleDao.existsByRoleName(roleName)) {
             RoleEntity roleEntity = new RoleEntity(roleName, System.currentTimeMillis());
             roleDao.save(roleEntity);
@@ -45,7 +46,7 @@ public class RoleService {
         return employeeRoleDao.findRoleIdByEmployeeId(employeeId);
     }
 
-    public String deleteRole(Integer roleId) {
+    public ReturnValue deleteRole(Integer roleId) {
         if (roleDao.existsById(roleId)) {
             roleDao.deleteById(roleId);
             employeeRoleDao.deleteByRoleId(roleId);

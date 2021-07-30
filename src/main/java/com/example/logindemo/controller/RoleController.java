@@ -1,5 +1,6 @@
 package com.example.logindemo.controller;
 
+import com.example.logindemo.dto.ReturnValue;
 import com.example.logindemo.dto.RoleDto;
 import com.example.logindemo.service.EmployeeRoleService;
 import com.example.logindemo.service.RoleService;
@@ -19,12 +20,12 @@ public class RoleController {
     @Autowired
     private EmployeeRoleService employeeRoleService;
     @PostMapping("/roles")
-    public String addRole(@RequestBody RoleDto roleDTO) {
+    public ReturnValue addRole(@RequestBody RoleDto roleDTO) {
         return roleService.addRole(roleDTO.getRoleName());
     }
 
     @DeleteMapping("/roles/{id}")
-    public String deletePermission(@PathVariable("id") Integer roleId) {
+    public ReturnValue deletePermission(@PathVariable("id") Integer roleId) {
         return roleService.deleteRole(roleId);
     }
 }

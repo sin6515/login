@@ -3,6 +3,7 @@ package com.example.logindemo.service;
 import com.example.logindemo.dao.EmployeeRoleDao;
 import com.example.logindemo.dao.RoleDao;
 import com.example.logindemo.dto.ReturnDetailValue;
+import com.example.logindemo.dto.ReturnValue;
 import com.example.logindemo.entity.EmployeeRoleEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,7 +25,7 @@ public class EmployeeRoleService {
     @Autowired
     private ReturnValueService returnValueService;
 
-    public String addEmployeeRole(Integer employeeId, Integer roleId) {
+    public ReturnValue addEmployeeRole(Integer employeeId, Integer roleId) {
         if (redisService.hasKey(employeeId)) {
             if (roleDao.existsById(roleId)) {
                 if (employeeRoleDao.findByEmployeeIdAndRoleId(employeeId, roleId).isEmpty()) {
@@ -44,7 +45,7 @@ public class EmployeeRoleService {
         }
     }
 
-    public String deleteEmployeeRole(Integer employeeId, Integer roleId) {
+    public ReturnValue deleteEmployeeRole(Integer employeeId, Integer roleId) {
         if (redisService.hasKey(employeeId)) {
             if (!employeeRoleDao.findByEmployeeId(employeeId).isEmpty()) {
                 if (!employeeRoleDao.findByEmployeeIdAndRoleId(employeeId, roleId).isEmpty()) {
@@ -62,7 +63,7 @@ public class EmployeeRoleService {
         }
     }
 
-    public String updateEmployeeRole(Integer employeeId, Integer roleId1, Integer roleId2) {
+    public ReturnValue updateEmployeeRole(Integer employeeId, Integer roleId1, Integer roleId2) {
         if (redisService.hasKey(employeeId)) {
             if (!employeeRoleDao.findByEmployeeIdAndRoleId(employeeId, roleId1).isEmpty() &&
                     employeeRoleDao.findByEmployeeIdAndRoleId(employeeId, roleId2).isEmpty() &&

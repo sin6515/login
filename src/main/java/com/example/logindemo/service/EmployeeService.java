@@ -5,6 +5,7 @@ import com.example.logindemo.dao.UserDao;
 import com.example.logindemo.dto.AddDto;
 import com.example.logindemo.dto.LoginDto;
 import com.example.logindemo.dto.ReturnDetailValue;
+import com.example.logindemo.dto.ReturnValue;
 import com.example.logindemo.entity.EmployeeEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,7 +30,7 @@ public class EmployeeService {
     @Autowired
     private RedisService redisService;
 
-    public String addEmployee(AddDto addDto) {
+    public ReturnValue addEmployee(AddDto addDto) {
         if (employeeDao.findByAccount(addDto.getAccount()).isEmpty()) {
             EmployeeEntity employeeEntity = new EmployeeEntity(addDto.getAccount(), DigestUtils.md5DigestAsHex(addDto.getPassWord().getBytes()),
                     addDto.getNickname(), System.currentTimeMillis());
@@ -43,7 +44,7 @@ public class EmployeeService {
 
     }
 
-    public String loginEmployee(LoginDto loginDTO) {
+    public ReturnValue loginEmployee(LoginDto loginDTO) {
         loginDTO.setPassWord(DigestUtils.md5DigestAsHex(loginDTO.getPassWord().getBytes()));
         if (employeeDao.findByAccount(loginDTO.getAccount()).isEmpty()) {
             return returnValueService.failState(USER, LOGIN_ERROR_ACCOUNT, loginDTO.getAccount(), BAD_REQUEST_CODE);
@@ -57,7 +58,7 @@ public class EmployeeService {
         }
     }
 
-    public String findUser(Integer employeeId, Integer userId) {
+    public ReturnValue findUser(Integer employeeId, Integer userId) {
         String permissionName = Find;
         if (SUCCEED.equals(permissionService.findIsPermission(permissionName, employeeId))) {
             if (userDao.existsById(userId)) {
@@ -73,7 +74,7 @@ public class EmployeeService {
         }
     }
 
-    public String deleteUser(Integer employeeId, Integer userId) {
+    public ReturnValue deleteUser(Integer employeeId, Integer userId) {
         String permissionName = DELETE;
         if (SUCCEED.equals(permissionService.findIsPermission(permissionName, employeeId))) {
             if (userDao.existsById(userId)) {
@@ -90,7 +91,7 @@ public class EmployeeService {
         }
     }
 
-    public String updateUser(Integer employeeId, Integer userId, String pd) {
+    public ReturnValue updateUser(Integer employeeId, Integer userId, String pd) {
         String permissionName = UPDATE;
         if (SUCCEED.equals(permissionService.findIsPermission(permissionName, employeeId))) {
             if (userDao.existsById(userId)) {

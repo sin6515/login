@@ -1,6 +1,7 @@
 package com.example.logindemo.dto;
 
 import com.alibaba.fastjson.annotation.JSONType;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
 /**
@@ -9,6 +10,7 @@ import lombok.Data;
  */
 @Data
 @JSONType(orders = {"state", "error","code", "message", "detail"})
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class ReturnValue {
     private String state;
     private String error;

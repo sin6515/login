@@ -2,6 +2,7 @@ package com.example.logindemo.dto;
 
 import com.alibaba.fastjson.annotation.JSONType;
 import com.example.logindemo.entity.UserEntity;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
 /**
@@ -10,6 +11,7 @@ import lombok.Data;
  */
 @Data
 @JSONType(orders = {"id", "permissionName","name", "reason"})
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class ReturnDetailValue {
 
     private Integer id;

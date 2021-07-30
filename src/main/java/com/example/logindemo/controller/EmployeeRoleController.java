@@ -1,5 +1,6 @@
 package com.example.logindemo.controller;
 
+import com.example.logindemo.dto.ReturnValue;
 import com.example.logindemo.dto.UpdateEmployeeRoleDto;
 import com.example.logindemo.service.EmployeeRoleService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,16 +17,16 @@ public class EmployeeRoleController {
     @Autowired
     private EmployeeRoleService employeeRoleService;
     @PostMapping("/employees/{employeeId}/roles/{roleId}")
-    public String addEmployeeRole(@PathVariable("employeeId") Integer employeeId, @PathVariable("roleId") Integer roleId) {
+    public ReturnValue addEmployeeRole(@PathVariable("employeeId") Integer employeeId, @PathVariable("roleId") Integer roleId) {
         return employeeRoleService.addEmployeeRole(employeeId,roleId);
     }
     @PutMapping("/employees-roles")
-    public String updatePermission(@RequestBody UpdateEmployeeRoleDto updateEmployeeRoleDto) {
+    public ReturnValue updatePermission(@RequestBody UpdateEmployeeRoleDto updateEmployeeRoleDto) {
         return employeeRoleService.updateEmployeeRole(updateEmployeeRoleDto.getEmployeeId(),updateEmployeeRoleDto.getRoleId1(),
                 updateEmployeeRoleDto.getRoleId2());
     }
     @DeleteMapping("/employees/{employeeId}/roles/{roleId}")
-    public String deleteEmployeeRole(@PathVariable("employeeId") Integer employeeId, @PathVariable("roleId") Integer roleId) {
+    public ReturnValue deleteEmployeeRole(@PathVariable("employeeId") Integer employeeId, @PathVariable("roleId") Integer roleId) {
         return employeeRoleService.deleteEmployeeRole(employeeId,roleId);
     }
 }

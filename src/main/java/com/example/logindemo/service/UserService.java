@@ -4,6 +4,7 @@ import com.example.logindemo.dao.UserDao;
 import com.example.logindemo.dto.AddDto;
 import com.example.logindemo.dto.LoginDto;
 import com.example.logindemo.dto.ReturnDetailValue;
+import com.example.logindemo.dto.ReturnValue;
 import com.example.logindemo.entity.UserEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,7 +25,7 @@ public class UserService {
     @Autowired
     private RedisService redisService;
 
-    public String addUser(AddDto addDto) {
+    public ReturnValue addUser(AddDto addDto) {
         if (userDao.findByAccount(addDto.getAccount()).isEmpty()) {
             UserEntity userEntity = new UserEntity(addDto.getAccount(), DigestUtils.md5DigestAsHex(addDto.getPassWord().getBytes()),
                     addDto.getNickname(), addDto.getEmail(), addDto.getPhone(), System.currentTimeMillis());
@@ -37,7 +38,7 @@ public class UserService {
         }
     }
 
-    public String loginUser(LoginDto loginDTO) {
+    public ReturnValue loginUser(LoginDto loginDTO) {
         loginDTO.setPassWord(DigestUtils.md5DigestAsHex(loginDTO.getPassWord().getBytes()));
         if (userDao.findByAccount(loginDTO.getAccount()).isEmpty()) {
             return returnValueService.failState(USER, LOGIN_ERROR_ACCOUNT, loginDTO.getAccount(), BAD_REQUEST_CODE);

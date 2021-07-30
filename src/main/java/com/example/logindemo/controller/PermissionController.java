@@ -1,6 +1,7 @@
 package com.example.logindemo.controller;
 
 import com.example.logindemo.dto.PermissionDto;
+import com.example.logindemo.dto.ReturnValue;
 import com.example.logindemo.dto.UpdatePermissionDto;
 import com.example.logindemo.service.PermissionService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,18 +20,18 @@ public class PermissionController {
 
 
     @PostMapping("/permissions")
-    public String addPermission(@RequestBody PermissionDto permissionDTO) {
+    public ReturnValue addPermission(@RequestBody PermissionDto permissionDTO) {
         return permissionService.addPermission(permissionDTO.getRoleId(), permissionDTO.getPermissionName());
     }
 
     @PutMapping("/permissions")
-    public String updatePermission(@RequestBody UpdatePermissionDto updatePermissionDTO) {
+    public ReturnValue updatePermission(@RequestBody UpdatePermissionDto updatePermissionDTO) {
         return permissionService.updatePermission(updatePermissionDTO.getRoleId(), updatePermissionDTO.getPermissionName1(),
                 updatePermissionDTO.getPermissionName2());
     }
 
     @DeleteMapping("/permissions")
-    public String deletePermission(@RequestBody PermissionDto permissionDTO) {
+    public ReturnValue deletePermission(@RequestBody PermissionDto permissionDTO) {
         return permissionService.deletePermission(permissionDTO.getRoleId(), permissionDTO.getPermissionName());
     }
 }
