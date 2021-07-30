@@ -34,7 +34,7 @@ public class UserController {
     }
 
     @PostMapping(path = "/users/login")
-    public ReturnValue login(@RequestBody LoginDto loginDto) {
+    public ReturnValue<LoginDto> login(@RequestBody LoginDto loginDto) {
         LoginDto loginDtoFound=userService.findUser(loginDto.getAccount());
         if (null==loginDtoFound) {
             return returnValueService.failState(USER, LOGIN_ERROR_ACCOUNT, loginDto.getAccount(), BAD_REQUEST_CODE);
@@ -43,8 +43,8 @@ public class UserController {
             return returnValueService.failState(USER, LOGIN_ERROR_PASSWORD, loginDto.getAccount(), BAD_REQUEST_CODE);
         }
         else {
-            ReturnDetailValue returnDetailValue = new ReturnDetailValue(loginDto.getAccount());
-            return returnValueService.succeedState(LOGIN_SUCCEED, returnDetailValue);
+            return ReturnValue.success(loginDtoFound);
+            //return returnValueService.succeedState(LOGIN_SUCCEED, returnDetailValue);
         }
     }
 }
