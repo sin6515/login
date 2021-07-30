@@ -15,19 +15,14 @@ import static com.example.logindemo.dto.ConstantValue.*;
  */
 @Service
 public class ReturnValueService {
-
-    public String succeedState(String object, String message, Object detail, Integer code) {
-        ReturnDetailValue returnDetailValue;
+    public String succeedState(String message, ReturnDetailValue returnDetailValue ) {
         ReturnValue returnValue;
-        if (detail instanceof Integer) {
-            returnDetailValue = new ReturnDetailValue(Integer.parseInt(detail.toString()));
-        } else {
-            returnDetailValue = new ReturnDetailValue(String.valueOf(detail));
-        }
-        returnValue = new ReturnValue(SUCCEED, code, message, returnDetailValue);
+        returnValue = new ReturnValue(SUCCEED, OK_CODE, message, returnDetailValue);
         String jsonStr = JSON.toJSONString(returnValue, SerializerFeature.PrettyFormat);
         return jsonStr;
     }
+
+
 
     public String succeedFindState(UserEntity userEntity) {
         ReturnDetailValue returnDetailValue = new ReturnDetailValue(userEntity);
@@ -40,7 +35,6 @@ public class ReturnValueService {
         ReturnDetailValue returnDetailValue;
         ReturnValue returnValue;
         String error;
-
         if (NO_LOGIN_CODE.equals(code)) {
             returnDetailValue = new ReturnDetailValue((Integer) detail, NO_LOGIN_STATE);
             returnValue = new ReturnValue(FAILED, NO_LOGIN, code, message, returnDetailValue);
@@ -54,11 +48,10 @@ public class ReturnValueService {
                 returnDetailValue = new ReturnDetailValue(String.valueOf(detail), NO_EXIST);
             }
             returnValue = new ReturnValue(FAILED, NOT_FOUND, code, message, returnDetailValue);
-        } else if (ERROR_INPUT_CODE.equals(code)){
+        } else if (ERROR_INPUT_CODE.equals(code)) {
             returnDetailValue = new ReturnDetailValue((String) detail, ERROR_INPUT_STATE);
             returnValue = new ReturnValue(FAILED, ERROR_INPUT, code, message, returnDetailValue);
-        }
-            else if (message.equals(ADD_FAILED)) {
+        } else if (message.equals(ADD_FAILED)) {
             if (PERMISSION.equals(object) && code.equals(REPEAT_ASK_CODE)) {
                 returnDetailValue = new ReturnDetailValue(String.valueOf(detail), ADD_PERMISSION_ERROR);
                 error = REPEAT_ASK;

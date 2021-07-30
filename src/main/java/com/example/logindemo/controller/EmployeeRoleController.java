@@ -19,7 +19,7 @@ public class EmployeeRoleController {
     public String addEmployeeRole(@PathVariable("employeeId") Integer employeeId, @PathVariable("roleId") Integer roleId) {
         return employeeRoleService.addEmployeeRole(employeeId,roleId);
     }
-    @PutMapping("/employee-roles")
+    @PutMapping("/employees-roles")
     public String updatePermission(@RequestBody UpdateEmployeeRoleDto updateEmployeeRoleDto) {
         return employeeRoleService.updateEmployeeRole(updateEmployeeRoleDto.getEmployeeId(),updateEmployeeRoleDto.getRoleId1(),
                 updateEmployeeRoleDto.getRoleId2());

@@ -3,13 +3,13 @@ package com.example.logindemo.service;
 import com.example.logindemo.dao.UserDao;
 import com.example.logindemo.dto.AddDto;
 import com.example.logindemo.dto.LoginDto;
+import com.example.logindemo.dto.ReturnDetailValue;
 import com.example.logindemo.entity.UserEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
 import static com.example.logindemo.dto.ConstantValue.*;
-import static com.example.logindemo.dto.ConstantValue.OK_CODE;
 
 /**
  * @author hrh13
@@ -23,13 +23,15 @@ public class UserService {
     private ReturnValueService returnValueService;
     @Autowired
     private RedisService redisService;
+
     public String addUser(AddDto addDto) {
         if (userDao.findByAccount(addDto.getAccount()).isEmpty()) {
             UserEntity userEntity = new UserEntity(addDto.getAccount(), DigestUtils.md5DigestAsHex(addDto.getPassWord().getBytes()),
                     addDto.getNickname(), addDto.getEmail(), addDto.getPhone(), System.currentTimeMillis());
             userDao.save(userEntity);
             Integer userId = userDao.findIdByAccount(addDto.getAccount());
-            return returnValueService.succeedState(USER, REGISTER_SUCCEED, userId, OK_CODE);
+            ReturnDetailValue returnDetailValue = new ReturnDetailValue(userId);
+            return returnValueService.succeedState(REGISTER_SUCCEED, returnDetailValue);
         } else {
             return returnValueService.failState(USER, ADD_FAILED, addDto.getAccount(), BAD_REQUEST_CODE);
         }
@@ -44,7 +46,8 @@ public class UserService {
             return returnValueService.failState(USER, LOGIN_ERROR_PASSWORD, loginDTO.getAccount(), BAD_REQUEST_CODE);
         } else {
             redisService.addRedis(loginDTO, USER);
-            return returnValueService.succeedState(USER, LOGIN_SUCCEED, loginDTO.getAccount(), OK_CODE);
+            ReturnDetailValue returnDetailValue = new ReturnDetailValue(loginDTO.getAccount());
+            return returnValueService.succeedState(LOGIN_SUCCEED, returnDetailValue);
         }
     }
 

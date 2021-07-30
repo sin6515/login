@@ -1,6 +1,7 @@
 package com.example.logindemo.service;
 
 import com.example.logindemo.dao.*;
+import com.example.logindemo.dto.ReturnDetailValue;
 import com.example.logindemo.entity.PermissionEntity;
 import com.example.logindemo.entity.RolePermissionEntity;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,7 +62,8 @@ public class PermissionService {
                 if (rolePermissionDao.findByRoleIdAndPermissionId(roleId, permissionId).isEmpty()) {
                     RolePermissionEntity rolePermissionEntity = new RolePermissionEntity(roleId, permissionId, System.currentTimeMillis());
                     rolePermissionDao.save(rolePermissionEntity);
-                    return returnValueService.succeedState(PERMISSION, ADD_SUCCEED, permissionName, OK_CODE);
+                    ReturnDetailValue returnDetailValue = new ReturnDetailValue(permissionName);
+                    return returnValueService.succeedState(ADD_SUCCEED,     returnDetailValue);
                 } else {
                     return returnValueService.failState(PERMISSION, ADD_FAILED, permissionName, REPEAT_ASK_CODE);
                 }
@@ -69,7 +71,7 @@ public class PermissionService {
                 return returnValueService.failState(PERMISSION, ADD_FAILED, roleId, NOT_FOUND_CODE);
             }
         } else {
-            return returnValueService.failState(PERMISSION, ADD_FAILED,permissionName, ERROR_INPUT_CODE);
+            return returnValueService.failState(PERMISSION, ADD_FAILED, permissionName, ERROR_INPUT_CODE);
         }
 
     }
@@ -82,16 +84,17 @@ public class PermissionService {
                 Integer permissionId = permissionDao.findIdByPermissionName(permissionName);
                 if (!rolePermissionDao.findByRoleIdAndPermissionId(roleId, permissionId).isEmpty()) {
                     rolePermissionDao.deleteByRoleIdAndPermissionId(roleId, permissionId);
-                    return returnValueService.succeedState(PERMISSION, DELETE_SUCCEED, permissionName, OK_CODE);
+                    ReturnDetailValue returnDetailValue = new ReturnDetailValue(permissionName);
+                    return returnValueService.succeedState(DELETE_SUCCEED,     returnDetailValue);
                 } else {
-                    return returnValueService.failState(PERMISSION,  DELETE_FAILED, permissionName, FORBIDDEN_CODE);
+                    return returnValueService.failState(PERMISSION, DELETE_FAILED, permissionName, FORBIDDEN_CODE);
 
                 }
             } else {
-                return returnValueService.failState(PERMISSION, DELETE_FAILED,roleId, NOT_FOUND_CODE);
+                return returnValueService.failState(PERMISSION, DELETE_FAILED, roleId, NOT_FOUND_CODE);
             }
         } else {
-            return returnValueService.failState(PERMISSION, DELETE_FAILED,permissionName, ERROR_INPUT_CODE);
+            return returnValueService.failState(PERMISSION, DELETE_FAILED, permissionName, ERROR_INPUT_CODE);
         }
 
     }
@@ -112,15 +115,16 @@ public class PermissionService {
                     Integer permissionId2 = permissionDao.findIdByPermissionName(permissionName2);
                     rolePermissionDao.updatePermissionId2ByRoleIdAndPermissionId1(permissionId2, System.currentTimeMillis(),
                             roleId, permissionId1);
-                    return returnValueService.succeedState(ROLE, UPDATE_SUCCEED, permissionName2, OK_CODE);
+                    ReturnDetailValue returnDetailValue = new ReturnDetailValue(permissionName2);
+                    return returnValueService.succeedState(UPDATE_SUCCEED,     returnDetailValue);
                 } else {
-                    return returnValueService.failState(PERMISSION, UPDATE_FAILED,permissionName1, NOT_FOUND_CODE);
+                    return returnValueService.failState(PERMISSION, UPDATE_FAILED, permissionName1, NOT_FOUND_CODE);
                 }
             } else {
-                return returnValueService.failState(PERMISSION, UPDATE_FAILED,roleId, NOT_FOUND_CODE);
+                return returnValueService.failState(PERMISSION, UPDATE_FAILED, roleId, NOT_FOUND_CODE);
             }
         } else {
-            return returnValueService.failState(PERMISSION, UPDATE_FAILED,permissionName1+" and "+permissionName2, ERROR_INPUT_CODE);
+            return returnValueService.failState(PERMISSION, UPDATE_FAILED, permissionName1 + " and " + permissionName2, ERROR_INPUT_CODE);
         }
 
     }

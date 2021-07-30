@@ -1,10 +1,13 @@
 spring.jpa.hibernate.ddl-auto: update
+
 spring.datasource.url: jdbc:mysql://localhost:3306/login
 spring.datasource.username: root
 spring.datasource.password: root
 #spring.datasource.driver-class-name: com.mysql.jdbc.Driver
 #spring.jpa.show-sql: true
 spring:
+  jpa:
+    open-in-view: false
   redis:
     port: 6379
     host: 192.168.1.149
