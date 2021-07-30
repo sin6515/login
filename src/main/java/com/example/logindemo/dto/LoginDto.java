@@ -8,11 +8,15 @@ import lombok.Data;
  * @date 2021/7/16
  */
 @Data
-@JSONType(orders = {"id","account","passWord","gmtCreate"})
+@JSONType(orders = {"account","passWord"})
 public class LoginDto {
-    private Integer id;
     private String account;
     private String passWord;
-    private long gmtCreate;
 
+    public LoginDto(String account, String passWord) {
+        setAccount(account);
+        setPassWord(passWord);
+    }
+    public LoginDto() {
+    }
 }

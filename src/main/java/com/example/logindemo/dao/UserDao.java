@@ -1,5 +1,6 @@
 package com.example.logindemo.dao;
 
+import com.example.logindemo.dto.LoginDto;
 import com.example.logindemo.entity.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -15,8 +16,8 @@ import java.util.List;
  */
 @Repository
 public interface UserDao extends JpaRepository<UserEntity, Integer> {
-    public List<UserEntity> findByAccount(String account);
-    public List<UserEntity> findByAccountAndPassWord(String account,String pd);
+    public UserEntity findByAccount(String account);
+    public List<LoginDto> findByAccountAndPassWord(String account,String pd);
 
     @Override
     public void deleteById(Integer id);
