@@ -25,42 +25,23 @@ public class UserService {
     @Autowired
     private RedisService redisService;
 
-    public ReturnValue addUser(AddDto addDto) {
-        if (userDao.findByAccount(addDto.getAccount())==null) {
-            UserEntity userEntity = new UserEntity(addDto.getAccount(), DigestUtils.md5DigestAsHex(addDto.getPassWord().getBytes()),
-                    addDto.getNickname(), addDto.getEmail(), addDto.getPhone(), System.currentTimeMillis());
-            userDao.save(userEntity);
-            Integer userId = userDao.findIdByAccount(addDto.getAccount());
-            ReturnDetailValue returnDetailValue = new ReturnDetailValue(userId);
-            return returnValueService.succeedState(REGISTER_SUCCEED, returnDetailValue);
-        } else {
-            return returnValueService.failState(USER, REGISTER_FAILED, addDto.getAccount(), REPEAT_ASK_CODE);
-        }
+    public UserEntity addUser(AddDto addDto) {
+        UserEntity userEntity = new UserEntity(addDto.getAccount(), DigestUtils.md5DigestAsHex(addDto.getPassWord().getBytes()),
+                addDto.getNickname(), addDto.getEmail(), addDto.getPhone(), System.currentTimeMillis());
+        userDao.save(userEntity);
+        return userEntity;
     }
+
     public LoginDto findUser(String account) {
 
-        if (userDao.findByAccount(account)==null){
+        if (userDao.findByAccount(account) == null) {
             return null;
-        }
-        else{
-            LoginDto loginDto=new LoginDto(userDao.findByAccount(account).getAccount(),
+        } else {
+            LoginDto loginDto = new LoginDto(userDao.findByAccount(account).getAccount(),
                     userDao.findByAccount(account).getPassWord());
             return loginDto;
         }
 
     }
-//    public ReturnValue loginUser(LoginDto loginDTO) {
-//        loginDTO.setPassWord(DigestUtils.md5DigestAsHex(loginDTO.getPassWord().getBytes()));
-//        if (userDao.findByAccount(loginDTO.getAccount()).isEmpty()) {
-//            return returnValueService.failState(USER, LOGIN_ERROR_ACCOUNT, loginDTO.getAccount(), BAD_REQUEST_CODE);
-//        } else if (userDao.findByAccountAndPassWord(loginDTO.getAccount(),
-//                loginDTO.getPassWord()).isEmpty()) {
-//            return returnValueService.failState(USER, LOGIN_ERROR_PASSWORD, loginDTO.getAccount(), BAD_REQUEST_CODE);
-//        } else {
-//            redisService.addRedis(loginDTO, USER);
-//            ReturnDetailValue returnDetailValue = new ReturnDetailValue(loginDTO.getAccount());
-//            return returnValueService.succeedState(LOGIN_SUCCEED, returnDetailValue);
-//        }
-//    }
 
 }

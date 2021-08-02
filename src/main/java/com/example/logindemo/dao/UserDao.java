@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author hrh13
@@ -18,7 +19,7 @@ import java.util.List;
 public interface UserDao extends JpaRepository<UserEntity, Integer> {
     public UserEntity findByAccount(String account);
     public List<LoginDto> findByAccountAndPassWord(String account,String pd);
-
+    Optional<UserEntity> findById(Integer id);
     @Override
     public void deleteById(Integer id);
 

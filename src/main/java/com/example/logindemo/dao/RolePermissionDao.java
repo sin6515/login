@@ -17,7 +17,7 @@ import java.util.List;
 public interface RolePermissionDao extends JpaRepository<RolePermissionEntity, Integer> {
     @Query("select permissionId from RolePermissionEntity where roleId=?1")
     List<Integer> findPermissionIdByRoleId(Integer roleId);
-    List<RolePermissionEntity> findByRoleIdAndPermissionId(Integer roleId,Integer permissionId);
+    RolePermissionEntity findByRoleIdAndPermissionId(Integer roleId,Integer permissionId);
     @Transactional
     void deleteByRoleIdAndPermissionId(Integer roleId, Integer permissionId);
 

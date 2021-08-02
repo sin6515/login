@@ -2,6 +2,9 @@ package com.example.logindemo.dto;
 
 import lombok.Data;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @author hrh13
  * @date 2021/7/26
@@ -23,4 +26,16 @@ public class ConstantValue {
             REPEAT_ASK = "Repeat Ask", REPEAT_ASK_STATE = "对象已存在！";
     public static final Integer ZERO = 0, OK_CODE = 200, BAD_REQUEST_CODE = 400, FORBIDDEN_CODE = 403, NOT_FOUND_CODE = 404,
             NO_LOGIN_CODE = 411, REPEAT_ASK_CODE = 412, ERROR_INPUT_CODE = 413, TIME_OUT = 3;
+    public static final Map<Integer, String> errorMap;
+
+    static {
+        errorMap = new HashMap<>();
+        errorMap.put(BAD_REQUEST_CODE, BAD_REQUEST);
+        errorMap.put(FORBIDDEN_CODE, FORBIDDEN);
+        errorMap.put(NOT_FOUND_CODE, NOT_FOUND);
+        errorMap.put(NO_LOGIN_CODE, NO_LOGIN);
+        errorMap.put(REPEAT_ASK_CODE, REPEAT_ASK);
+        errorMap.put(ERROR_INPUT_CODE, ERROR_INPUT);
+    }
+
 }

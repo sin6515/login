@@ -2,6 +2,7 @@ package com.example.logindemo.entity;
 
 
 import com.alibaba.fastjson.annotation.JSONType;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -14,6 +15,7 @@ import javax.persistence.*;
 @Data
 @Table(name = "user")
 @JSONType(orders = {"id","account","passWord","nickname","email","phone","gmt_create","gmt_modified"})
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

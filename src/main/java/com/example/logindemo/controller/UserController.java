@@ -4,7 +4,7 @@ import com.example.logindemo.dto.AddDto;
 import com.example.logindemo.dto.LoginDto;
 import com.example.logindemo.dto.ReturnDetailValue;
 import com.example.logindemo.dto.ReturnValue;
-import com.example.logindemo.service.ReturnValueService;
+import com.example.logindemo.service.RedisService;
 import com.example.logindemo.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -26,25 +26,27 @@ public class UserController {
     @Autowired
     private UserService userService;
     @Autowired
-    private ReturnValueService returnValueService;
-
+    private RedisService redisService;
     @PostMapping("/users")
     public ReturnValue add(@RequestBody AddDto addDto) {
-        return userService.addUser(addDto);
+        LoginDto loginDtoFound = userService.findUser(addDto.getAccount());
+        if (null == loginDtoFound) {
+            return ReturnValue.success(userService.addUser(addDto));
+        } else {
+            return ReturnValue.fail(REPEAT_ASK_CODE, ADD_EXISTS, loginDtoFound);
+        }
     }
 
     @PostMapping(path = "/users/login")
     public ReturnValue<LoginDto> login(@RequestBody LoginDto loginDto) {
-        LoginDto loginDtoFound=userService.findUser(loginDto.getAccount());
-        if (null==loginDtoFound) {
-            return returnValueService.failState(USER, LOGIN_ERROR_ACCOUNT, loginDto.getAccount(), BAD_REQUEST_CODE);
-        }
-        else if(!loginDtoFound.getPassWord().equals(DigestUtils.md5DigestAsHex(loginDto.getPassWord().getBytes()))){
-            return returnValueService.failState(USER, LOGIN_ERROR_PASSWORD, loginDto.getAccount(), BAD_REQUEST_CODE);
-        }
-        else {
+        LoginDto loginDtoFound = userService.findUser(loginDto.getAccount());
+        if (null == loginDtoFound) {
+            return ReturnValue.fail(NOT_FOUND_CODE, LOGIN_ERROR_ACCOUNT, loginDto);
+        } else if (!loginDtoFound.getPassWord().equals(DigestUtils.md5DigestAsHex(loginDto.getPassWord().getBytes()))) {
+            return ReturnValue.fail(BAD_REQUEST_CODE, LOGIN_ERROR_PASSWORD, loginDto);
+        } else {
+            redisService.addRedis(loginDtoFound, USER);
             return ReturnValue.success(loginDtoFound);
-            //return returnValueService.succeedState(LOGIN_SUCCEED, returnDetailValue);
         }
     }
 }

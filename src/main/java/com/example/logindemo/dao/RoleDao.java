@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import javax.transaction.Transactional;
+import java.util.Optional;
 
 /**
  * @author hrh13
@@ -14,6 +15,9 @@ import javax.transaction.Transactional;
  */
 @Repository
 public interface RoleDao extends JpaRepository<RoleEntity, Integer> {
+    RoleEntity findByRoleName(String roleName);
+
+    Optional<RoleEntity> findById(Integer roleId);
     @Query("select id from RoleEntity where roleName=?1")
     Integer findIdByRoleName(String roleName);
     @Query("select roleName from RoleEntity where id=?1")

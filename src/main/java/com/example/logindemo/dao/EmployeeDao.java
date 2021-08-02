@@ -15,7 +15,7 @@ import java.util.List;
  */
 @Repository
 public interface EmployeeDao extends JpaRepository<EmployeeEntity, Integer> {
-    public List<EmployeeEntity> findByAccount(String account);
+    public EmployeeEntity findByAccount(String account);
 
     public List<EmployeeEntity> findByAccountAndPassWord(String account, String pd);
 
