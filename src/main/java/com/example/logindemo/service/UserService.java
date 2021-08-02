@@ -16,10 +16,6 @@ import org.springframework.util.DigestUtils;
 public class UserService {
     @Autowired
     private UserDao userDao;
-    @Autowired
-    private ReturnValueService returnValueService;
-    @Autowired
-    private RedisService redisService;
 
     public UserEntity addUser(AddDto addDto) {
         UserEntity userEntity = new UserEntity(addDto.getAccount(), DigestUtils.md5DigestAsHex(addDto.getPassWord().getBytes()),

@@ -18,14 +18,7 @@ import org.springframework.util.DigestUtils;
 public class EmployeeService {
     @Autowired
     private EmployeeDao employeeDao;
-    @Autowired
-    private PermissionService permissionService;
-    @Autowired
     private UserDao userDao;
-    @Autowired
-    private ReturnValueService returnValueService;
-    @Autowired
-    private RedisService redisService;
 
     public EmployeeEntity addEmployee(AddDto addDto) {
         EmployeeEntity employeeEntity = new EmployeeEntity(addDto.getAccount(), DigestUtils.md5DigestAsHex(addDto.getPassWord().getBytes()),
