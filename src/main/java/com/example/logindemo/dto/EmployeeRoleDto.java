@@ -7,11 +7,11 @@ import lombok.Data;
  * @date 2021/8/2
  */
 @Data
-public class FindEmployeeRoleDto {
+public class EmployeeRoleDto {
     Integer employeeId;
     Integer roleId;
 
-    public FindEmployeeRoleDto( Integer employeeId, Integer roleId) {
+    public EmployeeRoleDto(Integer employeeId, Integer roleId) {
         setEmployeeId(employeeId);
         setRoleId(roleId);
     }

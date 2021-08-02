@@ -4,10 +4,9 @@ import lombok.Data;
 
 /**
  * @author hrh13
- * @date 2021/8/2
+ * @date 2021/7/27
  */
 @Data
-public class DeleteRoleDto {
-    Integer roleId;
+public class RoleNameDto {
     String roleName;
 }

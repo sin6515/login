@@ -4,15 +4,11 @@ import com.example.logindemo.dao.EmployeeDao;
 import com.example.logindemo.dao.UserDao;
 import com.example.logindemo.dto.AddDto;
 import com.example.logindemo.dto.LoginDto;
-import com.example.logindemo.dto.ReturnDetailValue;
-import com.example.logindemo.dto.ReturnValue;
 import com.example.logindemo.entity.EmployeeEntity;
 import com.example.logindemo.entity.UserEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
-
-import static com.example.logindemo.dto.ConstantValue.*;
 
 /**
  * @author hrh13

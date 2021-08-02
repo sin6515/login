@@ -89,12 +89,12 @@ public class EmployeeController {
     }
 
     @PutMapping("/employees/{employeeId}/users/{userId}")
-    public ReturnValue update(@PathVariable("employeeId") Integer employeeId, @PathVariable("userId") Integer userId, @RequestBody UpdateDto updateDTO) {
+    public ReturnValue update(@PathVariable("employeeId") Integer employeeId, @PathVariable("userId") Integer userId, @RequestBody UpdatePassWordDto updatePassWordDTO) {
         if (redisService.hasKey(employeeId)) {
             if (permissionService.findIsPermission(UPDATE, employeeId)) {
                 UserEntity userEntity = employeeService.findUser(userId);
                 if (userEntity != null) {
-                    return ReturnValue.success(employeeService.updateUser(userId, updateDTO.getPassWord()));
+                    return ReturnValue.success(employeeService.updateUser(userId, updatePassWordDTO.getPassWord()));
                 } else {
                     return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, userId);
                 }

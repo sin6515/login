@@ -1,10 +1,6 @@
 package com.example.logindemo.service;
 
-import com.example.logindemo.dto.ReturnDetailValue;
-import com.example.logindemo.dto.ReturnValue;
 import org.springframework.stereotype.Service;
-
-import static com.example.logindemo.dto.ConstantValue.*;
 
 /**
  * @author hrh13

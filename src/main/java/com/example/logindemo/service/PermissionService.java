@@ -2,18 +2,12 @@ package com.example.logindemo.service;
 
 import com.example.logindemo.dao.EmployeeRoleDao;
 import com.example.logindemo.dao.PermissionDao;
-import com.example.logindemo.dao.RoleDao;
 import com.example.logindemo.dao.RolePermissionDao;
-import com.example.logindemo.dto.ReturnDetailValue;
-import com.example.logindemo.dto.ReturnValue;
-import com.example.logindemo.dto.RoleDto;
 import com.example.logindemo.dto.RolePermissionDto;
 import com.example.logindemo.entity.PermissionEntity;
 import com.example.logindemo.entity.RolePermissionEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import static com.example.logindemo.dto.ConstantValue.*;
 
 /**
  * @author hrh13

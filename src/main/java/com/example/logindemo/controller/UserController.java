@@ -2,7 +2,6 @@ package com.example.logindemo.controller;
 
 import com.example.logindemo.dto.AddDto;
 import com.example.logindemo.dto.LoginDto;
-import com.example.logindemo.dto.ReturnDetailValue;
 import com.example.logindemo.dto.ReturnValue;
 import com.example.logindemo.service.RedisService;
 import com.example.logindemo.service.UserService;

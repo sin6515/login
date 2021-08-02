@@ -1,8 +1,8 @@
 package com.example.logindemo.controller;
 
-import com.example.logindemo.dto.DeleteRoleDto;
+import com.example.logindemo.dto.RoleIdNameDto;
 import com.example.logindemo.dto.ReturnValue;
-import com.example.logindemo.dto.RoleDto;
+import com.example.logindemo.dto.RoleNameDto;
 import com.example.logindemo.service.RoleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -21,18 +21,18 @@ public class RoleController {
     private RoleService roleService;
 
     @PostMapping("/roles")
-    public ReturnValue addRole(@RequestBody RoleDto roleDTO) {
-        RoleDto foundRoleDto = roleService.findByRoleName(roleDTO.getRoleName());
-        if (null == foundRoleDto) {
-            return ReturnValue.success(roleService.addRole(roleDTO.getRoleName()));
+    public ReturnValue addRole(@RequestBody RoleNameDto roleNameDTO) {
+        RoleNameDto foundRoleNameDto = roleService.findByRoleName(roleNameDTO.getRoleName());
+        if (null == foundRoleNameDto) {
+            return ReturnValue.success(roleService.addRole(roleNameDTO.getRoleName()));
         } else {
-            return ReturnValue.fail(REPEAT_ASK_CODE, ADD_EXISTS, foundRoleDto);
+            return ReturnValue.fail(REPEAT_ASK_CODE, ADD_EXISTS, foundRoleNameDto);
         }
     }
 
     @DeleteMapping("/roles/{id}")
     public ReturnValue deletePermission(@PathVariable("id") Integer roleId) {
-        DeleteRoleDto foundRoleDto = roleService.findByRoleId(roleId);
+        RoleIdNameDto foundRoleDto = roleService.findByRoleId(roleId);
         if (null == foundRoleDto) {
             return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, roleId);
         } else {

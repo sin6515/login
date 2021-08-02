@@ -1,8 +1,7 @@
 package com.example.logindemo.controller;
 
-import com.example.logindemo.dto.FindEmployeeRoleDto;
+import com.example.logindemo.dto.EmployeeRoleDto;
 import com.example.logindemo.dto.ReturnValue;
-import com.example.logindemo.dto.RoleDto;
 import com.example.logindemo.dto.UpdateEmployeeRoleDto;
 import com.example.logindemo.service.EmployeeRoleService;
 import com.example.logindemo.service.EmployeeService;
@@ -35,11 +34,11 @@ public class EmployeeRoleController {
         if (redisService.hasKey(employeeId)) {
             if (employeeService.findEmployeeById(employeeId) != null) {
                 if (roleService.findByRoleId(roleId) != null) {
-                    FindEmployeeRoleDto findEmployeeRoleDto = employeeRoleService.findEmployeeRole(employeeId, roleId);
-                    if (null == findEmployeeRoleDto) {
+                    EmployeeRoleDto employeeRoleDto = employeeRoleService.findEmployeeRole(employeeId, roleId);
+                    if (null == employeeRoleDto) {
                         return ReturnValue.success(employeeRoleService.addEmployeeRole(employeeId, roleId));
                     } else {
-                        return ReturnValue.fail(REPEAT_ASK_CODE, ADD_EXISTS, findEmployeeRoleDto);
+                        return ReturnValue.fail(REPEAT_ASK_CODE, ADD_EXISTS, employeeRoleDto);
                     }
                 }
                 return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, roleId);
@@ -59,10 +58,10 @@ public class EmployeeRoleController {
         if (redisService.hasKey(employeeId)) {
             if (employeeService.findEmployeeById(employeeId) != null) {
                 if (roleService.findByRoleId(roleId1) != null && roleService.findByRoleId(roleId2) != null) {
-                    FindEmployeeRoleDto findEmployeeRoleDto1 = employeeRoleService.findEmployeeRole(employeeId, roleId1);
-                    FindEmployeeRoleDto findEmployeeRoleDto2 = employeeRoleService.findEmployeeRole(employeeId, roleId2);
-                    if (null != findEmployeeRoleDto1) {
-                        if (null == findEmployeeRoleDto2) {
+                    EmployeeRoleDto employeeRoleDto1 = employeeRoleService.findEmployeeRole(employeeId, roleId1);
+                    EmployeeRoleDto employeeRoleDto2 = employeeRoleService.findEmployeeRole(employeeId, roleId2);
+                    if (null != employeeRoleDto1) {
+                        if (null == employeeRoleDto2) {
                             employeeRoleService.deleteEmployeeRole(employeeId, roleId1);
                             return ReturnValue.success(employeeRoleService.addEmployeeRole(employeeId, roleId2));
                         } else {
@@ -86,8 +85,8 @@ public class EmployeeRoleController {
         if (redisService.hasKey(employeeId)) {
             if (employeeService.findEmployeeById(employeeId) != null) {
                 if (roleService.findByRoleId(roleId) != null) {
-                    FindEmployeeRoleDto findEmployeeRoleDto = employeeRoleService.findEmployeeRole(employeeId, roleId);
-                    if (null == findEmployeeRoleDto) {
+                    EmployeeRoleDto employeeRoleDto = employeeRoleService.findEmployeeRole(employeeId, roleId);
+                    if (null == employeeRoleDto) {
                         return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, null);
                     } else {
                         return ReturnValue.success(employeeRoleService.deleteEmployeeRole(employeeId, roleId));

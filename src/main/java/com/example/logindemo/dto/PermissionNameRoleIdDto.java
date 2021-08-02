@@ -4,10 +4,10 @@ import lombok.Data;
 
 /**
  * @author hrh13
- * @date 2021/7/27
+ * @date 2021/7/22
  */
 @Data
-public class AddEmployeeRoleDto {
-    private Integer employeeId;
+public class PermissionNameRoleIdDto {
     private Integer roleId;
+    private String permissionName;
 }

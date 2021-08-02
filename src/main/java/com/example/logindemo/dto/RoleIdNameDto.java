@@ -5,10 +5,10 @@ import lombok.EqualsAndHashCode;
 
 /**
  * @author hrh13
- * @date 2021/7/29
+ * @date 2021/8/2
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class UpdateEmployeeRoleDto extends UpdateRoleDto {
-    private Integer employeeId;
+public class RoleIdNameDto extends RoleNameDto {
+    Integer roleId;
 }

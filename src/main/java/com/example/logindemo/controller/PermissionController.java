@@ -23,9 +23,9 @@ public class PermissionController {
     private RoleService roleService;
 
     @PostMapping("/permissions")
-    public ReturnValue addPermission(@RequestBody PermissionDto permissionDTO) {
-        String permissionName = permissionDTO.getPermissionName();
-        Integer roleId = permissionDTO.getRoleId();
+    public ReturnValue addPermission(@RequestBody PermissionNameRoleIdDto permissionNameRoleIdDTO) {
+        String permissionName = permissionNameRoleIdDTO.getPermissionName();
+        Integer roleId = permissionNameRoleIdDTO.getRoleId();
         if (permissionName.equals(ADD) || permissionName.equals(UPDATE) ||
                 permissionName.equals(Find) || permissionName.equals(DELETE)) {
             if (roleService.findByRoleId(roleId) == null) {
@@ -39,7 +39,7 @@ public class PermissionController {
                 }
             }
         } else {
-            return ReturnValue.fail(ERROR_INPUT_CODE, ERROR_INPUT_STATE, permissionDTO);
+            return ReturnValue.fail(ERROR_INPUT_CODE, ERROR_INPUT_STATE, permissionNameRoleIdDTO);
         }
     }
 
@@ -76,9 +76,9 @@ public class PermissionController {
     }
 
     @DeleteMapping("/permissions")
-    public ReturnValue deletePermission(@RequestBody PermissionDto permissionDTO) {
-        String permissionName = permissionDTO.getPermissionName();
-        Integer roleId = permissionDTO.getRoleId();
+    public ReturnValue deletePermission(@RequestBody PermissionNameRoleIdDto permissionNameRoleIdDTO) {
+        String permissionName = permissionNameRoleIdDTO.getPermissionName();
+        Integer roleId = permissionNameRoleIdDTO.getRoleId();
         if (permissionName.equals(ADD) || permissionName.equals(UPDATE) ||
                 permissionName.equals(Find) || permissionName.equals(DELETE)) {
             if (roleService.findByRoleId(roleId) == null) {
@@ -86,13 +86,13 @@ public class PermissionController {
             } else {
                 RolePermissionDto rolePermissionDto = permissionService.findRolePermission(roleId, permissionName);
                 if (null == rolePermissionDto) {
-                    return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, permissionDTO);
+                    return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, permissionNameRoleIdDTO);
                 } else {
                     return ReturnValue.success(permissionService.deletePermission(roleId, permissionName));
                 }
             }
         } else {
-            return ReturnValue.fail(ERROR_INPUT_CODE, ERROR_INPUT_STATE, permissionDTO);
+            return ReturnValue.fail(ERROR_INPUT_CODE, ERROR_INPUT_STATE, permissionNameRoleIdDTO);
         }
     }
 }
