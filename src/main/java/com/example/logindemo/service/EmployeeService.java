@@ -18,6 +18,7 @@ import org.springframework.util.DigestUtils;
 public class EmployeeService {
     @Autowired
     private EmployeeDao employeeDao;
+    @Autowired
     private UserDao userDao;
 
     public EmployeeEntity addEmployee(AddDto addDto) {

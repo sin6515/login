@@ -20,10 +20,6 @@ public class PermissionService {
     @Autowired
     private RolePermissionDao rolePermissionDao;
     @Autowired
-    private RoleService roleService;
-    @Autowired
-    private RedisService redisService;
-    @Autowired
     private EmployeeRoleDao employeeRoleDao;
 
     public boolean findIsPermission(String permissionName, Integer employeeId) {
