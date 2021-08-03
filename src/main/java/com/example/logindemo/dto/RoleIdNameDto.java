@@ -1,5 +1,6 @@
 package com.example.logindemo.dto;
 
+import com.alibaba.fastjson.annotation.JSONType;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -7,8 +8,9 @@ import lombok.EqualsAndHashCode;
  * @author hrh13
  * @date 2021/8/2
  */
-@EqualsAndHashCode(callSuper = true)
 @Data
-public class RoleIdNameDto extends RoleNameDto {
-    Integer roleId;
+@JSONType(orders = {"roleId","roleName"})
+public class RoleIdNameDto {
+    private Integer roleId;
+    private String roleName;
 }

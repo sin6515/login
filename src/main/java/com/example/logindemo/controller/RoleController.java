@@ -3,6 +3,7 @@ package com.example.logindemo.controller;
 import com.example.logindemo.dto.RoleIdNameDto;
 import com.example.logindemo.dto.ReturnValue;
 import com.example.logindemo.dto.RoleNameDto;
+import com.example.logindemo.service.RedisService;
 import com.example.logindemo.service.RoleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -19,12 +20,16 @@ import static com.example.logindemo.dto.ConstantValue.*;
 public class RoleController {
     @Autowired
     private RoleService roleService;
+    @Autowired
+    private RedisService redisService;
 
     @PostMapping("/roles")
     public ReturnValue addRole(@RequestBody RoleNameDto roleNameDTO) {
-        RoleNameDto foundRoleNameDto = roleService.findByRoleName(roleNameDTO.getRoleName());
+        RoleIdNameDto foundRoleNameDto = roleService.findByRoleName(roleNameDTO.getRoleName());
         if (null == foundRoleNameDto) {
-            return ReturnValue.success(roleService.addRole(roleNameDTO.getRoleName()));
+            roleService.addRole(roleNameDTO.getRoleName());
+            return ReturnValue.success(redisService.registerRoleRedis(roleNameDTO)
+            );
         } else {
             return ReturnValue.fail(REPEAT_ASK_CODE, ADD_EXISTS, foundRoleNameDto);
         }
@@ -36,6 +41,7 @@ public class RoleController {
         if (null == foundRoleDto) {
             return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, roleId);
         } else {
+            redisService.deleteRedis(roleId,ROLE);
             return ReturnValue.success(roleService.deleteRole(roleId));
         }
     }

@@ -3,9 +3,12 @@ package com.example.logindemo.service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.example.logindemo.dao.EmployeeDao;
+import com.example.logindemo.dao.RoleDao;
 import com.example.logindemo.dao.UserDao;
 import com.example.logindemo.dto.LoginDto;
 import com.example.logindemo.dto.RedisDto;
+import com.example.logindemo.dto.RoleNameDto;
+import com.example.logindemo.dto.RolePermissionRedisDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -27,13 +30,17 @@ public class RedisService {
     private UserDao userDao;
     @Autowired
     private EmployeeDao employeeDao;
+    @Autowired
+    private RoleService roleService;
     private String key;
 
     public String returnKey(Integer id, String redisName) {
         if (EMPLOYEE.equals(redisName)) {
             key = REDIS_EMPLOYEE + id;
-        } else {
+        } else if (USER.equals(redisName)) {
             key = REDIS_USER + id;
+        } else {
+            key = REDIS_ROLE + id;
         }
         return key;
     }
@@ -52,6 +59,22 @@ public class RedisService {
             stringRedisTemplate.opsForValue().set(key, jsonStr);
             stringRedisTemplate.expire(key, TIME_OUT, TimeUnit.DAYS);
             deleteLock();
+        }
+    }
+
+    public RolePermissionRedisDto registerRoleRedis(RoleNameDto roleNameDto) {
+        if (addLock()) {
+            Integer roleId = roleService.findByRoleName(roleNameDto.getRoleName()).getRoleId();
+            String roleName = roleService.findByRoleName(roleNameDto.getRoleName()).getRoleName();
+            RolePermissionRedisDto redisDto = new RolePermissionRedisDto(roleId, roleName, null);
+            key = REDIS_ROLE + roleId;
+            String jsonStr = JSON.toJSONString(redisDto);
+            stringRedisTemplate.opsForValue().set(key, jsonStr);
+            stringRedisTemplate.expire(key, TIME_OUT, TimeUnit.DAYS);
+            deleteLock();
+            return redisDto;
+        } else {
+            return null;
         }
     }
 

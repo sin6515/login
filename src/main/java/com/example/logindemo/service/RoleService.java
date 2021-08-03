@@ -28,13 +28,14 @@ public class RoleService {
         return roleEntity;
     }
 
-    public RoleNameDto findByRoleName(String roleName) {
+    public RoleIdNameDto findByRoleName(String roleName) {
         if (roleDao.findByRoleName(roleName) == null) {
             return null;
         } else {
-            RoleNameDto roleNameDto = new RoleNameDto();
-            roleNameDto.setRoleName(roleName);
-            return roleNameDto;
+            RoleIdNameDto roleIdNameDto = new RoleIdNameDto();
+            roleIdNameDto.setRoleId(roleDao.findByRoleName(roleName).getId());
+            roleIdNameDto.setRoleName(roleName);
+            return roleIdNameDto;
         }
     }
 
@@ -43,7 +44,7 @@ public class RoleService {
             return null;
         } else {
             RoleIdNameDto roleIdNameDto = new RoleIdNameDto();
-            roleIdNameDto.setRoleId(roleDao.findById(roleId).get().getId());
+            roleIdNameDto.setRoleId(roleId);
             roleIdNameDto.setRoleName(roleDao.findById(roleId).get().getRoleName());
             return roleIdNameDto;
         }
