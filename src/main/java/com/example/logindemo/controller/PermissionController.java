@@ -2,6 +2,7 @@ package com.example.logindemo.controller;
 
 import com.example.logindemo.dto.*;
 import com.example.logindemo.service.PermissionService;
+import com.example.logindemo.service.RedisService;
 import com.example.logindemo.service.RoleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -21,6 +22,8 @@ public class PermissionController {
     private PermissionService permissionService;
     @Autowired
     private RoleService roleService;
+    @Autowired
+    private RedisService redisService;
 
     @PostMapping("/permissions")
     public ReturnValue addPermission(@RequestBody PermissionNameRoleIdDto permissionNameRoleIdDTO) {
@@ -33,7 +36,8 @@ public class PermissionController {
             } else {
                 RolePermissionDto rolePermissionDto = permissionService.findRolePermission(roleId, permissionName);
                 if (null == rolePermissionDto) {
-                    return ReturnValue.success(permissionService.addPermission(roleId, permissionName));
+                    permissionService.addPermission(roleId, permissionName);
+                    return ReturnValue.success(redisService.updatePermissionRedis(roleId));
                 } else {
                     return ReturnValue.fail(REPEAT_ASK_CODE, ADD_EXISTS, rolePermissionDto);
                 }
@@ -63,7 +67,8 @@ public class PermissionController {
                     RolePermissionDto rolePermissionDto2 = permissionService.findRolePermission(roleId, permissionName2);
                     if (null == rolePermissionDto2) {
                         permissionService.deletePermission(roleId, permissionName1);
-                        return ReturnValue.success(permissionService.addPermission(roleId, permissionName2));
+                        permissionService.addPermission(roleId, permissionName2);
+                        return ReturnValue.success(redisService.updatePermissionRedis(roleId));
                     } else {
                         return ReturnValue.fail(REPEAT_ASK_CODE, ADD_EXISTS, updatePermissionDTO);
                     }
@@ -88,7 +93,8 @@ public class PermissionController {
                 if (null == rolePermissionDto) {
                     return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, permissionNameRoleIdDTO);
                 } else {
-                    return ReturnValue.success(permissionService.deletePermission(roleId, permissionName));
+                    permissionService.deletePermission(roleId, permissionName);
+                    return ReturnValue.success(redisService.updatePermissionRedis(roleId));
                 }
             }
         } else {

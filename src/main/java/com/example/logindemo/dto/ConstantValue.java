@@ -20,7 +20,7 @@ public class ConstantValue {
             NOT_FOUND = "Not Found", NO_LOGIN = "No Login", NO_LOGIN_STATE = "帐号未登录！",
             REPEAT_ASK = "Repeat Ask", REPEAT_ASK_STATE = "对象已存在！";
     public static final Integer OK_CODE = 200, BAD_REQUEST_CODE = 400, FORBIDDEN_CODE = 403, NOT_FOUND_CODE = 404,
-            NO_LOGIN_CODE = 411, REPEAT_ASK_CODE = 412, ERROR_INPUT_CODE = 413, TIME_OUT = 3,LOCK_TIME_OUT=10;
+            NO_LOGIN_CODE = 411, REPEAT_ASK_CODE = 412, ERROR_INPUT_CODE = 413, TIME_OUT = 3,LOCK_TIME_OUT=10,PERMISSION_SIZE=5;
     public static final Map<Integer, String> errorMap;
 
     static {

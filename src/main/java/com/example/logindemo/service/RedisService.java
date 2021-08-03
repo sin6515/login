@@ -2,9 +2,7 @@ package com.example.logindemo.service;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.example.logindemo.dao.EmployeeDao;
-import com.example.logindemo.dao.RoleDao;
-import com.example.logindemo.dao.UserDao;
+import com.example.logindemo.dao.*;
 import com.example.logindemo.dto.LoginDto;
 import com.example.logindemo.dto.RedisDto;
 import com.example.logindemo.dto.RoleNameDto;
@@ -13,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static com.example.logindemo.dto.ConstantValue.*;
@@ -32,6 +32,10 @@ public class RedisService {
     private EmployeeDao employeeDao;
     @Autowired
     private RoleService roleService;
+    @Autowired
+    private RolePermissionDao rolePermissionDao;
+    @Autowired
+    private PermissionDao permissionDao;
     private String key;
 
     public String returnKey(Integer id, String redisName) {
@@ -67,6 +71,27 @@ public class RedisService {
             Integer roleId = roleService.findByRoleName(roleNameDto.getRoleName()).getRoleId();
             String roleName = roleService.findByRoleName(roleNameDto.getRoleName()).getRoleName();
             RolePermissionRedisDto redisDto = new RolePermissionRedisDto(roleId, roleName, null);
+            key = REDIS_ROLE + roleId;
+            String jsonStr = JSON.toJSONString(redisDto);
+            stringRedisTemplate.opsForValue().set(key, jsonStr);
+            stringRedisTemplate.expire(key, TIME_OUT, TimeUnit.DAYS);
+            deleteLock();
+            return redisDto;
+        } else {
+            return null;
+        }
+    }
+
+    public RolePermissionRedisDto updatePermissionRedis(Integer roleId) {
+        if (addLock()) {
+            Map<Integer, String> permission = new HashMap<>(PERMISSION_SIZE);
+            for (int i = 0; i < rolePermissionDao.findPermissionIdByRoleId(roleId).size(); i++) {
+                Integer permissionId = rolePermissionDao.findPermissionIdByRoleId(roleId).get(i);
+                String permissionName = permissionDao.findById(permissionId).get().getPermissionName();
+                permission.put(permissionId, permissionName);
+            }
+            String roleName = roleService.findByRoleId(roleId).getRoleName();
+            RolePermissionRedisDto redisDto = new RolePermissionRedisDto(roleId, roleName, permission);
             key = REDIS_ROLE + roleId;
             String jsonStr = JSON.toJSONString(redisDto);
             stringRedisTemplate.opsForValue().set(key, jsonStr);
