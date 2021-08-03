@@ -26,6 +26,7 @@ public class UserController {
     private UserService userService;
     @Autowired
     private RedisService redisService;
+
     @PostMapping("/users")
     public ReturnValue add(@RequestBody AddDto addDto) {
         LoginDto loginDtoFound = userService.findUser(addDto.getAccount());

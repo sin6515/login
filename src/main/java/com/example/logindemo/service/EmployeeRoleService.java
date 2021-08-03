@@ -20,7 +20,7 @@ public class EmployeeRoleService {
         if (employeeRoleEntity == null) {
             return null;
         } else {
-            EmployeeRoleDto employeeRoleDto = new EmployeeRoleDto( employeeRoleEntity.getEmployeeId(),
+            EmployeeRoleDto employeeRoleDto = new EmployeeRoleDto(employeeRoleEntity.getEmployeeId(),
                     employeeRoleEntity.getRoleId());
             return employeeRoleDto;
 

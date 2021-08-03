@@ -29,8 +29,8 @@ public class RedisService {
 
     public void addRedis(LoginDto loginDtO, String name) {
         String id;
-        RedisDto redisDto=new RedisDto(loginDtO.getAccount(),
-                loginDtO.getPassWord(),System.currentTimeMillis());
+        RedisDto redisDto = new RedisDto(loginDtO.getAccount(),
+                loginDtO.getPassWord(), System.currentTimeMillis());
         if (name.equals(USER)) {
             redisDto.setId(userDao.findIdByAccount(redisDto.getAccount()));
             id = REDIS_USER + redisDto.getId();
@@ -44,7 +44,7 @@ public class RedisService {
     }
 
     public boolean hasKey(Integer id) {
-        String key = "login_employee:" + id;
+        String key = REDIS_EMPLOYEE + id;
         return stringRedisTemplate.hasKey(key);
     }
 }

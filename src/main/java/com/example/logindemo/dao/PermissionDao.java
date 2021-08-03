@@ -22,11 +22,4 @@ public interface PermissionDao extends JpaRepository<PermissionEntity, Integer> 
     @Query("select id from PermissionEntity where permissionName=?1")
     Integer findIdByPermissionName(String account);
 
-    @Transactional
-    void deleteByPermissionNameAndPermissionLv(String permissionName, Integer lv);
-
-    @Transactional
-    @Modifying
-    @Query("update PermissionEntity d set d.permissionName=?1 , d.gmt_modified=?2 where d.id=?3")
-    void updatePermissionNameById(String name2, long modfied, Integer id);
 }
