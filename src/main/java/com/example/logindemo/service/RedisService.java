@@ -27,7 +27,7 @@ public class RedisService {
     private UserDao userDao;
     @Autowired
     private EmployeeDao employeeDao;
-    private String key, value;
+    private String key;
 
     public String returnKey(Integer id, String redisName) {
         if (EMPLOYEE.equals(redisName)) {
@@ -39,35 +39,59 @@ public class RedisService {
     }
 
     public void addRedis(LoginDto loginDtO, String redisName) {
-        RedisDto redisDto = new RedisDto(loginDtO.getAccount(),
-                loginDtO.getPassWord(), System.currentTimeMillis());
-        if (USER.equals(redisName)) {
-            redisDto.setId(userDao.findIdByAccount(redisDto.getAccount()));
-        } else {
-            redisDto.setId(employeeDao.findIdByAccount(redisDto.getAccount()));
+        if (addLock()) {
+            RedisDto redisDto = new RedisDto(loginDtO.getAccount(),
+                    loginDtO.getPassWord(), System.currentTimeMillis());
+            if (USER.equals(redisName)) {
+                redisDto.setId(userDao.findIdByAccount(redisDto.getAccount()));
+            } else {
+                redisDto.setId(employeeDao.findIdByAccount(redisDto.getAccount()));
+            }
+            key = returnKey(redisDto.getId(), redisName);
+            String jsonStr = JSON.toJSONString(redisDto);
+            stringRedisTemplate.opsForValue().set(key, jsonStr);
+            stringRedisTemplate.expire(key, TIME_OUT, TimeUnit.DAYS);
+            deleteLock();
         }
-        key = returnKey(redisDto.getId(), redisName);
-        String jsonStr = JSON.toJSONString(redisDto);
-        stringRedisTemplate.opsForValue().set(key, jsonStr);
-        stringRedisTemplate.expire(key, TIME_OUT, TimeUnit.DAYS);
     }
 
     public void deleteRedis(Integer id, String redisName) {
-        stringRedisTemplate.delete(returnKey(id, redisName));
+        if (addLock()) {
+            stringRedisTemplate.delete(returnKey(id, redisName));
+            deleteLock();
+        }
     }
 
 
     public RedisDto findRedis(Integer id, String redisName) {
-        value = stringRedisTemplate.opsForValue().get(returnKey(id, redisName));
-        JSONObject jsonObject = JSON.parseObject(value);
-        RedisDto redisDto = new RedisDto(jsonObject.getString("id"), jsonObject.getString("account"),
-                jsonObject.getString("passWord"), jsonObject.getString("gmt_creat"));
-        return redisDto;
+        if (addLock()) {
+            String value = stringRedisTemplate.opsForValue().get(returnKey(id, redisName));
+            JSONObject jsonObject = JSON.parseObject(value);
+            RedisDto redisDto = new RedisDto(jsonObject.getString("id"), jsonObject.getString("account"),
+                    jsonObject.getString("passWord"), jsonObject.getString("gmt_creat"));
+            deleteLock();
+            return redisDto;
+        } else {
+            return null;
+        }
     }
 
     public boolean hasRedis(Integer id, String redisName) {
-        return stringRedisTemplate.hasKey(returnKey(id, redisName));
+        if (addLock()) {
+            deleteLock();
+            return stringRedisTemplate.hasKey(returnKey(id, redisName));
+        } else {
+            return false;
+        }
     }
 
+    public boolean addLock() {
+        Boolean lock = stringRedisTemplate.opsForValue().setIfAbsent(LOCK_KEY, LOCK_VALUE, LOCK_TIME_OUT, TimeUnit.SECONDS);
+        return lock != null && lock;
+    }
+
+    public void deleteLock() {
+        stringRedisTemplate.delete(LOCK_KEY);
+    }
 
 }
