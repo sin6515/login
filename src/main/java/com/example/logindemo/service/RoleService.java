@@ -42,18 +42,18 @@ public class RoleService {
         if (!roleDao.existsById(roleId)) {
             return null;
         } else {
-            RoleIdNameDto deleteRoleDto = new RoleIdNameDto();
-            deleteRoleDto.setRoleId(roleDao.findById(roleId).get().getId());
-            deleteRoleDto.setRoleName(roleDao.findById(roleId).get().getRoleName());
-            return deleteRoleDto;
+            RoleIdNameDto roleIdNameDto = new RoleIdNameDto();
+            roleIdNameDto.setRoleId(roleDao.findById(roleId).get().getId());
+            roleIdNameDto.setRoleName(roleDao.findById(roleId).get().getRoleName());
+            return roleIdNameDto;
         }
     }
 
     public RoleIdNameDto deleteRole(Integer roleId) {
-        RoleIdNameDto deleteRoleDto = findByRoleId(roleId);
+        RoleIdNameDto roleIdNameDto = findByRoleId(roleId);
         roleDao.deleteById(roleId);
         employeeRoleDao.deleteByRoleId(roleId);
         rolePermissionDao.deleteByRoleId(roleId);
-        return deleteRoleDto;
+        return roleIdNameDto;
     }
 }
