@@ -1,6 +1,7 @@
 package com.example.logindemo.service;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.example.logindemo.dao.EmployeeDao;
 import com.example.logindemo.dao.UserDao;
 import com.example.logindemo.dto.LoginDto;
@@ -26,25 +27,47 @@ public class RedisService {
     private UserDao userDao;
     @Autowired
     private EmployeeDao employeeDao;
+    private String key, value;
 
-    public void addRedis(LoginDto loginDtO, String name) {
-        String id;
+    public String returnKey(Integer id, String redisName) {
+        if (EMPLOYEE.equals(redisName)) {
+            key = REDIS_EMPLOYEE + id;
+        } else {
+            key = REDIS_USER + id;
+        }
+        return key;
+    }
+
+    public void addRedis(LoginDto loginDtO, String redisName) {
         RedisDto redisDto = new RedisDto(loginDtO.getAccount(),
                 loginDtO.getPassWord(), System.currentTimeMillis());
-        if (name.equals(USER)) {
+        if (USER.equals(redisName)) {
             redisDto.setId(userDao.findIdByAccount(redisDto.getAccount()));
-            id = REDIS_USER + redisDto.getId();
         } else {
             redisDto.setId(employeeDao.findIdByAccount(redisDto.getAccount()));
-            id = REDIS_EMPLOYEE + redisDto.getId();
         }
+        key = returnKey(redisDto.getId(), redisName);
         String jsonStr = JSON.toJSONString(redisDto);
-        stringRedisTemplate.opsForValue().set(id, jsonStr);
-        stringRedisTemplate.expire(id, TIME_OUT, TimeUnit.DAYS);
+        stringRedisTemplate.opsForValue().set(key, jsonStr);
+        stringRedisTemplate.expire(key, TIME_OUT, TimeUnit.DAYS);
     }
 
-    public boolean hasKey(Integer id) {
-        String key = REDIS_EMPLOYEE + id;
-        return stringRedisTemplate.hasKey(key);
+    public void deleteRedis(Integer id, String redisName) {
+        stringRedisTemplate.delete(returnKey(id, redisName));
     }
+
+
+    public RedisDto findRedis(Integer id, String redisName) {
+        value = stringRedisTemplate.opsForValue().get(returnKey(id, redisName));
+        JSONObject jsonObject = JSON.parseObject(value);
+        RedisDto redisDto = new RedisDto(jsonObject.getString("id"), jsonObject.getString("account"),
+                jsonObject.getString("passWord"), jsonObject.getString("gmt_creat"));
+        return redisDto;
+    }
+
+    public boolean hasRedis(Integer id, String redisName) {
+        return stringRedisTemplate.hasKey(returnKey(id, redisName));
+    }
+
+
 }

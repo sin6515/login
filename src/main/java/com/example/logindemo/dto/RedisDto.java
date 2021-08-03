@@ -8,7 +8,7 @@ import lombok.Data;
  * @date 2021/7/30
  */
 @Data
-@JSONType(orders = {"id","account","passWord","gmt_creat"})
+@JSONType(orders = {"id", "account", "passWord", "gmt_creat"})
 public class RedisDto {
     private Integer id;
     private String account;
@@ -19,5 +19,12 @@ public class RedisDto {
         setAccount(account);
         setPassWord(passWord);
         setGmt_creat(gmt_creat);
+    }
+
+    public RedisDto(String id, String account, String passWord, String gmt_creat) {
+        setId(Integer.valueOf(id));
+        setAccount(account);
+        setPassWord(passWord);
+        setGmt_creat(Long.parseLong(gmt_creat));
     }
 }

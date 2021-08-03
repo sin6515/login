@@ -31,7 +31,7 @@ public class EmployeeRoleController {
 
     @PostMapping("/employees/{employeeId}/roles/{roleId}")
     public ReturnValue addEmployeeRole(@PathVariable("employeeId") Integer employeeId, @PathVariable("roleId") Integer roleId) {
-        if (redisService.hasKey(employeeId)) {
+        if (redisService.hasRedis(employeeId, EMPLOYEE)) {
             if (employeeService.findEmployeeById(employeeId) != null) {
                 if (roleService.findByRoleId(roleId) != null) {
                     EmployeeRoleDto employeeRoleDto = employeeRoleService.findEmployeeRole(employeeId, roleId);
@@ -55,7 +55,7 @@ public class EmployeeRoleController {
         Integer employeeId = updateEmployeeRoleDto.getEmployeeId();
         Integer roleId1 = updateEmployeeRoleDto.getRoleId1();
         Integer roleId2 = updateEmployeeRoleDto.getRoleId2();
-        if (redisService.hasKey(employeeId)) {
+        if (redisService.hasRedis(employeeId, EMPLOYEE)) {
             if (employeeService.findEmployeeById(employeeId) != null) {
                 if (roleService.findByRoleId(roleId1) != null && roleService.findByRoleId(roleId2) != null) {
                     EmployeeRoleDto employeeRoleDto1 = employeeRoleService.findEmployeeRole(employeeId, roleId1);
@@ -82,7 +82,7 @@ public class EmployeeRoleController {
 
     @DeleteMapping("/employees/{employeeId}/roles/{roleId}")
     public ReturnValue deleteEmployeeRole(@PathVariable("employeeId") Integer employeeId, @PathVariable("roleId") Integer roleId) {
-        if (redisService.hasKey(employeeId)) {
+        if (redisService.hasRedis(employeeId, EMPLOYEE)) {
             if (employeeService.findEmployeeById(employeeId) != null) {
                 if (roleService.findByRoleId(roleId) != null) {
                     EmployeeRoleDto employeeRoleDto = employeeRoleService.findEmployeeRole(employeeId, roleId);

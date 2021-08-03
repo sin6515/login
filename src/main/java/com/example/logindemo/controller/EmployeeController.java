@@ -53,11 +53,21 @@ public class EmployeeController {
 
     @GetMapping(path = "/employees/{employeeId}/users/{userId}")
     public ReturnValue find(@PathVariable("employeeId") Integer employeeId, @PathVariable("userId") Integer userId) {
-        if (redisService.hasKey(employeeId)) {
+        if (redisService.hasRedis(employeeId, EMPLOYEE)) {
             if (permissionService.findIsPermission(Find, employeeId)) {
                 UserEntity userEntity = employeeService.findUser(userId);
                 if (userEntity != null) {
-                    return ReturnValue.success(userEntity);
+                    if(redisService.hasRedis(userId,USER)){
+                        return ReturnValue.success(redisService.findRedis(userId,USER));
+                    }
+                    else {
+                        LoginDto loginDto=new LoginDto();
+                        loginDto.setAccount(userEntity.getAccount());
+                        loginDto.setPassWord(userEntity.getPassWord());
+                        redisService.addRedis(loginDto,USER);
+                        return ReturnValue.success(userEntity);
+                    }
+
                 } else {
                     return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, userId);
                 }
@@ -72,10 +82,13 @@ public class EmployeeController {
 
     @DeleteMapping("/employees/{employeeId}/users/{userId}")
     public ReturnValue delete(@PathVariable("employeeId") Integer employeeId, @PathVariable("userId") Integer userId) {
-        if (redisService.hasKey(employeeId)) {
+        if (redisService.hasRedis(employeeId, EMPLOYEE)) {
             if (permissionService.findIsPermission(DELETE, employeeId)) {
                 UserEntity userEntity = employeeService.findUser(userId);
                 if (userEntity != null) {
+                    if (redisService.hasRedis(userId, USER)) {
+                        redisService.deleteRedis(userId, USER);
+                    }
                     return ReturnValue.success(employeeService.deleteUser(userId));
                 } else {
                     return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, userId);
@@ -90,10 +103,16 @@ public class EmployeeController {
 
     @PutMapping("/employees/{employeeId}/users/{userId}")
     public ReturnValue update(@PathVariable("employeeId") Integer employeeId, @PathVariable("userId") Integer userId, @RequestBody UpdatePassWordDto updatePassWordDTO) {
-        if (redisService.hasKey(employeeId)) {
+        if (redisService.hasRedis(employeeId, EMPLOYEE)) {
             if (permissionService.findIsPermission(UPDATE, employeeId)) {
                 UserEntity userEntity = employeeService.findUser(userId);
                 if (userEntity != null) {
+                    if(redisService.hasRedis(userId,USER)){
+                        LoginDto loginDto=new LoginDto();
+                        loginDto.setAccount(userEntity.getAccount());
+                        loginDto.setPassWord(DigestUtils.md5DigestAsHex(updatePassWordDTO.getPassWord().getBytes()));
+                        redisService.addRedis(loginDto,USER);
+                    }
                     return ReturnValue.success(employeeService.updateUser(userId, updatePassWordDTO.getPassWord()));
                 } else {
                     return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, userId);
