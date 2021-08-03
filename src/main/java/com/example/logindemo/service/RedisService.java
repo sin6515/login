@@ -11,7 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -102,7 +104,19 @@ public class RedisService {
             return null;
         }
     }
-
+    public Collection findPermissionRedis(Integer roleId, String redisName) {
+        if (addLock()) {
+            String value = stringRedisTemplate.opsForValue().get(returnKey(roleId, redisName));
+            JSONObject jsonObject = JSON.parseObject(value);
+           String permission = jsonObject.getString("permission");
+            Map<Integer, String> map = JSONObject.parseObject(permission,Map.class);
+            Collection permissionName=map.values();
+            deleteLock();
+            return permissionName;
+        } else {
+            return null;
+        }
+    }
     public void deleteRedis(Integer id, String redisName) {
         if (addLock()) {
             stringRedisTemplate.delete(returnKey(id, redisName));

@@ -9,6 +9,8 @@ import com.example.logindemo.entity.RolePermissionEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import static com.example.logindemo.dto.ConstantValue.ROLE;
+
 /**
  * @author hrh13
  * @date 2021/7/22
@@ -21,16 +23,28 @@ public class PermissionService {
     private RolePermissionDao rolePermissionDao;
     @Autowired
     private EmployeeRoleDao employeeRoleDao;
+    @Autowired
+    private RedisService redisService;
 
     public boolean findIsPermission(String permissionName, Integer employeeId) {
         for (int i = 0; i < employeeRoleDao.findRoleIdByEmployeeId(employeeId).size(); i++) {
             Integer roleId = employeeRoleDao.findRoleIdByEmployeeId(employeeId).get(i);
-            for (int j = 0; j < rolePermissionDao.findPermissionIdByRoleId(roleId).size(); j++) {
-                Integer permissionId = rolePermissionDao.findPermissionIdByRoleId(roleId).get(j);
-                if (!permissionDao.findByPermissionNameAndId(permissionName, permissionId).isEmpty()) {
-                    return true;
+            if (redisService.hasRedis(roleId, ROLE)) {
+                if (redisService.findPermissionRedis(roleId, ROLE) != null) {
+                    if (redisService.findPermissionRedis(roleId, ROLE).contains(permissionName)) {
+                        return true;
+                    }
+                }
+
+            } else {
+                for (int j = 0; j < rolePermissionDao.findPermissionIdByRoleId(roleId).size(); j++) {
+                    Integer permissionId = rolePermissionDao.findPermissionIdByRoleId(roleId).get(j);
+                    if (!permissionDao.findByPermissionNameAndId(permissionName, permissionId).isEmpty()) {
+                        return true;
+                    }
                 }
             }
+
         }
         return false;
     }
