@@ -3,7 +3,9 @@ package com.example.logindemo.service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.example.logindemo.dao.*;
 import com.example.logindemo.dto.LoginDto;
 import com.example.logindemo.dto.RedisDto;
@@ -57,6 +59,20 @@ public class RedisService {
                 .withExpiresAt(new Date(System.currentTimeMillis() + TIME_OUT_MILLS))
                 .sign(Algorithm.HMAC256(SECRET_KEY));
         return token;
+    }
+    public String findToken(Integer id, String redisName) {
+        String value = stringRedisTemplate.opsForValue().get(returnKey(id, redisName));
+        JSONObject jsonObject = JSON.parseObject(value);
+        String token = jsonObject.getString("token");
+        return token;
+    }
+    public boolean verityToken(String token,String redisName,Integer verityId) {
+        JWTVerifier jwtVerifier = JWT.require(Algorithm.HMAC256(SECRET_KEY)).build();
+        DecodedJWT jwt = jwtVerifier.verify(token);
+        if(verityId.equals(jwt.getClaim(redisName))){
+            return true;
+        }
+        return false;
     }
 
     public void addRedis(LoginDto loginDtO, String redisName) {

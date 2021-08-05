@@ -53,7 +53,7 @@ public class EmployeeController {
 
     @GetMapping(path = "/employees/{employeeId}/users/{userId}")
     public ReturnValue find(@PathVariable("employeeId") Integer employeeId, @PathVariable("userId") Integer userId) {
-        if (redisService.hasRedis(employeeId, EMPLOYEE)) {
+//        if (redisService.hasRedis(employeeId, EMPLOYEE)) {
             if (permissionService.findIsPermission(Find, employeeId)) {
                 UserEntity userEntity = employeeService.findUser(userId);
                 if (userEntity != null) {
@@ -73,9 +73,9 @@ public class EmployeeController {
             } else {
                 return ReturnValue.fail(FORBIDDEN_CODE, NO_PERMISSION, employeeId + ":" + Find);
             }
-        } else {
-            return ReturnValue.fail(NO_LOGIN_CODE, NO_LOGIN_STATE, employeeId);
-        }
+//        } else {
+//            return ReturnValue.fail(NO_LOGIN_CODE, NO_LOGIN_STATE, employeeId);
+//        }
     }
 
 

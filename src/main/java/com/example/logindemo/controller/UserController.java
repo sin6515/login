@@ -1,7 +1,5 @@
 package com.example.logindemo.controller;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
 import com.example.logindemo.dto.AddDto;
 import com.example.logindemo.dto.LoginDto;
 import com.example.logindemo.dto.ReturnValue;
@@ -13,12 +11,6 @@ import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-
-
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 import static com.example.logindemo.dto.ConstantValue.*;
 
@@ -34,7 +26,6 @@ public class UserController {
     private UserService userService;
     @Autowired
     private RedisService redisService;
-    private static final String SECRET = "mySecret";
     @PostMapping("/users")
     public ReturnValue add(@RequestBody AddDto addDto) {
         LoginDto loginDtoFound = userService.findUser(addDto.getAccount());
