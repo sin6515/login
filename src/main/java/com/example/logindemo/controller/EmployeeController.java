@@ -57,14 +57,13 @@ public class EmployeeController {
             if (permissionService.findIsPermission(Find, employeeId)) {
                 UserEntity userEntity = employeeService.findUser(userId);
                 if (userEntity != null) {
-                    if(redisService.hasRedis(userId,USER)){
-                        return ReturnValue.success(redisService.findRedis(userId,USER));
-                    }
-                    else {
-                        LoginDto loginDto=new LoginDto();
+                    if (redisService.hasRedis(userId, USER)) {
+                        return ReturnValue.success(redisService.findRedis(userId, USER));
+                    } else {
+                        LoginDto loginDto = new LoginDto();
                         loginDto.setAccount(userEntity.getAccount());
                         loginDto.setPassWord(userEntity.getPassWord());
-                        redisService.addRedis(loginDto,USER);
+                        redisService.addRedis(loginDto, USER);
                         return ReturnValue.success(userEntity);
                     }
 
@@ -107,11 +106,11 @@ public class EmployeeController {
             if (permissionService.findIsPermission(UPDATE, employeeId)) {
                 UserEntity userEntity = employeeService.findUser(userId);
                 if (userEntity != null) {
-                    if(redisService.hasRedis(userId,USER)){
-                        LoginDto loginDto=new LoginDto();
+                    if (redisService.hasRedis(userId, USER)) {
+                        LoginDto loginDto = new LoginDto();
                         loginDto.setAccount(userEntity.getAccount());
                         loginDto.setPassWord(DigestUtils.md5DigestAsHex(updatePassWordDTO.getPassWord().getBytes()));
-                        redisService.addRedis(loginDto,USER);
+                        redisService.addRedis(loginDto, USER);
                     }
                     return ReturnValue.success(employeeService.updateUser(userId, updatePassWordDTO.getPassWord()));
                 } else {
