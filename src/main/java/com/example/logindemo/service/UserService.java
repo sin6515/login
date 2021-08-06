@@ -3,6 +3,7 @@ package com.example.logindemo.service;
 import com.example.logindemo.dao.UserDao;
 import com.example.logindemo.dto.AddDto;
 import com.example.logindemo.dto.LoginDto;
+import com.example.logindemo.dto.UserDto;
 import com.example.logindemo.entity.UserEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,11 +18,12 @@ public class UserService {
     @Autowired
     private UserDao userDao;
 
-    public UserEntity addUser(AddDto addDto) {
+    public UserDto addUser(AddDto addDto) {
         UserEntity userEntity = new UserEntity(addDto.getAccount(), DigestUtils.md5DigestAsHex(addDto.getPassWord().getBytes()),
                 addDto.getNickname(), addDto.getEmail(), addDto.getPhone(), System.currentTimeMillis());
         userDao.save(userEntity);
-        return userEntity;
+        UserDto userDto = new UserDto(userEntity);
+        return userDto;
     }
 
     public LoginDto findUser(String account) {
@@ -36,4 +38,26 @@ public class UserService {
 
     }
 
+    public UserDto findUser(Integer userId) {
+
+        if (userDao.findById(userId).isPresent()) {
+            UserDto userDto = new UserDto(userDao.findById(userId).get());
+            return userDto;
+        } else {
+            return null;
+        }
+    }
+
+    public UserDto deleteUser(Integer userId) {
+        UserDto userDto = findUser(userId);
+        userDao.deleteById(userId);
+        return userDto;
+    }
+
+    public UserDto updateUser(Integer userId, String pd) {
+
+        userDao.updatePassWordById(DigestUtils.md5DigestAsHex(pd.getBytes()), System.currentTimeMillis(), userId);
+        return findUser(userId);
+
+    }
 }

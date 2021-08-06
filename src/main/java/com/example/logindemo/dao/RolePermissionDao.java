@@ -17,6 +17,7 @@ public interface RolePermissionDao extends JpaRepository<RolePermissionEntity, I
     @Query("select permissionId from RolePermissionEntity where roleId=?1")
     List<Integer> findPermissionIdByRoleId(Integer roleId);
 
+    List<RolePermissionEntity> findByRoleIdIn(List roleId);
     RolePermissionEntity findByRoleIdAndPermissionId(Integer roleId, Integer permissionId);
 
     @Transactional

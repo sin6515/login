@@ -2,10 +2,10 @@ package com.example.logindemo.controller;
 
 import com.example.logindemo.dto.EmployeeRoleDto;
 import com.example.logindemo.dto.ReturnValue;
-import com.example.logindemo.dto.UpdateEmployeeRoleDto;
+import com.example.logindemo.dto.UpdateRoleDto;
+import com.example.logindemo.interceptor.LoginHandlerInterceptor;
 import com.example.logindemo.service.EmployeeRoleService;
 import com.example.logindemo.service.EmployeeService;
-import com.example.logindemo.service.RedisService;
 import com.example.logindemo.service.RoleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -27,77 +27,71 @@ public class EmployeeRoleController {
     @Autowired
     private RoleService roleService;
     @Autowired
-    private RedisService redisService;
+    private LoginHandlerInterceptor loginHandlerInterceptor;
+    private Integer employeeId;
 
-    @PostMapping("/employees/{employeeId}/roles/{roleId}")
-    public ReturnValue addEmployeeRole(@PathVariable("employeeId") Integer employeeId, @PathVariable("roleId") Integer roleId) {
-        if (redisService.hasRedis(employeeId, EMPLOYEE)) {
-            if (employeeService.findEmployeeById(employeeId) != null) {
-                if (roleService.findByRoleId(roleId) != null) {
-                    EmployeeRoleDto employeeRoleDto = employeeRoleService.findEmployeeRole(employeeId, roleId);
-                    if (null == employeeRoleDto) {
-                        return ReturnValue.success(employeeRoleService.addEmployeeRole(employeeId, roleId));
-                    } else {
-                        return ReturnValue.fail(REPEAT_ASK_CODE, ADD_EXISTS, employeeRoleDto);
-                    }
+    @PostMapping("/employees/roles/{roleId}")
+    public ReturnValue addEmployeeRole(@PathVariable("roleId") Integer roleId) {
+        employeeId = loginHandlerInterceptor.getEmployeeId();
+        if (employeeService.hasEmployeeById(employeeId)) {
+            if (roleService.findByRoleId(roleId) != null) {
+                EmployeeRoleDto employeeRoleDto = employeeRoleService.findEmployeeRole(employeeId, roleId);
+                if (null == employeeRoleDto) {
+                    return ReturnValue.success(employeeRoleService.addEmployeeRole(employeeId, roleId));
+                } else {
+                    return ReturnValue.fail(REPEAT_ASK_CODE, ADD_EXISTS, employeeRoleDto);
                 }
-                return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, roleId);
-            } else {
-                return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, employeeId);
             }
+            return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, roleId);
         } else {
-            return ReturnValue.fail(NO_LOGIN_CODE, NO_LOGIN_STATE, employeeId);
+            return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, employeeId);
         }
+
     }
 
-    @PutMapping("/employees-roles")
-    public ReturnValue updatePermission(@RequestBody UpdateEmployeeRoleDto updateEmployeeRoleDto) {
-        Integer employeeId = updateEmployeeRoleDto.getEmployeeId();
-        Integer roleId1 = updateEmployeeRoleDto.getRoleId1();
-        Integer roleId2 = updateEmployeeRoleDto.getRoleId2();
-        if (redisService.hasRedis(employeeId, EMPLOYEE)) {
-            if (employeeService.findEmployeeById(employeeId) != null) {
-                if (roleService.findByRoleId(roleId1) != null && roleService.findByRoleId(roleId2) != null) {
-                    EmployeeRoleDto employeeRoleDto1 = employeeRoleService.findEmployeeRole(employeeId, roleId1);
-                    EmployeeRoleDto employeeRoleDto2 = employeeRoleService.findEmployeeRole(employeeId, roleId2);
-                    if (null != employeeRoleDto1) {
-                        if (null == employeeRoleDto2) {
-                            employeeRoleService.deleteEmployeeRole(employeeId, roleId1);
-                            return ReturnValue.success(employeeRoleService.addEmployeeRole(employeeId, roleId2));
-                        } else {
-                            return ReturnValue.fail(REPEAT_ASK_CODE, HAVE_ROLE, roleId2);
-                        }
+    @PutMapping("/employees/roles")
+    public ReturnValue updatePermission(@RequestBody UpdateRoleDto updateRoleDto) {
+        employeeId = loginHandlerInterceptor.getEmployeeId();
+        Integer roleId1 = updateRoleDto.getRoleId1();
+        Integer roleId2 = updateRoleDto.getRoleId2();
+        if (employeeService.hasEmployeeById(employeeId)) {
+            if (roleService.findByRoleId(roleId1) != null && roleService.findByRoleId(roleId2) != null) {
+                EmployeeRoleDto employeeRoleDto1 = employeeRoleService.findEmployeeRole(employeeId, roleId1);
+                EmployeeRoleDto employeeRoleDto2 = employeeRoleService.findEmployeeRole(employeeId, roleId2);
+                if (null != employeeRoleDto1) {
+                    if (null == employeeRoleDto2) {
+                        employeeRoleService.deleteEmployeeRole(employeeId, roleId1);
+                        return ReturnValue.success(employeeRoleService.addEmployeeRole(employeeId, roleId2));
                     } else {
-                        return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, roleId1);
+                        return ReturnValue.fail(REPEAT_ASK_CODE, HAVE_ROLE, roleId2);
                     }
+                } else {
+                    return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, roleId1);
                 }
-                return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, roleId1 + " or " + roleId2);
-            } else {
-                return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, employeeId);
             }
+            return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, roleId1 + " or " + roleId2);
         } else {
-            return ReturnValue.fail(NO_LOGIN_CODE, NO_LOGIN_STATE, employeeId);
+            return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, employeeId);
         }
+
     }
 
-    @DeleteMapping("/employees/{employeeId}/roles/{roleId}")
-    public ReturnValue deleteEmployeeRole(@PathVariable("employeeId") Integer employeeId, @PathVariable("roleId") Integer roleId) {
-        if (redisService.hasRedis(employeeId, EMPLOYEE)) {
-            if (employeeService.findEmployeeById(employeeId) != null) {
-                if (roleService.findByRoleId(roleId) != null) {
-                    EmployeeRoleDto employeeRoleDto = employeeRoleService.findEmployeeRole(employeeId, roleId);
-                    if (null == employeeRoleDto) {
-                        return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, null);
-                    } else {
-                        return ReturnValue.success(employeeRoleService.deleteEmployeeRole(employeeId, roleId));
-                    }
+    @DeleteMapping("/employees/roles/{roleId}")
+    public ReturnValue deleteEmployeeRole(@PathVariable("roleId") Integer roleId) {
+        employeeId = loginHandlerInterceptor.getEmployeeId();
+        if (employeeService.hasEmployeeById(employeeId)) {
+            if (roleService.findByRoleId(roleId) != null) {
+                EmployeeRoleDto employeeRoleDto = employeeRoleService.findEmployeeRole(employeeId, roleId);
+                if (null == employeeRoleDto) {
+                    return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, null);
+                } else {
+                    return ReturnValue.success(employeeRoleService.deleteEmployeeRole(employeeId, roleId));
                 }
-                return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, roleId);
-            } else {
-                return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, employeeId);
             }
+            return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, roleId);
         } else {
-            return ReturnValue.fail(NO_LOGIN_CODE, NO_LOGIN_STATE, employeeId);
+            return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, employeeId);
         }
+
     }
 }

@@ -4,6 +4,7 @@ import com.alibaba.fastjson.annotation.JSONType;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -16,11 +17,17 @@ import java.util.Map;
 public class RolePermissionRedisDto {
     private Integer roleId;
     private String roleName;
-    private Map permission;
+    private List<String> permissionName;
 
-    public RolePermissionRedisDto(Integer roleId, String roleName, Map permission) {
+
+    public RolePermissionRedisDto(Integer roleId, String roleName,List<String> permissionName) {
         setRoleId(roleId);
         setRoleName(roleName);
-        setPermission(permission);
+        setPermissionName(permissionName);
     }
+    public RolePermissionRedisDto(Integer roleId, String roleName) {
+        setRoleId(roleId);
+        setRoleName(roleName);
+    }
+
 }

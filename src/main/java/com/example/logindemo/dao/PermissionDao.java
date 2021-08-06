@@ -14,12 +14,13 @@ import java.util.Optional;
  */
 @Repository
 public interface PermissionDao extends JpaRepository<PermissionEntity, Integer> {
-    List<PermissionEntity> findByPermissionNameAndId(String permissionName, Integer permissionId);
-
     List<PermissionEntity> findByPermissionName(String permissionName);
+
+    List<PermissionEntity> findByIdIn(List permissionName);
 
     @Query("select id from PermissionEntity where permissionName=?1")
     Integer findIdByPermissionName(String account);
+
     @Override
     Optional<PermissionEntity> findById(Integer permissionId);
 

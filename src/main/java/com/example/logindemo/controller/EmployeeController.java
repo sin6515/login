@@ -1,11 +1,12 @@
 package com.example.logindemo.controller;
 
 import com.example.logindemo.dto.*;
-import com.example.logindemo.entity.UserEntity;
+import com.example.logindemo.interceptor.LoginHandlerInterceptor;
 import com.example.logindemo.service.EmployeeService;
 
 import com.example.logindemo.service.PermissionService;
 import com.example.logindemo.service.RedisService;
+import com.example.logindemo.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.DigestUtils;
@@ -27,6 +28,11 @@ public class EmployeeController {
     private RedisService redisService;
     @Autowired
     private PermissionService permissionService;
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private LoginHandlerInterceptor loginHandlerInterceptor;
+    private Integer employeeId;
 
     @PostMapping("/employees")
     public ReturnValue add(@RequestBody AddDto addDto) {
@@ -51,76 +57,68 @@ public class EmployeeController {
         }
     }
 
-    @GetMapping(path = "/employees/{employeeId}/users/{userId}")
-    public ReturnValue find(@PathVariable("employeeId") Integer employeeId, @PathVariable("userId") Integer userId) {
-//        if (redisService.hasRedis(employeeId, EMPLOYEE)) {
-            if (permissionService.findIsPermission(Find, employeeId)) {
-                UserEntity userEntity = employeeService.findUser(userId);
-                if (userEntity != null) {
-                    if (redisService.hasRedis(userId, USER)) {
-                        return ReturnValue.success(redisService.findRedis(userId, USER));
-                    } else {
-                        LoginDto loginDto = new LoginDto();
-                        loginDto.setAccount(userEntity.getAccount());
-                        loginDto.setPassWord(userEntity.getPassWord());
-                        redisService.addRedis(loginDto, USER);
-                        return ReturnValue.success(userEntity);
-                    }
-
+    @GetMapping(path = "/employees/users/{userId}")
+    public ReturnValue find(@PathVariable("userId") Integer userId) {
+        employeeId = loginHandlerInterceptor.getEmployeeId();
+        if (permissionService.findIsPermission(Find, employeeId)) {
+            UserDto userDto = userService.findUser(userId);
+            if (userDto != null) {
+                if (redisService.hasRedis(userId, USER)) {
+                    return ReturnValue.success(redisService.findRedis(userId, USER));
                 } else {
-                    return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, userId);
+                    LoginDto loginDto = new LoginDto();
+                    loginDto.setAccount(userDto.getAccount());
+                    loginDto.setPassWord(userDto.getPassWord());
+                    redisService.addRedis(loginDto, USER);
+                    return ReturnValue.success(userDto
+                    );
                 }
             } else {
-                return ReturnValue.fail(FORBIDDEN_CODE, NO_PERMISSION, employeeId + ":" + Find);
-            }
-//        } else {
-//            return ReturnValue.fail(NO_LOGIN_CODE, NO_LOGIN_STATE, employeeId);
-//        }
-    }
-
-
-    @DeleteMapping("/employees/{employeeId}/users/{userId}")
-    public ReturnValue delete(@PathVariable("employeeId") Integer employeeId, @PathVariable("userId") Integer userId) {
-        if (redisService.hasRedis(employeeId, EMPLOYEE)) {
-            if (permissionService.findIsPermission(DELETE, employeeId)) {
-                UserEntity userEntity = employeeService.findUser(userId);
-                if (userEntity != null) {
-                    if (redisService.hasRedis(userId, USER)) {
-                        redisService.deleteRedis(userId, USER);
-                    }
-                    return ReturnValue.success(employeeService.deleteUser(userId));
-                } else {
-                    return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, userId);
-                }
-            } else {
-                return ReturnValue.fail(FORBIDDEN_CODE, NO_PERMISSION, employeeId + ":" + DELETE);
+                return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, userId);
             }
         } else {
-            return ReturnValue.fail(NO_LOGIN_CODE, NO_LOGIN_STATE, employeeId);
+            return ReturnValue.fail(FORBIDDEN_CODE, NO_PERMISSION, employeeId + ":" + Find);
         }
     }
 
-    @PutMapping("/employees/{employeeId}/users/{userId}")
-    public ReturnValue update(@PathVariable("employeeId") Integer employeeId, @PathVariable("userId") Integer userId, @RequestBody UpdatePassWordDto updatePassWordDTO) {
-        if (redisService.hasRedis(employeeId, EMPLOYEE)) {
-            if (permissionService.findIsPermission(UPDATE, employeeId)) {
-                UserEntity userEntity = employeeService.findUser(userId);
-                if (userEntity != null) {
-                    if (redisService.hasRedis(userId, USER)) {
-                        LoginDto loginDto = new LoginDto();
-                        loginDto.setAccount(userEntity.getAccount());
-                        loginDto.setPassWord(DigestUtils.md5DigestAsHex(updatePassWordDTO.getPassWord().getBytes()));
-                        redisService.addRedis(loginDto, USER);
-                    }
-                    return ReturnValue.success(employeeService.updateUser(userId, updatePassWordDTO.getPassWord()));
-                } else {
-                    return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, userId);
+
+    @DeleteMapping("/employees/users/{userId}")
+    public ReturnValue delete(@PathVariable("userId") Integer userId) {
+        employeeId = loginHandlerInterceptor.getEmployeeId();
+        if (permissionService.findIsPermission(DELETE, employeeId)) {
+            UserDto userDto = userService.findUser(userId);
+            if (userDto != null) {
+                if (redisService.hasRedis(userId, USER)) {
+                    redisService.deleteRedis(userId, USER);
                 }
+                return ReturnValue.success(userService.deleteUser(userId));
             } else {
-                return ReturnValue.fail(FORBIDDEN_CODE, NO_PERMISSION, employeeId + ":" + UPDATE);
+                return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, userId);
             }
         } else {
-            return ReturnValue.fail(NO_LOGIN_CODE, NO_LOGIN_STATE, employeeId);
+            return ReturnValue.fail(FORBIDDEN_CODE, NO_PERMISSION, employeeId + ":" + DELETE);
+        }
+
+    }
+
+    @PutMapping("/employees/users/{userId}")
+    public ReturnValue update(@PathVariable("userId") Integer userId, @RequestBody UpdatePassWordDto updatePassWordDTO) {
+        employeeId = loginHandlerInterceptor.getEmployeeId();
+        if (permissionService.findIsPermission(UPDATE, employeeId)) {
+            UserDto userDto = userService.findUser(userId);
+            if (userDto != null) {
+                if (redisService.hasRedis(userId, USER)) {
+                    LoginDto loginDto = new LoginDto();
+                    loginDto.setAccount(userDto.getAccount());
+                    loginDto.setPassWord(DigestUtils.md5DigestAsHex(updatePassWordDTO.getPassWord().getBytes()));
+                    redisService.addRedis(loginDto, USER);
+                }
+                return ReturnValue.success(userService.updateUser(userId, updatePassWordDTO.getPassWord()));
+            } else {
+                return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, userId);
+            }
+        } else {
+            return ReturnValue.fail(FORBIDDEN_CODE, NO_PERMISSION, employeeId + ":" + UPDATE);
         }
     }
 
