@@ -22,12 +22,10 @@ public class UserService {
         UserEntity userEntity = new UserEntity(addDto.getAccount(), DigestUtils.md5DigestAsHex(addDto.getPassWord().getBytes()),
                 addDto.getNickname(), addDto.getEmail(), addDto.getPhone(), System.currentTimeMillis());
         userDao.save(userEntity);
-        UserDto userDto = new UserDto(userEntity);
-        return userDto;
+        return new UserDto(userEntity);
     }
 
     public LoginDto findUser(String account) {
-
         if (userDao.findByAccount(account) == null) {
             return null;
         } else {
@@ -39,10 +37,8 @@ public class UserService {
     }
 
     public UserDto findUser(Integer userId) {
-
         if (userDao.findById(userId).isPresent()) {
-            UserDto userDto = new UserDto(userDao.findById(userId).get());
-            return userDto;
+            return new UserDto(userDao.findById(userId).get());
         } else {
             return null;
         }
@@ -55,9 +51,7 @@ public class UserService {
     }
 
     public UserDto updateUser(Integer userId, String pd) {
-
         userDao.updatePassWordById(DigestUtils.md5DigestAsHex(pd.getBytes()), System.currentTimeMillis(), userId);
         return findUser(userId);
-
     }
 }

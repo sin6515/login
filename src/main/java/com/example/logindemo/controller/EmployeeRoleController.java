@@ -3,7 +3,6 @@ package com.example.logindemo.controller;
 import com.example.logindemo.dto.EmployeeRoleDto;
 import com.example.logindemo.dto.ReturnValue;
 import com.example.logindemo.dto.UpdateRoleDto;
-import com.example.logindemo.interceptor.LoginHandlerInterceptor;
 import com.example.logindemo.service.EmployeeRoleService;
 import com.example.logindemo.service.EmployeeService;
 import com.example.logindemo.service.RoleService;
@@ -26,13 +25,9 @@ public class EmployeeRoleController {
     private EmployeeService employeeService;
     @Autowired
     private RoleService roleService;
-    @Autowired
-    private LoginHandlerInterceptor loginHandlerInterceptor;
-    private Integer employeeId;
 
     @PostMapping("/employees/roles/{roleId}")
-    public ReturnValue addEmployeeRole(@PathVariable("roleId") Integer roleId) {
-        employeeId = loginHandlerInterceptor.getEmployeeId();
+    public ReturnValue addEmployeeRole(@RequestHeader(EMPLOYEE_ID) Integer employeeId, @PathVariable(ROLE_ID) Integer roleId) {
         if (employeeService.hasEmployeeById(employeeId)) {
             if (roleService.findByRoleId(roleId) != null) {
                 EmployeeRoleDto employeeRoleDto = employeeRoleService.findEmployeeRole(employeeId, roleId);
@@ -50,35 +45,29 @@ public class EmployeeRoleController {
     }
 
     @PutMapping("/employees/roles")
-    public ReturnValue updatePermission(@RequestBody UpdateRoleDto updateRoleDto) {
-        employeeId = loginHandlerInterceptor.getEmployeeId();
-        Integer roleId1 = updateRoleDto.getRoleId1();
-        Integer roleId2 = updateRoleDto.getRoleId2();
-        if (employeeService.hasEmployeeById(employeeId)) {
-            if (roleService.findByRoleId(roleId1) != null && roleService.findByRoleId(roleId2) != null) {
-                EmployeeRoleDto employeeRoleDto1 = employeeRoleService.findEmployeeRole(employeeId, roleId1);
-                EmployeeRoleDto employeeRoleDto2 = employeeRoleService.findEmployeeRole(employeeId, roleId2);
-                if (null != employeeRoleDto1) {
-                    if (null == employeeRoleDto2) {
-                        employeeRoleService.deleteEmployeeRole(employeeId, roleId1);
-                        return ReturnValue.success(employeeRoleService.addEmployeeRole(employeeId, roleId2));
-                    } else {
-                        return ReturnValue.fail(REPEAT_ASK_CODE, HAVE_ROLE, roleId2);
-                    }
+    public ReturnValue updatePermission(@RequestHeader(EMPLOYEE_ID) Integer employeeId, @RequestBody UpdateRoleDto updateRoleDto) {
+        Integer roleIdBefore = updateRoleDto.getRoleIdBefore();
+        Integer roleIdAfter = updateRoleDto.getRoleIdAfter();
+        if (roleService.findByRoleId(roleIdBefore) != null && roleService.findByRoleId(roleIdAfter) != null) {
+            EmployeeRoleDto employeeRoleDtoBefore = employeeRoleService.findEmployeeRole(employeeId, roleIdBefore);
+            EmployeeRoleDto employeeRoleDtoAfter = employeeRoleService.findEmployeeRole(employeeId, roleIdAfter);
+            if (null != employeeRoleDtoBefore) {
+                if (null == employeeRoleDtoAfter) {
+                    employeeRoleService.deleteEmployeeRole(employeeId, roleIdBefore);
+                    return ReturnValue.success(employeeRoleService.addEmployeeRole(employeeId, roleIdAfter));
                 } else {
-                    return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, roleId1);
+                    return ReturnValue.fail(REPEAT_ASK_CODE, HAVE_ROLE, roleIdAfter);
                 }
+            } else {
+                return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, roleIdBefore);
             }
-            return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, roleId1 + " or " + roleId2);
-        } else {
-            return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, employeeId);
         }
+        return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, roleIdBefore + " or " + roleIdAfter);
 
     }
 
     @DeleteMapping("/employees/roles/{roleId}")
-    public ReturnValue deleteEmployeeRole(@PathVariable("roleId") Integer roleId) {
-        employeeId = loginHandlerInterceptor.getEmployeeId();
+    public ReturnValue deleteEmployeeRole(@RequestHeader(EMPLOYEE_ID) Integer employeeId, @PathVariable(ROLE_ID) Integer roleId) {
         if (employeeService.hasEmployeeById(employeeId)) {
             if (roleService.findByRoleId(roleId) != null) {
                 EmployeeRoleDto employeeRoleDto = employeeRoleService.findEmployeeRole(employeeId, roleId);

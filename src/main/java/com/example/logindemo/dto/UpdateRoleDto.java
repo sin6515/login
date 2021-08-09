@@ -8,6 +8,6 @@ import lombok.Data;
  */
 @Data
 public class UpdateRoleDto {
-    private Integer roleId1;
-    private Integer roleId2;
+    private Integer roleIdBefore;
+    private Integer roleIdAfter;
 }

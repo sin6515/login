@@ -6,6 +6,8 @@ import com.example.logindemo.entity.EmployeeRoleEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * @author hrh13
  * @date 2021/7/21
@@ -25,7 +27,6 @@ public class EmployeeRoleService {
             return employeeRoleDto;
 
         }
-
     }
 
     public EmployeeRoleDto addEmployeeRole(Integer employeeId, Integer roleId) {
@@ -33,16 +34,24 @@ public class EmployeeRoleService {
                 roleId, System.currentTimeMillis());
         employeeRoleDao.save(employeeRoleEntity);
         return findEmployeeRole(employeeId, roleId);
+    }
 
-
+    public void addEmployeeRole(List<Integer> employeeIdList, Integer roleId) {
+        for (Integer integer : employeeIdList) {
+            addEmployeeRole(integer, roleId);
+        }
     }
 
     public EmployeeRoleDto deleteEmployeeRole(Integer employeeId, Integer roleId) {
         EmployeeRoleDto employeeRoleDto = findEmployeeRole(employeeId, roleId);
         employeeRoleDao.deleteByEmployeeIdAndRoleId(employeeId, roleId);
         return employeeRoleDto;
+    }
 
-
+    public void deleteEmployeeRole(List<Integer> employeeIdList, Integer roleId) {
+        for (Integer i = 0; i < employeeIdList.size(); i++) {
+            deleteEmployeeRole(employeeIdList.get(i), roleId);
+        }
     }
 
 

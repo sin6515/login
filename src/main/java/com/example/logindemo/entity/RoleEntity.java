@@ -1,5 +1,6 @@
 package com.example.logindemo.entity;
 
+import com.example.logindemo.dto.RoleIdNameDto;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -25,6 +26,11 @@ public class RoleEntity {
 
     public RoleEntity(String roleName, long gmt_create) {
         setRoleName(roleName);
+        setGmt_create(gmt_create);
+    }
+    public RoleEntity(RoleIdNameDto roleIdNameDto,long gmt_create) {
+        setId(roleIdNameDto.getRoleId());
+        setRoleName(roleIdNameDto.getRoleName());
         setGmt_create(gmt_create);
     }
 

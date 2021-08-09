@@ -2,6 +2,7 @@ package com.example.logindemo.dao;
 
 import com.example.logindemo.entity.EmployeeRoleEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -18,7 +19,8 @@ public interface EmployeeRoleDao extends JpaRepository<EmployeeRoleEntity, Integ
     List<Integer> findRoleIdByEmployeeId(Integer employeeId);
 
     EmployeeRoleEntity findByEmployeeIdAndRoleId(Integer employeeId, Integer roleId);
-
+    @Query(value = "select employeeId from EmployeeRoleEntity where roleId=?1")
+    List<Integer> findEmployeeIdByRoleId(Integer roleId);
     @Transactional
     public void deleteByRoleId(Integer roleId);
 

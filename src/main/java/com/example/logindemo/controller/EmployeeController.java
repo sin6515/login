@@ -1,9 +1,7 @@
 package com.example.logindemo.controller;
 
 import com.example.logindemo.dto.*;
-import com.example.logindemo.interceptor.LoginHandlerInterceptor;
 import com.example.logindemo.service.EmployeeService;
-
 import com.example.logindemo.service.PermissionService;
 import com.example.logindemo.service.RedisService;
 import com.example.logindemo.service.UserService;
@@ -30,9 +28,6 @@ public class EmployeeController {
     private PermissionService permissionService;
     @Autowired
     private UserService userService;
-    @Autowired
-    private LoginHandlerInterceptor loginHandlerInterceptor;
-    private Integer employeeId;
 
     @PostMapping("/employees")
     public ReturnValue add(@RequestBody AddDto addDto) {
@@ -58,8 +53,7 @@ public class EmployeeController {
     }
 
     @GetMapping(path = "/employees/users/{userId}")
-    public ReturnValue find(@PathVariable("userId") Integer userId) {
-        employeeId = loginHandlerInterceptor.getEmployeeId();
+    public ReturnValue find(@RequestHeader(EMPLOYEE_ID) Integer employeeId, @PathVariable(USER_ID) Integer userId) {
         if (permissionService.findIsPermission(Find, employeeId)) {
             UserDto userDto = userService.findUser(userId);
             if (userDto != null) {
@@ -83,8 +77,7 @@ public class EmployeeController {
 
 
     @DeleteMapping("/employees/users/{userId}")
-    public ReturnValue delete(@PathVariable("userId") Integer userId) {
-        employeeId = loginHandlerInterceptor.getEmployeeId();
+    public ReturnValue delete(@RequestHeader(EMPLOYEE_ID) Integer employeeId, @PathVariable(USER_ID) Integer userId) {
         if (permissionService.findIsPermission(DELETE, employeeId)) {
             UserDto userDto = userService.findUser(userId);
             if (userDto != null) {
@@ -102,8 +95,7 @@ public class EmployeeController {
     }
 
     @PutMapping("/employees/users/{userId}")
-    public ReturnValue update(@PathVariable("userId") Integer userId, @RequestBody UpdatePassWordDto updatePassWordDTO) {
-        employeeId = loginHandlerInterceptor.getEmployeeId();
+    public ReturnValue update(@RequestHeader(EMPLOYEE_ID) Integer employeeId, @PathVariable(USER_ID) Integer userId, @RequestBody UpdatePassWordDto updatePassWordDTO) {
         if (permissionService.findIsPermission(UPDATE, employeeId)) {
             UserDto userDto = userService.findUser(userId);
             if (userDto != null) {

@@ -17,5 +17,4 @@ public interface RoleDao extends JpaRepository<RoleEntity, Integer> {
     @Override
     Optional<RoleEntity> findById(Integer roleId);
 
-
 }

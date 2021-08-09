@@ -35,7 +35,7 @@ public class LoginHandlerInterceptor implements HandlerInterceptor {
 //            if (token.equals(redisService.findToken(employeeId, EMPLOYEE))) {
 //                return true;
 //            }
-            if (redisService.verityToken(token,EMPLOYEE,employeeId)){
+            if (redisService.verityToken(token, EMPLOYEE, employeeId)) {
                 return true;
             }
         }

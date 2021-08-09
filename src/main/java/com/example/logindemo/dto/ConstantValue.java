@@ -13,7 +13,7 @@ import java.util.Map;
 public class ConstantValue {
     public static final String ADD = "add", UPDATE = "update", Find = "find", DELETE = "delete",
             EMPLOYEE = "employee", USER = "user", ROLE = "role", LOCK_KEY = "key", LOCK_VALUE = "value",
-            EMPLOYEE_ID = "EmployeeId", TOKEN = "Token",
+            EMPLOYEE_ID = "EmployeeId", USER_ID = "userId", ROLE_ID = "roleId", TOKEN = "Token",
             REDIS_USER = "user:", REDIS_EMPLOYEE = "employee:", REDIS_ROLE = "role:",
             ADD_EXISTS = "已存在！", LOGIN_ERROR_ACCOUNT = "该帐户不存在！", LOGIN_ERROR_PASSWORD = "密码错误！",
             NO_EXIST = "未找到对象，请确认是否存在！", NO_PERMISSION = "未拥有该权限！", HAVE_ROLE = "该角色已拥有！",

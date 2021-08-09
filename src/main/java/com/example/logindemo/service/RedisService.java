@@ -131,8 +131,7 @@ public class RedisService {
         JSONObject jsonObject = JSON.parseObject(value);
         String permission = jsonObject.getString("permission");
         Map<Integer, String> map = JSONObject.parseObject(permission, Map.class);
-        Collection permissionName = map.values();
-        return permissionName;
+        return map.values();
     }
 
     public void deleteRedis(Integer id, String redisName) {

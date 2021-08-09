@@ -62,23 +62,59 @@ public class PermissionService {
         }
     }
 
+    public RolePermissionDto findRolePermission(Integer roleId, List<String> permissionNameList) {
+        for (String s : permissionNameList) {
+            if (findRolePermission(roleId, s) == null) {
+                return null;
+            }
+        }
+        return new RolePermissionDto();
+    }
+
     public void addPermission(Integer roleId, String permissionName) {
+        if (permissionDao.findByPermissionName(permissionName).isEmpty()) {
+            savePermission(permissionName);
+        }
         Integer permissionId = permissionDao.findIdByPermissionName(permissionName);
         RolePermissionEntity rolePermissionEntity = new RolePermissionEntity(roleId, permissionId, System.currentTimeMillis());
         rolePermissionDao.save(rolePermissionEntity);
-        RolePermissionDto rolePermissionDto = new RolePermissionDto();
-        rolePermissionDto.setRoleId(rolePermissionEntity.getRoleId());
-        rolePermissionDto.setPermissionId(rolePermissionEntity.getPermissionId());
+    }
+
+//    public void addPermission(Integer roleId, List<Integer> permissionIdList) {
+//        for (Integer i = 0; i < permissionIdList.size(); i++) {
+//            RolePermissionEntity rolePermissionEntity = new RolePermissionEntity(roleId, permissionIdList.get(i), System.currentTimeMillis());
+//            rolePermissionDao.save(rolePermissionEntity);
+//        }
+//    }
+
+    public void addPermission(Integer roleId, List<String> permissionNameList) {
+        for (String s : permissionNameList) {
+            if (findRolePermission(roleId, s) == null) {
+                addPermission(roleId, s);
+
+            }
+        }
     }
 
 
     public void deletePermission(Integer roleId, String permissionName) {
+        if (permissionDao.findByPermissionName(permissionName).isEmpty()) {
+            savePermission(permissionName);
+        }
         Integer permissionId = permissionDao.findIdByPermissionName(permissionName);
         RolePermissionDto rolePermissionDto = new RolePermissionDto();
         rolePermissionDto.setRoleId(rolePermissionDao.findByRoleIdAndPermissionId(roleId, permissionId).getRoleId());
         rolePermissionDto.setPermissionId(rolePermissionDao.findByRoleIdAndPermissionId(roleId, permissionId).getPermissionId());
         rolePermissionDao.deleteByRoleIdAndPermissionId(roleId, permissionId);
 
+    }
+
+    public void deletePermission(Integer roleId, List<String> permissionNameList) {
+        for (String s : permissionNameList) {
+            if (findRolePermission(roleId, s) != null) {
+                deletePermission(roleId, s);
+            }
+        }
     }
 
 

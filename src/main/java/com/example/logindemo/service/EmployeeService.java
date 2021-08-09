@@ -22,8 +22,7 @@ public class EmployeeService {
         EmployeeEntity employeeEntity = new EmployeeEntity(addDto.getAccount(), DigestUtils.md5DigestAsHex(addDto.getPassWord().getBytes()),
                 addDto.getNickname(), System.currentTimeMillis());
         employeeDao.save(employeeEntity);
-        EmployeeDto employeeDto = new EmployeeDto(employeeEntity);
-        return employeeDto;
+        return new EmployeeDto(employeeEntity);
 
     }
 

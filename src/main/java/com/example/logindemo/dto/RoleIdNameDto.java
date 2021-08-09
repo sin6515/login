@@ -12,4 +12,9 @@ import lombok.Data;
 public class RoleIdNameDto {
     private Integer roleId;
     private String roleName;
+
+    public RoleIdNameDto(Integer roleId, String roleName) {
+        setRoleId(roleId);
+        setRoleName(roleName);
+    }
 }
