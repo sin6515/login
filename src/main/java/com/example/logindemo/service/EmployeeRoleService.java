@@ -49,12 +49,4 @@ public class EmployeeRoleService {
         employeeRoleDao.deleteByEmployeeIdAndRoleId(employeeId, roleId);
         return employeeRoleDto;
     }
-
-    public void deleteEmployeeRole(List<Integer> employeeIdList, Integer roleId) {
-        for (Integer i = 0; i < employeeIdList.size(); i++) {
-            deleteEmployeeRole(employeeIdList.get(i), roleId);
-        }
-    }
-
-
 }

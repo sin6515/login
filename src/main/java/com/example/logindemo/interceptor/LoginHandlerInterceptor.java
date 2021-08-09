@@ -23,13 +23,12 @@ import static com.example.logindemo.dto.ConstantValue.*;
 @Data
 @Component
 public class LoginHandlerInterceptor implements HandlerInterceptor {
-    private Integer employeeId;
     @Autowired
     private RedisService redisService;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
-        employeeId = Integer.valueOf(request.getHeader(EMPLOYEE_ID));
+        Integer employeeId = Integer.valueOf(request.getHeader(EMPLOYEE_ID));
         String token = request.getHeader(TOKEN);
         if (redisService.hasRedis(employeeId, EMPLOYEE)) {
 //            if (token.equals(redisService.findToken(employeeId, EMPLOYEE))) {
@@ -41,7 +40,7 @@ public class LoginHandlerInterceptor implements HandlerInterceptor {
         }
         PrintWriter out = null;
         JSONObject res = new JSONObject();
-        res.put("Error", ReturnValue.fail(NO_LOGIN_CODE, NO_LOGIN_STATE, employeeId));
+        res.put(ERROR_INPUT, ReturnValue.fail(NO_LOGIN_CODE, NO_LOGIN_STATE, employeeId));
         try {
             out = response.getWriter();
         } catch (IOException e) {

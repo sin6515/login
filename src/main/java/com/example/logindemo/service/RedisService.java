@@ -60,13 +60,6 @@ public class RedisService {
         return token;
     }
 
-    public String findToken(Integer id, String redisName) {
-        String value = stringRedisTemplate.opsForValue().get(returnKey(id, redisName));
-        JSONObject jsonObject = JSON.parseObject(value);
-        String token = jsonObject.getString("token");
-        return token;
-    }
-
     public boolean verityToken(String token, String redisName, Integer verityId) {
         JWTVerifier jwtVerifier = JWT.require(Algorithm.HMAC256(SECRET_KEY)).build();
         DecodedJWT jwt = jwtVerifier.verify(token);
@@ -109,11 +102,11 @@ public class RedisService {
     }
 
     public RolePermissionRedisDto updatePermissionRedis(Integer roleId) {
-        List<Integer> permissionIdList=rolePermissionDao.findPermissionIdByRoleId(roleId);
-        List<String> permissionNameList=permissionDao.findByIdIn(permissionIdList)
+        List<Integer> permissionIdList = rolePermissionDao.findPermissionIdByRoleId(roleId);
+        List<String> permissionNameList = permissionDao.findByIdIn(permissionIdList)
                 .stream().map(PermissionEntity::getPermissionName).collect(Collectors.toList());
         String roleName = roleService.findByRoleId(roleId).getRoleName();
-        RolePermissionRedisDto redisDto = new RolePermissionRedisDto(roleId, roleName,permissionNameList);
+        RolePermissionRedisDto redisDto = new RolePermissionRedisDto(roleId, roleName, permissionNameList);
         key = REDIS_ROLE + roleId;
         String jsonStr = JSON.toJSONString(redisDto);
         if (addLock(key)) {

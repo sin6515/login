@@ -31,6 +31,7 @@ public class RoleService {
     private PermissionService permissionService;
     @Autowired
     private RedisService redisService;
+
     public RoleEntity addRole(String roleName) {
         RoleEntity roleEntity = new RoleEntity(roleName, System.currentTimeMillis());
         roleDao.save(roleEntity);
@@ -84,7 +85,5 @@ public class RoleService {
         employeeRoleService.addEmployeeRole(employeeIdListAfter, roleIdAfter);
         permissionService.addPermissionId(roleIdBefore, permissionIdListAfter);
         permissionService.addPermissionId(roleIdAfter, permissionIdListBefore);
-//        redisService.deleteRedis(roleIdBefore,ROLE);
-//        redisService.deleteRedis(roleIdAfter,ROLE);
     }
 }
