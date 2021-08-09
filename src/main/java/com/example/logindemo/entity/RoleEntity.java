@@ -2,6 +2,7 @@ package com.example.logindemo.entity;
 
 import com.example.logindemo.dto.RoleIdNameDto;
 import lombok.Data;
+import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 
@@ -14,7 +15,8 @@ import javax.persistence.*;
 @Data
 public class RoleEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "id")
+    @GenericGenerator(name = "id", strategy = "com.example.logindemo.generator.ManulInsertGenerator")
     private Integer id;
     @Column(name = "role_name")
     private String roleName;
@@ -28,7 +30,8 @@ public class RoleEntity {
         setRoleName(roleName);
         setGmt_create(gmt_create);
     }
-    public RoleEntity(RoleIdNameDto roleIdNameDto,long gmt_create) {
+
+    public RoleEntity(RoleIdNameDto roleIdNameDto, long gmt_create) {
         setId(roleIdNameDto.getRoleId());
         setRoleName(roleIdNameDto.getRoleName());
         setGmt_create(gmt_create);
@@ -37,4 +40,5 @@ public class RoleEntity {
     public RoleEntity() {
 
     }
+
 }

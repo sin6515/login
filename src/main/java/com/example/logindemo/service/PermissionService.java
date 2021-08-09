@@ -80,18 +80,17 @@ public class PermissionService {
         rolePermissionDao.save(rolePermissionEntity);
     }
 
-//    public void addPermission(Integer roleId, List<Integer> permissionIdList) {
-//        for (Integer i = 0; i < permissionIdList.size(); i++) {
-//            RolePermissionEntity rolePermissionEntity = new RolePermissionEntity(roleId, permissionIdList.get(i), System.currentTimeMillis());
-//            rolePermissionDao.save(rolePermissionEntity);
-//        }
-//    }
+    public void addPermissionId(Integer roleId, List<Integer> permissionIdList) {
+        for (Integer integer : permissionIdList) {
+            RolePermissionEntity rolePermissionEntity = new RolePermissionEntity(roleId, integer, System.currentTimeMillis());
+            rolePermissionDao.save(rolePermissionEntity);
+        }
+    }
 
     public void addPermission(Integer roleId, List<String> permissionNameList) {
         for (String s : permissionNameList) {
             if (findRolePermission(roleId, s) == null) {
                 addPermission(roleId, s);
-
             }
         }
     }

@@ -38,7 +38,9 @@ public class EmployeeRoleService {
 
     public void addEmployeeRole(List<Integer> employeeIdList, Integer roleId) {
         for (Integer integer : employeeIdList) {
-            addEmployeeRole(integer, roleId);
+            if (findEmployeeRole(integer, roleId) == null) {
+                addEmployeeRole(integer, roleId);
+            }
         }
     }
 

@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import static com.example.logindemo.dto.ConstantValue.ROLE;
+
 /**
  * @author hrh13
  * @date 2021/7/26
@@ -27,7 +29,8 @@ public class RoleService {
     private EmployeeRoleService employeeRoleService;
     @Autowired
     private PermissionService permissionService;
-
+    @Autowired
+    private RedisService redisService;
     public RoleEntity addRole(String roleName) {
         RoleEntity roleEntity = new RoleEntity(roleName, System.currentTimeMillis());
         roleDao.save(roleEntity);
@@ -60,28 +63,28 @@ public class RoleService {
         return roleIdNameDto;
     }
 
-    public void updateRole(RoleIdNameDto role1, RoleIdNameDto role2) {
-        Integer roleId1 = role1.getRoleId();
-        Integer roleId2 = role2.getRoleId();
-        String roleName1 = role1.getRoleName();
-        String roleName2 = role2.getRoleName();
-        List<Integer> employeeIdList1 = employeeRoleDao.findEmployeeIdByRoleId(roleId1);
-        List<Integer> employeeIdList2 = employeeRoleDao.findEmployeeIdByRoleId(roleId2);
-        List<Integer> permissionIdList1 = rolePermissionDao.findPermissionIdByRoleId(roleId1);
-        List<Integer> permissionIdList2 = rolePermissionDao.findPermissionIdByRoleId(roleId2);
-        role1 = new RoleIdNameDto(roleId2, roleName2);
-        role2 = new RoleIdNameDto(roleId1, roleName1);
-        deleteRole(roleId1);
-        deleteRole(roleId2);
-        RoleEntity roleEntity2 = new RoleEntity(role2, System.currentTimeMillis());
-        RoleEntity roleEntity1 = new RoleEntity(role1, System.currentTimeMillis());
-        roleDao.save(roleEntity1);
-        roleDao.save(roleEntity2);
-
-        employeeRoleService.addEmployeeRole(employeeIdList1, roleId2);
-        employeeRoleService.addEmployeeRole(employeeIdList2, roleId1);
-//
-//        permissionService.addPermission(roleId1, permissionIdList2);
-//        permissionService.addPermission(roleId2, permissionIdList1);
+    public void updateRole(RoleIdNameDto roleBefore, RoleIdNameDto roleAfter) {
+        Integer roleIdBefore = roleBefore.getRoleId();
+        Integer roleIdAfter = roleAfter.getRoleId();
+        List<Integer> employeeIdListBefore = employeeRoleDao.findEmployeeIdByRoleId(roleIdBefore);
+        List<Integer> employeeIdListAfter = employeeRoleDao.findEmployeeIdByRoleId(roleIdAfter);
+        List<Integer> permissionIdListBefore = rolePermissionDao.findPermissionIdByRoleId(roleIdBefore);
+        List<Integer> permissionIdListAfter = rolePermissionDao.findPermissionIdByRoleId(roleIdAfter);
+        deleteRole(roleIdBefore);
+        deleteRole(roleIdAfter);
+        String roleNameBefore = roleBefore.getRoleName();
+        String roleNameAfter = roleAfter.getRoleName();
+        roleBefore = new RoleIdNameDto(roleIdBefore, roleNameAfter);
+        roleAfter = new RoleIdNameDto(roleIdAfter, roleNameBefore);
+        RoleEntity roleEntityBefore = new RoleEntity(roleBefore, System.currentTimeMillis());
+        RoleEntity roleEntityAfter = new RoleEntity(roleAfter, System.currentTimeMillis());
+        roleDao.save(roleEntityAfter);
+        roleDao.save(roleEntityBefore);
+        employeeRoleService.addEmployeeRole(employeeIdListBefore, roleIdBefore);
+        employeeRoleService.addEmployeeRole(employeeIdListAfter, roleIdAfter);
+        permissionService.addPermissionId(roleIdBefore, permissionIdListAfter);
+        permissionService.addPermissionId(roleIdAfter, permissionIdListBefore);
+//        redisService.deleteRedis(roleIdBefore,ROLE);
+//        redisService.deleteRedis(roleIdAfter,ROLE);
     }
 }

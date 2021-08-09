@@ -53,7 +53,8 @@ public class RoleController {
         RoleIdNameDto foundRoleDtoAfter = roleService.findByRoleId(updateRoleDto.getRoleIdAfter());
         if (foundRoleDtoBefore != null && foundRoleDtoAfter != null) {
             roleService.updateRole(foundRoleDtoBefore, foundRoleDtoAfter);
-//            redisService.updatePermissionRedis(foundRoleDtoAfter.getRoleId());
+            redisService.updatePermissionRedis(foundRoleDtoAfter.getRoleId());
+            redisService.updatePermissionRedis(foundRoleDtoBefore.getRoleId());
             return ReturnValue.success(redisService.updatePermissionRedis(foundRoleDtoBefore.getRoleId()));
 
         } else {
