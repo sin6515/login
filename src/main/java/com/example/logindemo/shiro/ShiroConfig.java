@@ -29,7 +29,7 @@ public class ShiroConfig {
         filterChainDefinitionMap.put("/employees/login", "anon");
         filterChainDefinitionMap.put("/employees/roles/**", "anon");
         filterChainDefinitionMap.put("/roles/**", "anon");
-        filterChainDefinitionMap.put("/employees/users/**", "authc");
+        filterChainDefinitionMap.put("/employees/users/**", "perms");
         filterChainDefinitionMap.put("/**", "authc");
         shiroFilterFactoryBean.setFilterChainDefinitionMap(filterChainDefinitionMap);
         return shiroFilterFactoryBean;

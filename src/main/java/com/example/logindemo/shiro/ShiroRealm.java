@@ -39,7 +39,6 @@ public class ShiroRealm extends AuthorizingRealm {
             return null;
         }
         info.addStringPermissions(permissionService.findPermissionNameByRoleId(employeeRoleService.findRoleIdByEmployeeId(employeeId)));
-        //返回你的权限信息
         return info;
     }
 
