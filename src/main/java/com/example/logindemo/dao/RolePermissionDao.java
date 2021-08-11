@@ -2,8 +2,6 @@ package com.example.logindemo.dao;
 
 import com.example.logindemo.entity.RolePermissionEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import javax.transaction.Transactional;
@@ -15,10 +13,10 @@ import java.util.List;
  */
 @Repository
 public interface RolePermissionDao extends JpaRepository<RolePermissionEntity, Integer> {
-    @Query("select permissionId from RolePermissionEntity where roleId=?1")
-    List<Integer> findPermissionIdByRoleId(Integer roleId);
+    List<RolePermissionEntity> findByRoleId(Integer roleId);
 
-    List<RolePermissionEntity> findByRoleIdIn(List roleId);
+    List<RolePermissionEntity> findByRoleIdIn(List<Integer> roleId);
+
     RolePermissionEntity findByRoleIdAndPermissionId(Integer roleId, Integer permissionId);
 
     @Transactional

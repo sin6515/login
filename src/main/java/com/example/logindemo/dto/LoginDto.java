@@ -1,6 +1,8 @@
 package com.example.logindemo.dto;
 
 import com.alibaba.fastjson.annotation.JSONType;
+import com.example.logindemo.entity.EmployeeEntity;
+import com.example.logindemo.entity.UserEntity;
 import lombok.Data;
 
 /**
@@ -13,11 +15,16 @@ public class LoginDto {
     private String account;
     private String passWord;
 
-    public LoginDto(String account, String passWord) {
-        setAccount(account);
-        setPassWord(passWord);
+    public LoginDto(UserEntity userEntity) {
+        setAccount(userEntity.getAccount());
+        setPassWord(userEntity.getPassWord());
+    }
+    public LoginDto(EmployeeEntity employeeEntity) {
+        setAccount(employeeEntity.getAccount());
+        setPassWord(employeeEntity.getPassWord());
     }
     public LoginDto() {
+
     }
 
 }

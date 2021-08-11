@@ -1,5 +1,6 @@
 package com.example.logindemo.dto;
 
+import com.example.logindemo.entity.EmployeeRoleEntity;
 import lombok.Data;
 
 /**
@@ -11,8 +12,8 @@ public class EmployeeRoleDto {
     Integer employeeId;
     Integer roleId;
 
-    public EmployeeRoleDto(Integer employeeId, Integer roleId) {
-        setEmployeeId(employeeId);
-        setRoleId(roleId);
+    public EmployeeRoleDto(EmployeeRoleEntity employeeRoleEntity) {
+        setEmployeeId(employeeRoleEntity.getEmployeeId());
+        setRoleId(employeeRoleEntity.getRoleId());
     }
 }

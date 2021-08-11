@@ -9,6 +9,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.example.logindemo.dao.*;
 import com.example.logindemo.dto.*;
 import com.example.logindemo.entity.PermissionEntity;
+import com.example.logindemo.entity.RolePermissionEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -71,9 +72,9 @@ public class RedisService {
         RedisDto redisDto = new RedisDto(loginDtO.getAccount(),
                 loginDtO.getPassWord(), System.currentTimeMillis());
         if (USER.equals(redisName)) {
-            redisDto.setId(userDao.findIdByAccount(redisDto.getAccount()));
+            redisDto.setId(userDao.findByAccount(redisDto.getAccount()).getId());
         } else {
-            redisDto.setId(employeeDao.findIdByAccount(redisDto.getAccount()));
+            redisDto.setId(employeeDao.findByAccount(redisDto.getAccount()).getId());
         }
         key = returnKey(redisDto.getId(), redisName);
         redisDto.setToken(creatToken(redisDto.getId(), redisName));
@@ -102,7 +103,8 @@ public class RedisService {
     }
 
     public RolePermissionRedisDto updatePermissionRedis(Integer roleId) {
-        List<Integer> permissionIdList = rolePermissionDao.findPermissionIdByRoleId(roleId);
+        List<Integer> permissionIdList = rolePermissionDao.findByRoleId(roleId)
+                .stream().map(RolePermissionEntity::getPermissionId).collect(Collectors.toList());
         List<String> permissionNameList = permissionDao.findByIdIn(permissionIdList)
                 .stream().map(PermissionEntity::getPermissionName).collect(Collectors.toList());
         String roleName = roleService.findByRoleId(roleId).getRoleName();
@@ -117,14 +119,6 @@ public class RedisService {
         } else {
             return null;
         }
-    }
-
-    public Collection findPermissionRedis(Integer roleId, String redisName) {
-        String value = stringRedisTemplate.opsForValue().get(returnKey(roleId, redisName));
-        JSONObject jsonObject = JSON.parseObject(value);
-        String permission = jsonObject.getString("permission");
-        Map<Integer, String> map = JSONObject.parseObject(permission, Map.class);
-        return map.values();
     }
 
     public void deleteRedis(Integer id, String redisName) {

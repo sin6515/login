@@ -18,13 +18,7 @@ public interface UserDao extends JpaRepository<UserEntity, Integer> {
     public UserEntity findByAccount(String account);
 
     @Override
-    Optional<UserEntity> findById(Integer id);
-
-    @Override
     public void deleteById(Integer id);
-
-    @Query("select id from UserEntity where account=?1")
-    Integer findIdByAccount(String account);
 
     @Transactional
     @Modifying

@@ -28,19 +28,15 @@ public class EmployeeRoleController {
 
     @PostMapping("/employees/roles/{roleId}")
     public ReturnValue addEmployeeRole(@RequestHeader(EMPLOYEE_ID) Integer employeeId, @PathVariable(ROLE_ID) Integer roleId) {
-        if (employeeService.hasEmployeeById(employeeId)) {
-            if (roleService.findByRoleId(roleId) != null) {
-                EmployeeRoleDto employeeRoleDto = employeeRoleService.findEmployeeRole(employeeId, roleId);
-                if (null == employeeRoleDto) {
-                    return ReturnValue.success(employeeRoleService.addEmployeeRole(employeeId, roleId));
-                } else {
-                    return ReturnValue.fail(REPEAT_ASK_CODE, ADD_EXISTS, employeeRoleDto);
-                }
+        if (roleService.findByRoleId(roleId) != null) {
+            EmployeeRoleDto employeeRoleDto = employeeRoleService.findEmployeeRole(employeeId, roleId);
+            if (null == employeeRoleDto) {
+                return ReturnValue.success(employeeRoleService.addEmployeeRole(employeeId, roleId));
+            } else {
+                return ReturnValue.fail(REPEAT_ASK_CODE, ADD_EXISTS, employeeRoleDto);
             }
-            return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, roleId);
-        } else {
-            return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, employeeId);
         }
+        return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, roleId);
 
     }
 
@@ -68,19 +64,16 @@ public class EmployeeRoleController {
 
     @DeleteMapping("/employees/roles/{roleId}")
     public ReturnValue deleteEmployeeRole(@RequestHeader(EMPLOYEE_ID) Integer employeeId, @PathVariable(ROLE_ID) Integer roleId) {
-        if (employeeService.hasEmployeeById(employeeId)) {
-            if (roleService.findByRoleId(roleId) != null) {
-                EmployeeRoleDto employeeRoleDto = employeeRoleService.findEmployeeRole(employeeId, roleId);
-                if (null == employeeRoleDto) {
-                    return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, null);
-                } else {
-                    return ReturnValue.success(employeeRoleService.deleteEmployeeRole(employeeId, roleId));
-                }
+        if (roleService.findByRoleId(roleId) != null) {
+            EmployeeRoleDto employeeRoleDto = employeeRoleService.findEmployeeRole(employeeId, roleId);
+            if (null == employeeRoleDto) {
+                return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, null);
+            } else {
+                return ReturnValue.success(employeeRoleService.deleteEmployeeRole(employeeId, roleId));
             }
-            return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, roleId);
-        } else {
-            return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, employeeId);
         }
+        return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, roleId);
+
 
     }
 }

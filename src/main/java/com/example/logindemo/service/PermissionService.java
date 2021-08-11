@@ -4,6 +4,7 @@ import com.example.logindemo.dao.EmployeeRoleDao;
 import com.example.logindemo.dao.PermissionDao;
 import com.example.logindemo.dao.RolePermissionDao;
 import com.example.logindemo.dto.RolePermissionDto;
+import com.example.logindemo.entity.EmployeeRoleEntity;
 import com.example.logindemo.entity.PermissionEntity;
 import com.example.logindemo.entity.RolePermissionEntity;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,15 +25,14 @@ public class PermissionService {
     private RolePermissionDao rolePermissionDao;
     @Autowired
     private EmployeeRoleDao employeeRoleDao;
+    @Autowired(required = false)
+    private RolePermissionService rolePermissionService;
 
     public boolean findIsPermission(String permissionName, Integer employeeId) {
-        List<Integer> roleIdList = employeeRoleDao.findRoleIdByEmployeeId(employeeId);
-        if (roleIdList == null) {
-            return false;
-        }
+        List<Integer> roleIdList = employeeRoleDao.findByEmployeeId(employeeId)
+                .stream().map(EmployeeRoleEntity::getRoleId).collect(Collectors.toList());
         List<Integer> permissionIdList = rolePermissionDao.findByRoleIdIn(roleIdList)
                 .stream().map(RolePermissionEntity::getPermissionId).collect(Collectors.toList());
-
         List<String> permissionNameList = permissionDao.findByIdIn(permissionIdList)
                 .stream().map(PermissionEntity::getPermissionName).collect(Collectors.toList());
         return permissionNameList.contains(permissionName);
@@ -48,10 +48,10 @@ public class PermissionService {
     }
 
     public RolePermissionDto findRolePermission(Integer roleId, String permissionName) {
-        if (permissionDao.findByPermissionName(permissionName).isEmpty()) {
+        if (permissionDao.findByPermissionName(permissionName) == null) {
             savePermission(permissionName);
         }
-        Integer permissionId = permissionDao.findIdByPermissionName(permissionName);
+        Integer permissionId = permissionDao.findByPermissionName(permissionName).getId();
         if (rolePermissionDao.findByRoleIdAndPermissionId(roleId, permissionId) == null) {
             return null;
         } else {
@@ -71,11 +71,16 @@ public class PermissionService {
         return new RolePermissionDto();
     }
 
+    public List<String> findPermissionNameByRoleId(List<Integer> roleId) {
+        List<Integer> permissionId = rolePermissionService.findPermissionIdByRoleId(roleId);
+        return permissionDao.findByIdIn(permissionId).stream().map(PermissionEntity::getPermissionName).collect(Collectors.toList());
+    }
+
     public void addPermission(Integer roleId, String permissionName) {
-        if (permissionDao.findByPermissionName(permissionName).isEmpty()) {
+        if (permissionDao.findByPermissionName(permissionName) == null) {
             savePermission(permissionName);
         }
-        Integer permissionId = permissionDao.findIdByPermissionName(permissionName);
+        Integer permissionId = permissionDao.findByPermissionName(permissionName).getId();
         RolePermissionEntity rolePermissionEntity = new RolePermissionEntity(roleId, permissionId, System.currentTimeMillis());
         rolePermissionDao.save(rolePermissionEntity);
     }
@@ -97,10 +102,10 @@ public class PermissionService {
 
 
     public void deletePermission(Integer roleId, String permissionName) {
-        if (permissionDao.findByPermissionName(permissionName).isEmpty()) {
+        if (permissionDao.findByPermissionName(permissionName) == null) {
             savePermission(permissionName);
         }
-        Integer permissionId = permissionDao.findIdByPermissionName(permissionName);
+        Integer permissionId = permissionDao.findByPermissionName(permissionName).getId();
         RolePermissionDto rolePermissionDto = new RolePermissionDto();
         rolePermissionDto.setRoleId(rolePermissionDao.findByRoleIdAndPermissionId(roleId, permissionId).getRoleId());
         rolePermissionDto.setPermissionId(rolePermissionDao.findByRoleIdAndPermissionId(roleId, permissionId).getPermissionId());

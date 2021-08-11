@@ -30,11 +30,14 @@ public class EmployeeService {
         if (employeeDao.findByAccount(account) == null) {
             return null;
         } else {
-            LoginDto loginDto = new LoginDto(employeeDao.findByAccount(account).getAccount(),
-                    employeeDao.findByAccount(account).getPassWord());
-            return loginDto;
+            return new LoginDto(employeeDao.findByAccount(account));
         }
     }
+
+    public Integer findEmployeeId(String account) {
+        return employeeDao.findByAccount(account).getId();
+    }
+
 
     public boolean hasEmployeeById(Integer id) {
         return employeeDao.findById(id).isPresent();

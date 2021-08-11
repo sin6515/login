@@ -31,6 +31,6 @@ public class RedisDto {
         setAccount(account);
         setPassWord(passWord);
         setGmt_creat(Long.parseLong(gmt_creat));
-        setExpireTime(Long.parseLong(gmt_creat)+1000*60*60*24*TIME_OUT);
+        setExpireTime(Long.parseLong(gmt_creat)+ 1000L *60*60*24*TIME_OUT);
     }
 }

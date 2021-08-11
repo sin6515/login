@@ -2,7 +2,6 @@ package com.example.logindemo.dao;
 
 import com.example.logindemo.entity.EmployeeEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -15,7 +14,4 @@ public interface EmployeeDao extends JpaRepository<EmployeeEntity, Integer> {
 
     @Override
     public void deleteById(Integer id);
-
-    @Query("select id from EmployeeEntity where account=?1")
-    Integer findIdByAccount(String account);
 }

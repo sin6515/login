@@ -3,10 +3,12 @@ package com.example.logindemo.service;
 import com.example.logindemo.dao.EmployeeRoleDao;
 import com.example.logindemo.dto.EmployeeRoleDto;
 import com.example.logindemo.entity.EmployeeRoleEntity;
+import com.example.logindemo.entity.RoleEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author hrh13
@@ -16,16 +18,30 @@ import java.util.List;
 public class EmployeeRoleService {
     @Autowired
     private EmployeeRoleDao employeeRoleDao;
+    @Autowired
+    private RoleService roleService;
 
     public EmployeeRoleDto findEmployeeRole(Integer employeeId, Integer roleId) {
         EmployeeRoleEntity employeeRoleEntity = employeeRoleDao.findByEmployeeIdAndRoleId(employeeId, roleId);
         if (employeeRoleEntity == null) {
             return null;
         } else {
-            EmployeeRoleDto employeeRoleDto = new EmployeeRoleDto(employeeRoleEntity.getEmployeeId(),
-                    employeeRoleEntity.getRoleId());
-            return employeeRoleDto;
+            return new EmployeeRoleDto(employeeRoleEntity);
+        }
+    }
 
+    public List<Integer> findRoleIdByEmployeeId(Integer employeeId) {
+        return employeeRoleDao.findByEmployeeId(employeeId).stream().map(EmployeeRoleEntity::getRoleId).collect(Collectors.toList());
+    }
+
+    public List<String> findRoleNameByEmployeeId(Integer employeeId) {
+        List<Integer> roleId = employeeRoleDao.findByEmployeeId(employeeId)
+                .stream().map(EmployeeRoleEntity::getRoleId).collect(Collectors.toList());
+        List<String> roleName = roleService.findByRoleId(roleId).stream().map(RoleEntity::getRoleName).collect(Collectors.toList());
+        if (roleId.isEmpty()) {
+            return null;
+        } else {
+            return roleName;
         }
     }
 

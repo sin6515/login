@@ -5,13 +5,16 @@ import com.example.logindemo.service.EmployeeService;
 import com.example.logindemo.service.PermissionService;
 import com.example.logindemo.service.RedisService;
 import com.example.logindemo.service.UserService;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authc.*;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
 
 import static com.example.logindemo.dto.ConstantValue.*;
-import static com.example.logindemo.dto.ConstantValue.BAD_REQUEST_CODE;
 
 /**
  * @author hrh13
@@ -41,76 +44,69 @@ public class EmployeeController {
 
     @PostMapping(path = "/employees/login")
     public ReturnValue<LoginDto> login(@RequestBody LoginDto loginDto) {
+        Subject subject = SecurityUtils.getSubject();
+        UsernamePasswordToken token = new UsernamePasswordToken(loginDto.getAccount(), loginDto.getPassWord());
         LoginDto loginDtoFound = employeeService.findEmployee(loginDto.getAccount());
         if (null == loginDtoFound) {
             return ReturnValue.fail(NOT_FOUND_CODE, LOGIN_ERROR_ACCOUNT, loginDto);
         } else if (!loginDtoFound.getPassWord().equals(DigestUtils.md5DigestAsHex(loginDto.getPassWord().getBytes()))) {
             return ReturnValue.fail(BAD_REQUEST_CODE, LOGIN_ERROR_PASSWORD, loginDto);
         } else {
+            subject.login(token);
             redisService.addRedis(loginDtoFound, EMPLOYEE);
             return ReturnValue.success(loginDtoFound);
         }
     }
 
+    @RequiresPermissions(Find)
     @GetMapping(path = "/employees/users/{userId}")
     public ReturnValue find(@RequestHeader(EMPLOYEE_ID) Integer employeeId, @PathVariable(USER_ID) Integer userId) {
-        if (permissionService.findIsPermission(Find, employeeId)) {
-            UserDto userDto = userService.findUser(userId);
-            if (userDto != null) {
-                if (redisService.hasRedis(userId, USER)) {
-                    return ReturnValue.success(redisService.findRedis(userId, USER));
-                } else {
-                    LoginDto loginDto = new LoginDto();
-                    loginDto.setAccount(userDto.getAccount());
-                    loginDto.setPassWord(userDto.getPassWord());
-                    redisService.addRedis(loginDto, USER);
-                    return ReturnValue.success(userDto
-                    );
-                }
+        UserDto userDto = userService.findUser(userId);
+        if (userDto != null) {
+            if (redisService.hasRedis(userId, USER)) {
+                return ReturnValue.success(redisService.findRedis(userId, USER));
             } else {
-                return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, userId);
+                LoginDto loginDto = new LoginDto();
+                loginDto.setAccount(userDto.getAccount());
+                loginDto.setPassWord(userDto.getPassWord());
+                redisService.addRedis(loginDto, USER);
+                return ReturnValue.success(userDto
+                );
             }
         } else {
-            return ReturnValue.fail(FORBIDDEN_CODE, NO_PERMISSION, employeeId + ":" + Find);
+            return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, userId);
         }
+
     }
 
-
+    @RequiresPermissions(DELETE)
     @DeleteMapping("/employees/users/{userId}")
     public ReturnValue delete(@RequestHeader(EMPLOYEE_ID) Integer employeeId, @PathVariable(USER_ID) Integer userId) {
-        if (permissionService.findIsPermission(DELETE, employeeId)) {
-            UserDto userDto = userService.findUser(userId);
-            if (userDto != null) {
-                if (redisService.hasRedis(userId, USER)) {
-                    redisService.deleteRedis(userId, USER);
-                }
-                return ReturnValue.success(userService.deleteUser(userId));
-            } else {
-                return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, userId);
+        UserDto userDto = userService.findUser(userId);
+        if (userDto != null) {
+            if (redisService.hasRedis(userId, USER)) {
+                redisService.deleteRedis(userId, USER);
             }
+            return ReturnValue.success(userService.deleteUser(userId));
         } else {
-            return ReturnValue.fail(FORBIDDEN_CODE, NO_PERMISSION, employeeId + ":" + DELETE);
+            return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, userId);
         }
-
     }
 
+    @RequiresPermissions(UPDATE)
     @PutMapping("/employees/users/{userId}")
     public ReturnValue update(@RequestHeader(EMPLOYEE_ID) Integer employeeId, @PathVariable(USER_ID) Integer userId, @RequestBody UpdatePassWordDto updatePassWordDTO) {
-        if (permissionService.findIsPermission(UPDATE, employeeId)) {
-            UserDto userDto = userService.findUser(userId);
-            if (userDto != null) {
-                if (redisService.hasRedis(userId, USER)) {
-                    LoginDto loginDto = new LoginDto();
-                    loginDto.setAccount(userDto.getAccount());
-                    loginDto.setPassWord(DigestUtils.md5DigestAsHex(updatePassWordDTO.getPassWord().getBytes()));
-                    redisService.addRedis(loginDto, USER);
-                }
-                return ReturnValue.success(userService.updateUser(userId, updatePassWordDTO.getPassWord()));
-            } else {
-                return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, userId);
+        UserDto userDto = userService.findUser(userId);
+        if (userDto != null) {
+            if (redisService.hasRedis(userId, USER)) {
+                LoginDto loginDto = new LoginDto();
+                loginDto.setAccount(userDto.getAccount());
+                loginDto.setPassWord(DigestUtils.md5DigestAsHex(updatePassWordDTO.getPassWord().getBytes()));
+                redisService.addRedis(loginDto, USER);
             }
+            return ReturnValue.success(userService.updateUser(userId, updatePassWordDTO.getPassWord()));
         } else {
-            return ReturnValue.fail(FORBIDDEN_CODE, NO_PERMISSION, employeeId + ":" + UPDATE);
+            return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, userId);
         }
     }
 

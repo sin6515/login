@@ -29,9 +29,7 @@ public class UserService {
         if (userDao.findByAccount(account) == null) {
             return null;
         } else {
-            LoginDto loginDto = new LoginDto(userDao.findByAccount(account).getAccount(),
-                    userDao.findByAccount(account).getPassWord());
-            return loginDto;
+            return new LoginDto(userDao.findByAccount(account));
         }
 
     }
