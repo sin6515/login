@@ -1,10 +1,7 @@
 package com.example.logindemo.controller;
 
 import com.example.logindemo.dto.*;
-import com.example.logindemo.service.EmployeeService;
-import com.example.logindemo.service.PermissionService;
-import com.example.logindemo.service.RedisService;
-import com.example.logindemo.service.UserService;
+import com.example.logindemo.service.*;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -28,9 +25,11 @@ public class EmployeeController {
     @Autowired
     private RedisService redisService;
     @Autowired
-    private PermissionService permissionService;
-    @Autowired
     private UserService userService;
+    @Autowired
+    private EmployeeRoleService employeeRoleService;
+    @Autowired
+    private RoleService roleService;
 
     @PostMapping("/employees")
     public ReturnValue add(@RequestBody AddDto addDto) {
@@ -58,9 +57,60 @@ public class EmployeeController {
         }
     }
 
+    @PostMapping("/employees/roles/{roleId}")
+    public ReturnValue addEmployeeRole(@RequestHeader(EMPLOYEE_ID) Integer employeeId, @PathVariable(ROLE_ID) Integer roleId) {
+        if (roleService.findByRoleId(roleId) != null) {
+            EmployeeRoleDto employeeRoleDto = employeeRoleService.findEmployeeRole(employeeId, roleId);
+            if (null == employeeRoleDto) {
+                return ReturnValue.success(employeeRoleService.addEmployeeRole(employeeId, roleId));
+            } else {
+                return ReturnValue.fail(REPEAT_ASK_CODE, ADD_EXISTS, employeeRoleDto);
+            }
+        }
+        return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, roleId);
+
+    }
+
+    @PutMapping("/employees/roles")
+    public ReturnValue updatePermission(@RequestHeader(EMPLOYEE_ID) Integer employeeId, @RequestBody UpdateRoleDto updateRoleDto) {
+        Integer roleIdBefore = updateRoleDto.getRoleIdBefore();
+        Integer roleIdAfter = updateRoleDto.getRoleIdAfter();
+        if (roleService.findByRoleId(roleIdBefore) != null && roleService.findByRoleId(roleIdAfter) != null) {
+            EmployeeRoleDto employeeRoleDtoBefore = employeeRoleService.findEmployeeRole(employeeId, roleIdBefore);
+            EmployeeRoleDto employeeRoleDtoAfter = employeeRoleService.findEmployeeRole(employeeId, roleIdAfter);
+            if (null != employeeRoleDtoBefore) {
+                if (null == employeeRoleDtoAfter) {
+                    employeeRoleService.deleteEmployeeRole(employeeId, roleIdBefore);
+                    return ReturnValue.success(employeeRoleService.addEmployeeRole(employeeId, roleIdAfter));
+                } else {
+                    return ReturnValue.fail(REPEAT_ASK_CODE, HAVE_ROLE, roleIdAfter);
+                }
+            } else {
+                return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, roleIdBefore);
+            }
+        }
+        return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, roleIdBefore + " or " + roleIdAfter);
+
+    }
+
+    @DeleteMapping("/employees/roles/{roleId}")
+    public ReturnValue deleteEmployeeRole(@RequestHeader(EMPLOYEE_ID) Integer employeeId, @PathVariable(ROLE_ID) Integer roleId) {
+        if (roleService.findByRoleId(roleId) != null) {
+            EmployeeRoleDto employeeRoleDto = employeeRoleService.findEmployeeRole(employeeId, roleId);
+            if (null == employeeRoleDto) {
+                return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, null);
+            } else {
+                return ReturnValue.success(employeeRoleService.deleteEmployeeRole(employeeId, roleId));
+            }
+        }
+        return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, roleId);
+
+
+    }
+
     @RequiresPermissions(Find)
     @GetMapping(path = "/employees/users/{userId}")
-    public ReturnValue find(@RequestHeader(EMPLOYEE_ID) Integer employeeId, @PathVariable(USER_ID) Integer userId) {
+    public ReturnValue find(@PathVariable(USER_ID) Integer userId) {
         UserDto userDto = userService.findUser(userId);
         if (userDto != null) {
             if (redisService.hasRedis(userId, USER)) {
@@ -81,7 +131,7 @@ public class EmployeeController {
 
     @RequiresPermissions(DELETE)
     @DeleteMapping("/employees/users/{userId}")
-    public ReturnValue delete(@RequestHeader(EMPLOYEE_ID) Integer employeeId, @PathVariable(USER_ID) Integer userId) {
+    public ReturnValue delete(@PathVariable(USER_ID) Integer userId) {
         UserDto userDto = userService.findUser(userId);
         if (userDto != null) {
             if (redisService.hasRedis(userId, USER)) {
@@ -95,7 +145,7 @@ public class EmployeeController {
 
     @RequiresPermissions(UPDATE)
     @PutMapping("/employees/users/{userId}")
-    public ReturnValue update(@RequestHeader(EMPLOYEE_ID) Integer employeeId, @PathVariable(USER_ID) Integer userId, @RequestBody UpdatePassWordDto updatePassWordDTO) {
+    public ReturnValue update(@PathVariable(USER_ID) Integer userId, @RequestBody UpdatePassWordDto updatePassWordDTO) {
         UserDto userDto = userService.findUser(userId);
         if (userDto != null) {
             if (redisService.hasRedis(userId, USER)) {
