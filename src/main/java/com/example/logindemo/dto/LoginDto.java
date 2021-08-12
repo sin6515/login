@@ -27,8 +27,4 @@ public class LoginDto {
 
     }
 
-    public LoginDto(String d, String dd) {
-        setAccount(d);
-        setPassWord(dd);
-    }
 }

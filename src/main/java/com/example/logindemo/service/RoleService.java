@@ -51,10 +51,6 @@ public class RoleService {
         }
     }
 
-    public List<RoleEntity> findByRoleId(List<Integer> roleId) {
-        return roleDao.findByIdIn(roleId);
-    }
-
     public RoleIdNameDto deleteRole(Integer roleId) {
         RoleIdNameDto roleIdNameDto = findByRoleId(roleId);
         roleDao.deleteById(roleId);

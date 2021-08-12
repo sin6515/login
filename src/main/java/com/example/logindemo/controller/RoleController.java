@@ -31,6 +31,7 @@ public class RoleController {
     private RolePermissionService rolePermissionService;
     @Autowired
     private PermissionService permissionService;
+
     @RequiresPermissions(ROLE_ADD)
     @PostMapping("/roles")
     public ReturnValue addRole(@RequestBody RoleNameDto roleNameDTO) {
@@ -43,6 +44,7 @@ public class RoleController {
             return ReturnValue.fail(REPEAT_ASK_CODE, ADD_EXISTS, foundRoleNameDto);
         }
     }
+
     @RequiresPermissions(ROLE_DELETE)
     @DeleteMapping("/roles/{id}")
     public ReturnValue deletePermission(@PathVariable("id") Integer roleId) {
@@ -54,6 +56,7 @@ public class RoleController {
             return ReturnValue.success(roleService.deleteRole(roleId));
         }
     }
+
     @RequiresPermissions(ROLE_UPDATE)
     @PutMapping("/roles")
     public ReturnValue updateRole(@RequestBody UpdateRoleDto updateRoleDto) {
@@ -66,9 +69,10 @@ public class RoleController {
             return ReturnValue.success(redisService.updatePermissionRedis(foundRoleDtoBefore.getRoleId()));
 
         } else {
-            return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, foundRoleDtoBefore.getRoleId() + " or" + foundRoleDtoAfter.getRoleId());
+            return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, updateRoleDto.getRoleIdBefore() + " or" + updateRoleDto.getRoleIdAfter());
         }
     }
+
     @RequiresPermissions(ROLE_PERMISSION_FIND)
     @GetMapping("/roles/{roleId}")
     public ReturnValue findRole(@PathVariable(ROLE_ID) Integer roleId) {
@@ -100,6 +104,7 @@ public class RoleController {
             return ReturnValue.fail(ERROR_INPUT_CODE, ERROR_INPUT_STATE, permissionNameRoleIdDTO);
         }
     }
+
     @RequiresPermissions(ROLE_PERMISSION_UPDATE)
     @PutMapping("/roles/permissions")
     public ReturnValue updatePermission(@RequestBody UpdatePermissionDto updatePermissionDTO) {

@@ -31,9 +31,6 @@ public class LoginHandlerInterceptor implements HandlerInterceptor {
         Integer employeeId = Integer.valueOf(request.getHeader(EMPLOYEE_ID));
         String token = request.getHeader(TOKEN);
         if (redisService.hasRedis(employeeId, EMPLOYEE)) {
-//            if (token.equals(redisService.findToken(employeeId, EMPLOYEE))) {
-//                return true;
-//            }
             if (redisService.verityToken(token, EMPLOYEE, employeeId)) {
                 return true;
             }

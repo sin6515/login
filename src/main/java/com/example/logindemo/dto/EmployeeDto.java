@@ -2,7 +2,6 @@ package com.example.logindemo.dto;
 
 import com.alibaba.fastjson.annotation.JSONType;
 import com.example.logindemo.entity.EmployeeEntity;
-import com.example.logindemo.entity.UserEntity;
 import lombok.Data;
 
 /**

@@ -1,6 +1,5 @@
 package com.example.logindemo.service;
 
-import com.example.logindemo.dao.EmployeeRoleDao;
 import com.example.logindemo.dao.PermissionDao;
 import com.example.logindemo.dao.RolePermissionDao;
 import com.example.logindemo.dto.RolePermissionDto;
@@ -22,8 +21,6 @@ public class RolePermissionService {
     private RolePermissionDao rolePermissionDao;
     @Autowired
     private PermissionDao permissionDao;
-    @Autowired
-    private EmployeeRoleDao employeeRoleDao;
     @Autowired
     private RolePermissionService rolePermissionService;
 

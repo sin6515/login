@@ -116,8 +116,7 @@ public class RedisService {
     public List<String> findPermissionByEmployeeRedis(Integer employeeId) {
         String value = stringRedisTemplate.opsForValue().get(returnKey(employeeId, EMPLOYEE));
         JSONObject jsonObject = JSON.parseObject(value);
-        List<String> permissionName = Collections.singletonList(jsonObject.getString("permissionName"));
-        return permissionName;
+        return Collections.singletonList(jsonObject.getString("permissionName"));
     }
 
     public String findCategoryByEmployeeRedis(Integer employeeId) {

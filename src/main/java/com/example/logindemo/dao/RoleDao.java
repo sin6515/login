@@ -4,7 +4,6 @@ import com.example.logindemo.entity.RoleEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -14,8 +13,6 @@ import java.util.Optional;
 @Repository
 public interface RoleDao extends JpaRepository<RoleEntity, Integer> {
     RoleEntity findByRoleName(String roleName);
-
-    List<RoleEntity> findByIdIn(List<Integer> roleId);
 
     @Override
     Optional<RoleEntity> findById(Integer roleId);

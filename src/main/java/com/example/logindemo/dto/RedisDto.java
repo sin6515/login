@@ -43,7 +43,7 @@ public class RedisDto {
     }
 
     public RedisDto(Integer employeeId, long gmt_creat) {
-        setId(id);
+        setId(employeeId);
         setGmt_creat(gmt_creat);
         setExpireTime(gmt_creat + TIME_OUT_MILLS);
     }
