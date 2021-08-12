@@ -14,7 +14,7 @@ import javax.persistence.*;
 @Entity
 @Data
 @Table(name = "user")
-@JSONType(orders = {"id","account","passWord","nickname","email","phone","gmt_create","gmt_modified"})
+@JSONType(orders = {"id", "account", "passWord", "nickname", "email", "phone", "gmtCreate", "gmtModified"})
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class UserEntity {
     @Id
@@ -35,16 +35,18 @@ public class UserEntity {
     @Column(name = "user_phone")
     private String phone;
 
-    private long gmt_create;
-    private long gmt_modified;
+    @Column(name = "gmt_create")
+    private long gmtCreate;
+    @Column(name = "gmt_modified")
+    private long gmtModified;
 
-    public UserEntity(String account, String passWord, String nickname, String email, String phone, long gmt_create) {
+    public UserEntity(String account, String passWord, String nickname, String email, String phone, long gmtCreate) {
         setAccount(account);
         setPassWord(passWord);
         setNickname(nickname);
         setEmail(email);
         setPhone(phone);
-        setGmt_create(gmt_create);
+        setGmtCreate(gmtCreate);
     }
 
     public UserEntity() {

@@ -23,18 +23,20 @@ public class RoleEntity {
 
     @Column(name = "permission_lv")
     private Integer permissionLv;
-    private long gmt_create;
-    private long gmt_modified;
+    @Column(name = "gmt_create")
+    private long gmtCreate;
+    @Column(name = "gmt_modified")
+    private long gmtModified;
 
-    public RoleEntity(String roleName, long gmt_create) {
+    public RoleEntity(String roleName, long gmtCreate) {
         setRoleName(roleName);
-        setGmt_create(gmt_create);
+        setGmtCreate(gmtCreate);
     }
 
-    public RoleEntity(RoleIdNameDto roleIdNameDto, long gmt_create) {
+    public RoleEntity(RoleIdNameDto roleIdNameDto, long gmtCreate) {
         setId(roleIdNameDto.getRoleId());
         setRoleName(roleIdNameDto.getRoleName());
-        setGmt_create(gmt_create);
+        setGmtCreate(gmtCreate);
     }
 
     public RoleEntity() {

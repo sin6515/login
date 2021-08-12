@@ -28,7 +28,7 @@ public class RoleService {
     @Autowired
     private EmployeeRoleService employeeRoleService;
     @Autowired
-    private PermissionService permissionService;
+    private RolePermissionService rolePermissionService;
 
     public void addRole(String roleName) {
         RoleEntity roleEntity = new RoleEntity(roleName, System.currentTimeMillis());
@@ -86,7 +86,7 @@ public class RoleService {
         roleDao.save(roleEntityBefore);
         employeeRoleService.addEmployeeRole(employeeIdListBefore, roleIdBefore);
         employeeRoleService.addEmployeeRole(employeeIdListAfter, roleIdAfter);
-        permissionService.addPermissionId(roleIdBefore, permissionIdListAfter);
-        permissionService.addPermissionId(roleIdAfter, permissionIdListBefore);
+        rolePermissionService.addRolePermissionId(roleIdBefore, permissionIdListAfter);
+        rolePermissionService.addRolePermissionId(roleIdAfter, permissionIdListBefore);
     }
 }

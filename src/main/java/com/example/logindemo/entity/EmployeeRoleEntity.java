@@ -13,19 +13,22 @@ import javax.persistence.*;
 @Data
 public class EmployeeRoleEntity {
     @Id
-    @GeneratedValue(strategy= GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     @Column(name = "employee_id")
     private Integer employeeId;
 
     @Column(name = "role_id")
     private Integer roleId;
-    private long gmt_create;
-    private long gmt_modified;
-    public EmployeeRoleEntity(Integer employeeId, Integer roleId, long gmt_create){
+    @Column(name = "gmt_create")
+    private long gmtCreate;
+    @Column(name = "gmt_modified")
+    private long gmtModified;
+
+    public EmployeeRoleEntity(Integer employeeId, Integer roleId, long gmtCreate) {
         setEmployeeId(employeeId);
         setRoleId(roleId);
-        setGmt_create(gmt_create);
+        setGmtCreate(gmtCreate);
     }
 
     public EmployeeRoleEntity() {

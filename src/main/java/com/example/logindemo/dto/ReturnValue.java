@@ -31,7 +31,7 @@ public class ReturnValue<T> {
         ReturnValue returnValue = new ReturnValue();
         returnValue.setCode(code);
         returnValue.setMessage(message);
-        returnValue.setError(errorMap.get(code));
+        returnValue.setError(ERROR_MAP.get(code));
         returnValue.setDetail(detail);
         return returnValue;
     }

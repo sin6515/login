@@ -27,24 +27,28 @@ public class ShiroConfig {
         filterChainDefinitionMap.put("/employees", "anon");
         filterChainDefinitionMap.put("/users/**", "anon");
         filterChainDefinitionMap.put("/employees/login", "anon");
-        filterChainDefinitionMap.put("/employees/roles/**", "anon");
-        filterChainDefinitionMap.put("/roles/**", "anon");
+        filterChainDefinitionMap.put("/employees/roles/**", "perms");
+        filterChainDefinitionMap.put("/roles", "perms");
+        filterChainDefinitionMap.put("/roles/**", "perms");
         filterChainDefinitionMap.put("/employees/users/**", "perms");
         filterChainDefinitionMap.put("/**", "authc");
         shiroFilterFactoryBean.setFilterChainDefinitionMap(filterChainDefinitionMap);
         return shiroFilterFactoryBean;
 
     }
+
     @Bean
     public SessionsSecurityManager securityManager() {
         DefaultWebSecurityManager securityManager = new DefaultWebSecurityManager();
         securityManager.setRealm(shiroRealm());
         return securityManager;
     }
+
     @Bean
-    public ShiroRealm shiroRealm(){
+    public ShiroRealm shiroRealm() {
         return new ShiroRealm();
     }
+
     @Bean
     public LifecycleBeanPostProcessor lifecycleBeanPostProcessor() {
         return new LifecycleBeanPostProcessor();

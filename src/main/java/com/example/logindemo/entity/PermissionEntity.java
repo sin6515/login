@@ -13,21 +13,17 @@ import javax.persistence.*;
 @Data
 public class PermissionEntity {
     @Id
-    @GeneratedValue(strategy= GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    @Column(name = "permission_name")
+    @Column(name = "permission_code")
     private String permissionName;
 
     @Column(name = "permission_lv")
     private Integer permissionLv;
     @Column(name = "gmt_create")
-    private long gmt_create;
+    private long gmtCreate;
     @Column(name = "gmt_modified")
-    private long gmt_modified;
-    public PermissionEntity(String permissionName,long gmt_create){
-        setPermissionName(permissionName);
-        setGmt_create(gmt_create);
-    }
+    private long gmtModified;
 
     public PermissionEntity() {
 

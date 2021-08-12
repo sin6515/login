@@ -3,7 +3,7 @@ package com.example.logindemo.controller;
 import com.example.logindemo.dto.*;
 import com.example.logindemo.service.*;
 import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.authc.*;
+import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +12,7 @@ import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
 
 import static com.example.logindemo.dto.ConstantValue.*;
+import static com.example.logindemo.dto.PermissionConstantValue.*;
 
 /**
  * @author hrh13
@@ -33,7 +34,7 @@ public class EmployeeController {
 
     @PostMapping("/employees")
     public ReturnValue add(@RequestBody AddDto addDto) {
-        LoginDto loginDtoFound = employeeService.findEmployee(addDto.getAccount());
+        LoginDto loginDtoFound = employeeService.findLoginDtoByEmployeeAccount(addDto.getAccount());
         if (null == loginDtoFound) {
             return ReturnValue.success(employeeService.addEmployee(addDto));
         } else {
@@ -45,7 +46,7 @@ public class EmployeeController {
     public ReturnValue<LoginDto> login(@RequestBody LoginDto loginDto) {
         Subject subject = SecurityUtils.getSubject();
         UsernamePasswordToken token = new UsernamePasswordToken(loginDto.getAccount(), loginDto.getPassWord());
-        LoginDto loginDtoFound = employeeService.findEmployee(loginDto.getAccount());
+        LoginDto loginDtoFound = employeeService.findLoginDtoByEmployeeAccount(loginDto.getAccount());
         if (null == loginDtoFound) {
             return ReturnValue.fail(NOT_FOUND_CODE, LOGIN_ERROR_ACCOUNT, loginDto);
         } else if (!loginDtoFound.getPassWord().equals(DigestUtils.md5DigestAsHex(loginDto.getPassWord().getBytes()))) {
@@ -57,12 +58,14 @@ public class EmployeeController {
         }
     }
 
+    @RequiresPermissions(EMPLOYEE_ROLE_ADD)
     @PostMapping("/employees/roles/{roleId}")
     public ReturnValue addEmployeeRole(@RequestHeader(EMPLOYEE_ID) Integer employeeId, @PathVariable(ROLE_ID) Integer roleId) {
         if (roleService.findByRoleId(roleId) != null) {
             EmployeeRoleDto employeeRoleDto = employeeRoleService.findEmployeeRole(employeeId, roleId);
             if (null == employeeRoleDto) {
-                return ReturnValue.success(employeeRoleService.addEmployeeRole(employeeId, roleId));
+                employeeRoleService.addEmployeeRole(employeeId, roleId);
+                return ReturnValue.success(redisService.updateEmployeeRedis(employeeId));
             } else {
                 return ReturnValue.fail(REPEAT_ASK_CODE, ADD_EXISTS, employeeRoleDto);
             }
@@ -71,8 +74,9 @@ public class EmployeeController {
 
     }
 
+    @RequiresPermissions(EMPLOYEE_ROLE_UPDATE)
     @PutMapping("/employees/roles")
-    public ReturnValue updatePermission(@RequestHeader(EMPLOYEE_ID) Integer employeeId, @RequestBody UpdateRoleDto updateRoleDto) {
+    public ReturnValue updateEmployeeRole(@RequestHeader(EMPLOYEE_ID) Integer employeeId, @RequestBody UpdateRoleDto updateRoleDto) {
         Integer roleIdBefore = updateRoleDto.getRoleIdBefore();
         Integer roleIdAfter = updateRoleDto.getRoleIdAfter();
         if (roleService.findByRoleId(roleIdBefore) != null && roleService.findByRoleId(roleIdAfter) != null) {
@@ -81,7 +85,8 @@ public class EmployeeController {
             if (null != employeeRoleDtoBefore) {
                 if (null == employeeRoleDtoAfter) {
                     employeeRoleService.deleteEmployeeRole(employeeId, roleIdBefore);
-                    return ReturnValue.success(employeeRoleService.addEmployeeRole(employeeId, roleIdAfter));
+                    employeeRoleService.addEmployeeRole(employeeId, roleIdAfter);
+                    return ReturnValue.success(redisService.updateEmployeeRedis(employeeId));
                 } else {
                     return ReturnValue.fail(REPEAT_ASK_CODE, HAVE_ROLE, roleIdAfter);
                 }
@@ -93,6 +98,7 @@ public class EmployeeController {
 
     }
 
+    @RequiresPermissions(EMPLOYEE_ROLE_DELETE)
     @DeleteMapping("/employees/roles/{roleId}")
     public ReturnValue deleteEmployeeRole(@RequestHeader(EMPLOYEE_ID) Integer employeeId, @PathVariable(ROLE_ID) Integer roleId) {
         if (roleService.findByRoleId(roleId) != null) {
@@ -100,7 +106,9 @@ public class EmployeeController {
             if (null == employeeRoleDto) {
                 return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, null);
             } else {
-                return ReturnValue.success(employeeRoleService.deleteEmployeeRole(employeeId, roleId));
+                employeeRoleService.deleteEmployeeRole(employeeId, roleId);
+                return ReturnValue.success(redisService.updateEmployeeRedis(employeeId));
+
             }
         }
         return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, roleId);
@@ -108,13 +116,13 @@ public class EmployeeController {
 
     }
 
-    @RequiresPermissions(Find)
+    @RequiresPermissions(USER_FIND)
     @GetMapping(path = "/employees/users/{userId}")
     public ReturnValue find(@PathVariable(USER_ID) Integer userId) {
         UserDto userDto = userService.findUser(userId);
         if (userDto != null) {
             if (redisService.hasRedis(userId, USER)) {
-                return ReturnValue.success(redisService.findRedis(userId, USER));
+                return ReturnValue.success(redisService.findUserRedis(userId));
             } else {
                 LoginDto loginDto = new LoginDto();
                 loginDto.setAccount(userDto.getAccount());
@@ -129,7 +137,7 @@ public class EmployeeController {
 
     }
 
-    @RequiresPermissions(DELETE)
+    @RequiresPermissions(USER_DELETE)
     @DeleteMapping("/employees/users/{userId}")
     public ReturnValue delete(@PathVariable(USER_ID) Integer userId) {
         UserDto userDto = userService.findUser(userId);
@@ -143,7 +151,7 @@ public class EmployeeController {
         }
     }
 
-    @RequiresPermissions(UPDATE)
+    @RequiresPermissions(USER_UPDATE)
     @PutMapping("/employees/users/{userId}")
     public ReturnValue update(@PathVariable(USER_ID) Integer userId, @RequestBody UpdatePassWordDto updatePassWordDTO) {
         UserDto userDto = userService.findUser(userId);

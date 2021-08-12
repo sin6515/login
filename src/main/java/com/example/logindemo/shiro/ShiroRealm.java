@@ -1,8 +1,7 @@
 package com.example.logindemo.shiro;
 
-import com.example.logindemo.service.EmployeeRoleService;
 import com.example.logindemo.service.EmployeeService;
-import com.example.logindemo.service.PermissionService;
+import com.example.logindemo.service.RedisService;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
@@ -13,32 +12,31 @@ import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.List;
+
+import static com.example.logindemo.dto.ConstantValue.ADMIN;
+
 /**
  * @author hrh13
  * @date 2021/8/10
  */
 public class ShiroRealm extends AuthorizingRealm {
     @Autowired
-    private EmployeeRoleService employeeRoleService;
-    @Autowired
-    private PermissionService permissionService;
-    @Autowired
     private EmployeeService employeeService;
+    @Autowired
+    private RedisService redisService;
 
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
         String employeeAccount = String.valueOf(principals.getPrimaryPrincipal());
-        Integer employeeId = employeeService.findEmployeeId(employeeAccount);
-
+        Integer employeeId = employeeService.findByEmployeeAccount(employeeAccount).getId();
+        redisService.updateEmployeeRedis(employeeId);
         SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
-        if (employeeRoleService.findRoleNameByEmployeeId(employeeId) == null) {
+        List<String> permissionCode = redisService.findPermissionByEmployeeRedis(employeeId);
+        if (permissionCode == null) {
             return null;
         }
-        info.addRoles(employeeRoleService.findRoleNameByEmployeeId(employeeId));
-        if (permissionService.findPermissionNameByRoleId(employeeRoleService.findRoleIdByEmployeeId(employeeId)) == null) {
-            return null;
-        }
-        info.addStringPermissions(permissionService.findPermissionNameByRoleId(employeeRoleService.findRoleIdByEmployeeId(employeeId)));
+        info.addStringPermissions(permissionCode);
         return info;
     }
 
@@ -48,5 +46,15 @@ public class ShiroRealm extends AuthorizingRealm {
         String userName = (String) authenticationToken.getPrincipal();
         String userPwd = new String((char[]) authenticationToken.getCredentials());
         return new SimpleAuthenticationInfo(userName, userPwd, getName());
+    }
+
+    @Override
+    public boolean isPermitted(PrincipalCollection principals, String permission) {
+        String employeeAccount = String.valueOf(principals.getPrimaryPrincipal());
+        Integer employeeId = employeeService.findByEmployeeAccount(employeeAccount).getId();
+        if (redisService.findCategoryByEmployeeRedis(employeeId).equals(ADMIN)) {
+            return true;
+        }
+        return super.isPermitted(principals, permission);
     }
 }

@@ -13,18 +13,21 @@ import javax.persistence.*;
 @Data
 public class RolePermissionEntity {
     @Id
-    @GeneratedValue(strategy= GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     @Column(name = "role_id")
     private Integer roleId;
     @Column(name = "permission_id")
     private Integer permissionId;
-    private long gmt_create;
-    private long gmt_modified;
-    public RolePermissionEntity(Integer roleId,Integer permissionId,long gmt_create){
+    @Column(name = "gmt_create")
+    private long gmtCreate;
+    @Column(name = "gmt_modified")
+    private long gmtModified;
+
+    public RolePermissionEntity(Integer roleId, Integer permissionId, long gmtCreate) {
         setRoleId(roleId);
         setPermissionId(permissionId);
-        setGmt_create(gmt_create);
+        setGmtCreate(gmtCreate);
     }
 
     public RolePermissionEntity() {

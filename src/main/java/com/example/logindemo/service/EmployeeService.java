@@ -26,20 +26,25 @@ public class EmployeeService {
 
     }
 
-    public LoginDto findEmployee(String account) {
-        if (employeeDao.findByAccount(account) == null) {
+    public LoginDto findLoginDtoByEmployeeAccount(String account) {
+        if (findByEmployeeAccount(account) == null) {
             return null;
         } else {
-            return new LoginDto(employeeDao.findByAccount(account));
+            return new LoginDto(findByEmployeeAccount(account));
         }
     }
 
-    public Integer findEmployeeId(String account) {
-        return employeeDao.findByAccount(account).getId();
+    public EmployeeEntity findByEmployeeAccount(String account) {
+        if (employeeDao.findByAccount(account) == null) {
+            return null;
+        }
+        return employeeDao.findByAccount(account);
     }
 
-
-    public boolean hasEmployeeById(Integer id) {
-        return employeeDao.findById(id).isPresent();
+    public EmployeeEntity findByEmployeeId(Integer employeeId) {
+        if (employeeDao.findById(employeeId).isEmpty()) {
+            return null;
+        }
+        return employeeDao.findById(employeeId).get();
     }
 }

@@ -4,6 +4,8 @@ import lombok.Data;
 
 import javax.persistence.*;
 
+import static com.example.logindemo.dto.ConstantValue.NORMAL;
+
 /**
  * @author hrh13
  * @date 2021/7/23
@@ -24,15 +26,19 @@ public class EmployeeEntity {
 
     @Column(name = "employee_nickname")
     private String nickname;
+    @Column(name = "employee_category")
+    private String category;
+    @Column(name = "gmt_create")
+    private long gmtCreate;
+    @Column(name = "gmt_modified")
+    private long gmtModified;
 
-    private long gmt_create;
-    private long gmt_modified;
-
-    public EmployeeEntity(String account, String passWord, String nickname, long gmt_create) {
+    public EmployeeEntity(String account, String passWord, String nickname, long gmtCreate) {
         setAccount(account);
         setPassWord(passWord);
         setNickname(nickname);
-        setGmt_create(gmt_create);
+        setGmtCreate(gmtCreate);
+        setCategory(NORMAL);
     }
 
     public EmployeeEntity() {

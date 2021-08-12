@@ -7,7 +7,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import javax.transaction.Transactional;
-import java.util.Optional;
 
 /**
  * @author hrh13
@@ -22,6 +21,6 @@ public interface UserDao extends JpaRepository<UserEntity, Integer> {
 
     @Transactional
     @Modifying
-    @Query("update UserEntity d set d.passWord=?1 , d.gmt_modified=?2  where d.id=?3")
+    @Query("update UserEntity d set d.passWord=?1 , d.gmtModified=?2  where d.id=?3")
     Integer updatePassWordById(String pd, long modfied, Integer userid);
 }
