@@ -41,14 +41,6 @@ public class EmployeeRoleService {
         employeeRoleDao.save(employeeRoleEntity);
     }
 
-    public void addEmployeeRole(List<Integer> employeeIdList, Integer roleId) {
-        for (Integer employeeId : employeeIdList) {
-            if (findByEmployeeIdAndRoleId(employeeId, roleId) == null) {
-                addEmployeeRole(employeeId, roleId);
-            }
-        }
-    }
-
     public void deleteEmployeeRole(Integer employeeId, Integer roleId) {
         employeeRoleDao.deleteByEmployeeIdAndRoleId(employeeId, roleId);
     }

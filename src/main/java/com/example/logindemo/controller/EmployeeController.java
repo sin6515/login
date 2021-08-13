@@ -60,61 +60,76 @@ public class EmployeeController {
     }
 
     @RequiresPermissions(EMPLOYEE_ROLE_ADD)
-    @PostMapping("/employees/roles/{roleId}")
-    public ReturnValue addEmployeeRole(@RequestHeader(EMPLOYEE_ID) Integer employeeId, @PathVariable(ROLE_ID) Integer roleId) {
-        if (roleService.findByRoleId(roleId) != null) {
-            EmployeeRoleDto employeeRoleDto = employeeRoleService.findByEmployeeIdAndRoleId(employeeId, roleId);
-            if (null == employeeRoleDto) {
-                employeeRoleService.addEmployeeRole(employeeId, roleId);
-                return ReturnValue.success(redisService.updateEmployeeRedis(employeeId));
-            } else {
-                return ReturnValue.fail(REPEAT_ASK_CODE, ADD_EXISTS, employeeRoleDto);
+    @PostMapping("/employees/{employeeId}/roles/{roleId}")
+    public ReturnValue addEmployeeRole(@PathVariable(EMPLOYEE_ID) Integer employeeId, @PathVariable(ROLE_ID) Integer roleId) {
+        if (employeeService.findByEmployeeId(employeeId) != null) {
+            if (roleService.findByRoleId(roleId) != null) {
+                EmployeeRoleDto employeeRoleDto = employeeRoleService.findByEmployeeIdAndRoleId(employeeId, roleId);
+                if (null == employeeRoleDto) {
+                    employeeRoleService.addEmployeeRole(employeeId, roleId);
+                    return ReturnValue.success(redisService.updateEmployeeRedis(employeeId));
+                } else {
+                    return ReturnValue.fail(REPEAT_ASK_CODE, ADD_EXISTS, employeeRoleDto);
+                }
             }
+            return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, roleId);
+        } else {
+            return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, employeeId);
         }
-        return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, roleId);
-
     }
 
     @RequiresPermissions(EMPLOYEE_ROLE_UPDATE)
-    @PutMapping("/employees/roles")
-    public ReturnValue updateEmployeeRole(@RequestHeader(EMPLOYEE_ID) Integer employeeId, @RequestBody UpdateRoleDto updateRoleDto) {
+    @PutMapping("/employees/employeeId}/roles")
+    public ReturnValue updateEmployeeRole(@PathVariable(EMPLOYEE_ID) Integer employeeId, @RequestBody UpdateRoleDto updateRoleDto) {
         Integer roleIdBefore = updateRoleDto.getRoleIdBefore();
         Integer roleIdAfter = updateRoleDto.getRoleIdAfter();
-        if (roleService.findByRoleId(roleIdBefore) != null && roleService.findByRoleId(roleIdAfter) != null) {
-            EmployeeRoleDto employeeRoleDtoBefore = employeeRoleService.findByEmployeeIdAndRoleId(employeeId, roleIdBefore);
-            EmployeeRoleDto employeeRoleDtoAfter = employeeRoleService.findByEmployeeIdAndRoleId(employeeId, roleIdAfter);
-            if (null != employeeRoleDtoBefore) {
-                if (null == employeeRoleDtoAfter) {
-                    employeeRoleService.deleteEmployeeRole(employeeId, roleIdBefore);
-                    employeeRoleService.addEmployeeRole(employeeId, roleIdAfter);
-                    return ReturnValue.success(redisService.updateEmployeeRedis(employeeId));
+        if (employeeService.findByEmployeeId(employeeId) != null) {
+            if (roleService.findByRoleId(roleIdBefore) != null) {
+                EmployeeRoleDto employeeRoleDtoBefore = employeeRoleService.findByEmployeeIdAndRoleId(employeeId, roleIdBefore);
+                EmployeeRoleDto employeeRoleDtoAfter = employeeRoleService.findByEmployeeIdAndRoleId(employeeId, roleIdAfter);
+                if (roleService.findByRoleId(roleIdAfter) != null) {
+                    if (null != employeeRoleDtoBefore) {
+                        if (null == employeeRoleDtoAfter) {
+                            employeeRoleService.deleteEmployeeRole(employeeId, roleIdBefore);
+                            employeeRoleService.addEmployeeRole(employeeId, roleIdAfter);
+                            return ReturnValue.success(redisService.updateEmployeeRedis(employeeId));
+                        } else {
+                            return ReturnValue.fail(REPEAT_ASK_CODE, HAVE_ROLE, roleIdAfter);
+                        }
+                    } else {
+                        return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, employeeId + " " + roleIdBefore);
+                    }
                 } else {
-                    return ReturnValue.fail(REPEAT_ASK_CODE, HAVE_ROLE, roleIdAfter);
+                    return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, roleIdAfter);
                 }
             } else {
                 return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, roleIdBefore);
             }
+
+        } else {
+            return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, employeeId);
         }
-        return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, roleIdBefore + " or " + roleIdAfter);
+
 
     }
 
     @RequiresPermissions(EMPLOYEE_ROLE_DELETE)
-    @DeleteMapping("/employees/roles/{roleId}")
-    public ReturnValue deleteEmployeeRole(@RequestHeader(EMPLOYEE_ID) Integer employeeId, @PathVariable(ROLE_ID) Integer roleId) {
-        if (roleService.findByRoleId(roleId) != null) {
-            EmployeeRoleDto employeeRoleDto = employeeRoleService.findByEmployeeIdAndRoleId(employeeId, roleId);
-            if (null == employeeRoleDto) {
-                return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, null);
-            } else {
-                employeeRoleService.deleteEmployeeRole(employeeId, roleId);
-                return ReturnValue.success(redisService.updateEmployeeRedis(employeeId));
-
+    @DeleteMapping("/employees/employeeId}/roles/{roleId}")
+    public ReturnValue deleteEmployeeRole(@PathVariable(EMPLOYEE_ID) Integer employeeId, @PathVariable(ROLE_ID) Integer roleId) {
+        if (employeeService.findByEmployeeId(employeeId) != null) {
+            if (roleService.findByRoleId(roleId) != null) {
+                EmployeeRoleDto employeeRoleDto = employeeRoleService.findByEmployeeIdAndRoleId(employeeId, roleId);
+                if (null == employeeRoleDto) {
+                    return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, employeeId + " " + roleId);
+                } else {
+                    employeeRoleService.deleteEmployeeRole(employeeId, roleId);
+                    return ReturnValue.success(redisService.updateEmployeeRedis(employeeId));
+                }
             }
+            return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, roleId);
+        } else {
+            return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, employeeId);
         }
-        return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, roleId);
-
-
     }
 
     @RequiresPermissions(USER_FIND)

@@ -97,12 +97,7 @@ public class RedisService {
         key = returnKey(employeeId, EMPLOYEE);
         redisDto.setId(employeeId);
         redisDto.setPassWord(employeeService.findByEmployeeId(employeeId).getPassWord());
-//        if (!hasRedis(employeeId, EMPLOYEE)) {
-            redisDto.setToken(creatToken(redisDto.getId(), EMPLOYEE));
-//        } else {
-//            String value = stringRedisTemplate.opsForValue().get(key);
-//            redisDto.setToken((JSON.parseObject(value).getString("token")));
-//        }
+        redisDto.setToken(creatToken(redisDto.getId(), EMPLOYEE));
         redisDto.setCategory(employeeService.findByEmployeeId(redisDto.getId()).getCategory());
         redisDto.setRoleId(employeeRoleService.findRoleIdByEmployeeId(redisDto.getId()));
         redisDto.setPermissionCode(rolePermissionService.findPermissionNameByRoleId(redisDto.getRoleId()));
@@ -136,6 +131,12 @@ public class RedisService {
         } else {
             return null;
         }
+    }
+
+    public String findRoleRedis(Integer roleIdBefore, Integer roleIdAfter) {
+        String valueBefore = stringRedisTemplate.opsForValue().get(returnKey(roleIdBefore, ROLE));
+        String valueAfter = stringRedisTemplate.opsForValue().get(returnKey(roleIdAfter, ROLE));
+        return valueBefore + " " + valueAfter;
     }
 
     public List<String> findPermissionByEmployeeRedis(Integer employeeId) {

@@ -62,7 +62,7 @@ public class RoleController {
         RoleIdNameDto foundRoleDtoAfter = roleService.findByRoleId(updateRoleDto.getRoleIdAfter());
         if (foundRoleDtoBefore != null && foundRoleDtoAfter != null) {
             roleService.updateRole(foundRoleDtoBefore, foundRoleDtoAfter);
-            return ReturnValue.success(redisService.updateRoleRedis(foundRoleDtoBefore.getRoleId()));
+            return ReturnValue.success(redisService.findRoleRedis(updateRoleDto.getRoleIdBefore(), updateRoleDto.getRoleIdAfter()));
 
         } else {
             return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, updateRoleDto.getRoleIdBefore() + " or" + updateRoleDto.getRoleIdAfter());

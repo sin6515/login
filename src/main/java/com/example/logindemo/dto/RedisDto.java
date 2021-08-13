@@ -47,4 +47,8 @@ public class RedisDto {
         setGmt_creat(gmt_creat);
         setExpireTime(gmt_creat + TIME_OUT_MILLS);
     }
+
+    public RedisDto(String roleId, String roleName, String permissionName) {
+        set
+    }
 }
