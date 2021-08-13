@@ -12,6 +12,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
 
+import static com.example.logindemo.dto.ErrorConstantValue.*;
 import static com.example.logindemo.dto.ConstantValue.*;
 import static com.example.logindemo.dto.PermissionConstantValue.*;
 
@@ -79,7 +80,7 @@ public class EmployeeController {
     }
 
     @RequiresPermissions(EMPLOYEE_ROLE_UPDATE)
-    @PutMapping("/employees/employeeId}/roles")
+    @PutMapping("/employees/{employeeId}/roles")
     public ReturnValue updateEmployeeRole(@PathVariable(EMPLOYEE_ID) Integer employeeId, @RequestBody UpdateRoleDto updateRoleDto) {
         Integer roleIdBefore = updateRoleDto.getRoleIdBefore();
         Integer roleIdAfter = updateRoleDto.getRoleIdAfter();
@@ -114,7 +115,7 @@ public class EmployeeController {
     }
 
     @RequiresPermissions(EMPLOYEE_ROLE_DELETE)
-    @DeleteMapping("/employees/employeeId}/roles/{roleId}")
+    @DeleteMapping("/employees/{employeeId}/roles/{roleId}")
     public ReturnValue deleteEmployeeRole(@PathVariable(EMPLOYEE_ID) Integer employeeId, @PathVariable(ROLE_ID) Integer roleId) {
         if (employeeService.findByEmployeeId(employeeId) != null) {
             if (roleService.findByRoleId(roleId) != null) {

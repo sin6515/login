@@ -93,12 +93,9 @@ public class RedisService {
     }
 
     public RedisDto updateEmployeeRedis(Integer employeeId) {
-        RedisDto redisDto = new RedisDto(employeeId, System.currentTimeMillis());
-        key = returnKey(employeeId, EMPLOYEE);
-        redisDto.setId(employeeId);
-        redisDto.setPassWord(employeeService.findByEmployeeId(employeeId).getPassWord());
+        RedisDto redisDto = new RedisDto(employeeService.findByEmployeeId(employeeId), System.currentTimeMillis());
         redisDto.setToken(creatToken(redisDto.getId(), EMPLOYEE));
-        redisDto.setCategory(employeeService.findByEmployeeId(redisDto.getId()).getCategory());
+        key = returnKey(employeeId, EMPLOYEE);
         redisDto.setRoleId(employeeRoleService.findRoleIdByEmployeeId(redisDto.getId()));
         redisDto.setPermissionCode(rolePermissionService.findPermissionNameByRoleId(redisDto.getRoleId()));
         String jsonStr = JSON.toJSONString(redisDto);

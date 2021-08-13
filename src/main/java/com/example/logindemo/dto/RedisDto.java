@@ -1,13 +1,13 @@
 package com.example.logindemo.dto;
 
 import com.alibaba.fastjson.annotation.JSONType;
+import com.example.logindemo.entity.EmployeeEntity;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
 import java.util.List;
 
-import static com.example.logindemo.dto.ConstantValue.TIME_OUT;
-import static com.example.logindemo.dto.ConstantValue.TIME_OUT_MILLS;
+import static com.example.logindemo.dto.ConstantValue.*;
 
 /**
  * @author hrh13
@@ -42,13 +42,12 @@ public class RedisDto {
         setExpireTime(Long.parseLong(gmt_creat) + 1000L * 60 * 60 * 24 * TIME_OUT);
     }
 
-    public RedisDto(Integer employeeId, long gmt_creat) {
-        setId(employeeId);
+    public RedisDto(EmployeeEntity employeeEntity, long gmt_creat) {
+        setId(employeeEntity.getId());
+        setAccount(employeeEntity.getAccount());
+        setPassWord(employeeEntity.getPassWord());
+        setCategory(employeeEntity.getCategory());
         setGmt_creat(gmt_creat);
         setExpireTime(gmt_creat + TIME_OUT_MILLS);
-    }
-
-    public RedisDto(String roleId, String roleName, String permissionName) {
-        set
     }
 }

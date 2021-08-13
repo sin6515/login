@@ -2,9 +2,6 @@ package com.example.logindemo.dto;
 
 import lombok.Data;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * @author hrh13
  * @date 2021/7/26
@@ -12,29 +9,11 @@ import java.util.Map;
 @Data
 public class ConstantValue {
     public static final String EMPLOYEE = "employee", USER = "user", ROLE = "role", LOCK_KEY = "key", LOCK_VALUE = "value",
-            EMPLOYEE_ID = "EmployeeId", USER_ID = "userId", ROLE_ID = "roleId", TOKEN = "Token",
+            USER_ID = "userId", ROLE_ID = "roleId", EMPLOYEE_ID = "employeeId",
+            HEADER_EMPLOYEE_ID = "EmployeeId", HEADER_TOKEN = "Token",
             REDIS_USER = "user:", REDIS_EMPLOYEE = "employee:", REDIS_ROLE = "role:",
-            ADD_EXISTS = "已存在！", LOGIN_ERROR_ACCOUNT = "该帐户不存在！", LOGIN_ERROR_PASSWORD = "密码错误！",
-            NO_EXIST = "未找到对象，请确认是否存在！", NO_PERMISSION = "未拥有该权限！", HAVE_ROLE = "该角色已拥有！",
-            BAD_REQUEST = "Bad Request", FORBIDDEN = "Forbidden", ERROR_INPUT = "Error Input", ERROR_INPUT_STATE = "权限名不合法！",
-            NOT_FOUND = "Not Found", NO_LOGIN = "No Login", NO_LOGIN_STATE = "帐号未登录！",
-            REPEAT_ASK = "Repeat Ask", REPEAT_ASK_STATE = "对象已存在！",
-            SECRET_KEY = "secret",ADMIN="admin",NORMAL="normal";
+            SECRET_KEY = "secret", ADMIN = "admin", NORMAL = "normal";
 
-    public static final Integer OK_CODE = 200, BAD_REQUEST_CODE = 400, FORBIDDEN_CODE = 403, NOT_FOUND_CODE = 404,
-            NO_LOGIN_CODE = 411, REPEAT_ASK_CODE = 412, ERROR_INPUT_CODE = 413, TIME_OUT = 3,
-            LOCK_TIME_OUT = 10, PERMISSION_SIZE = 5, TIME_OUT_MILLS = 1000 * 60 * 60 * 24 * TIME_OUT;
-    public static final Map<Integer, String> ERROR_MAP;
-
-    static {
-        ERROR_MAP = new HashMap<>();
-        ERROR_MAP.put(BAD_REQUEST_CODE, BAD_REQUEST);
-        ERROR_MAP.put(FORBIDDEN_CODE, FORBIDDEN);
-        ERROR_MAP.put(NOT_FOUND_CODE, NOT_FOUND);
-        ERROR_MAP.put(NO_LOGIN_CODE, NO_LOGIN);
-        ERROR_MAP.put(REPEAT_ASK_CODE, REPEAT_ASK);
-        ERROR_MAP.put(ERROR_INPUT_CODE, ERROR_INPUT);
-    }
-
+    public static final Integer TIME_OUT = 3, LOCK_TIME_OUT = 10, TIME_OUT_MILLS = 1000 * 60 * 60 * 24 * TIME_OUT;
 
 }

@@ -5,7 +5,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import static com.example.logindemo.dto.ConstantValue.*;
+import static com.example.logindemo.dto.ErrorConstantValue.ERROR_MAP;
+import static com.example.logindemo.dto.ErrorConstantValue.OK_CODE;
 
 /**
  * @author hrh13
