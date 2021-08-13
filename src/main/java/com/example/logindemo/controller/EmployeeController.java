@@ -1,6 +1,7 @@
 package com.example.logindemo.controller;
 
 import com.example.logindemo.dto.*;
+import com.example.logindemo.entity.EmployeeEntity;
 import com.example.logindemo.service.*;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.UsernamePasswordToken;
@@ -46,15 +47,15 @@ public class EmployeeController {
     public ReturnValue<LoginDto> login(@RequestBody LoginDto loginDto) {
         Subject subject = SecurityUtils.getSubject();
         UsernamePasswordToken token = new UsernamePasswordToken(loginDto.getAccount(), loginDto.getPassWord());
-        LoginDto loginDtoFound = employeeService.findLoginDtoByEmployeeAccount(loginDto.getAccount());
-        if (null == loginDtoFound) {
+        EmployeeEntity employeeFound = employeeService.findByEmployeeAccount(loginDto.getAccount());
+        if (null == employeeFound) {
             return ReturnValue.fail(NOT_FOUND_CODE, LOGIN_ERROR_ACCOUNT, loginDto);
-        } else if (!loginDtoFound.getPassWord().equals(DigestUtils.md5DigestAsHex(loginDto.getPassWord().getBytes()))) {
+        } else if (!employeeFound.getPassWord().equals(DigestUtils.md5DigestAsHex(loginDto.getPassWord().getBytes()))) {
             return ReturnValue.fail(BAD_REQUEST_CODE, LOGIN_ERROR_PASSWORD, loginDto);
         } else {
             subject.login(token);
-            redisService.addRedis(loginDtoFound, EMPLOYEE);
-            return ReturnValue.success(loginDtoFound);
+            redisService.updateEmployeeRedis(employeeFound.getId());
+            return ReturnValue.success(new LoginDto(employeeFound));
         }
     }
 
@@ -62,7 +63,7 @@ public class EmployeeController {
     @PostMapping("/employees/roles/{roleId}")
     public ReturnValue addEmployeeRole(@RequestHeader(EMPLOYEE_ID) Integer employeeId, @PathVariable(ROLE_ID) Integer roleId) {
         if (roleService.findByRoleId(roleId) != null) {
-            EmployeeRoleDto employeeRoleDto = employeeRoleService.findEmployeeRole(employeeId, roleId);
+            EmployeeRoleDto employeeRoleDto = employeeRoleService.findByEmployeeIdAndRoleId(employeeId, roleId);
             if (null == employeeRoleDto) {
                 employeeRoleService.addEmployeeRole(employeeId, roleId);
                 return ReturnValue.success(redisService.updateEmployeeRedis(employeeId));
@@ -80,8 +81,8 @@ public class EmployeeController {
         Integer roleIdBefore = updateRoleDto.getRoleIdBefore();
         Integer roleIdAfter = updateRoleDto.getRoleIdAfter();
         if (roleService.findByRoleId(roleIdBefore) != null && roleService.findByRoleId(roleIdAfter) != null) {
-            EmployeeRoleDto employeeRoleDtoBefore = employeeRoleService.findEmployeeRole(employeeId, roleIdBefore);
-            EmployeeRoleDto employeeRoleDtoAfter = employeeRoleService.findEmployeeRole(employeeId, roleIdAfter);
+            EmployeeRoleDto employeeRoleDtoBefore = employeeRoleService.findByEmployeeIdAndRoleId(employeeId, roleIdBefore);
+            EmployeeRoleDto employeeRoleDtoAfter = employeeRoleService.findByEmployeeIdAndRoleId(employeeId, roleIdAfter);
             if (null != employeeRoleDtoBefore) {
                 if (null == employeeRoleDtoAfter) {
                     employeeRoleService.deleteEmployeeRole(employeeId, roleIdBefore);
@@ -102,7 +103,7 @@ public class EmployeeController {
     @DeleteMapping("/employees/roles/{roleId}")
     public ReturnValue deleteEmployeeRole(@RequestHeader(EMPLOYEE_ID) Integer employeeId, @PathVariable(ROLE_ID) Integer roleId) {
         if (roleService.findByRoleId(roleId) != null) {
-            EmployeeRoleDto employeeRoleDto = employeeRoleService.findEmployeeRole(employeeId, roleId);
+            EmployeeRoleDto employeeRoleDto = employeeRoleService.findByEmployeeIdAndRoleId(employeeId, roleId);
             if (null == employeeRoleDto) {
                 return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, null);
             } else {
@@ -127,9 +128,8 @@ public class EmployeeController {
                 LoginDto loginDto = new LoginDto();
                 loginDto.setAccount(userDto.getAccount());
                 loginDto.setPassWord(userDto.getPassWord());
-                redisService.addRedis(loginDto, USER);
-                return ReturnValue.success(userDto
-                );
+                redisService.updateUserRedis(loginDto);
+                return ReturnValue.success(userDto);
             }
         } else {
             return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, userId);
@@ -160,7 +160,7 @@ public class EmployeeController {
                 LoginDto loginDto = new LoginDto();
                 loginDto.setAccount(userDto.getAccount());
                 loginDto.setPassWord(DigestUtils.md5DigestAsHex(updatePassWordDTO.getPassWord().getBytes()));
-                redisService.addRedis(loginDto, USER);
+                redisService.updateUserRedis(loginDto);
             }
             return ReturnValue.success(userService.updateUser(userId, updatePassWordDTO.getPassWord()));
         } else {

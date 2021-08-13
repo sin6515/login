@@ -1,10 +1,12 @@
 package com.example.logindemo.service;
 
 import com.example.logindemo.dao.PermissionDao;
+import com.example.logindemo.entity.PermissionEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author hrh13
@@ -22,5 +24,8 @@ public class PermissionService {
             }
         }
         return true;
+    }
+    public List<String> findPermissionNameById(List<Integer> permissionId){
+        return permissionDao.findByIdIn(permissionId).stream().map(PermissionEntity::getPermissionName).collect(Collectors.toList());
     }
 }

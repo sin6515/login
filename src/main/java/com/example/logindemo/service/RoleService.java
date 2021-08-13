@@ -1,17 +1,12 @@
 package com.example.logindemo.service;
 
-import com.example.logindemo.dao.EmployeeRoleDao;
 import com.example.logindemo.dao.RoleDao;
-import com.example.logindemo.dao.RolePermissionDao;
 import com.example.logindemo.dto.RoleIdNameDto;
-import com.example.logindemo.entity.EmployeeRoleEntity;
 import com.example.logindemo.entity.RoleEntity;
-import com.example.logindemo.entity.RolePermissionEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author hrh13
@@ -22,24 +17,22 @@ public class RoleService {
     @Autowired
     private RoleDao roleDao;
     @Autowired
-    private EmployeeRoleDao employeeRoleDao;
-    @Autowired
-    private RolePermissionDao rolePermissionDao;
-    @Autowired
     private EmployeeRoleService employeeRoleService;
     @Autowired
     private RolePermissionService rolePermissionService;
+    @Autowired
+    private RedisService redisService;
 
     public void addRole(String roleName) {
         RoleEntity roleEntity = new RoleEntity(roleName, System.currentTimeMillis());
         roleDao.save(roleEntity);
     }
 
-    public RoleIdNameDto findByRoleName(String roleName) {
+    public RoleEntity findByRoleName(String roleName) {
         if (roleDao.findByRoleName(roleName) == null) {
             return null;
         } else {
-            return new RoleIdNameDto(roleDao.findByRoleName(roleName).getId(), roleName);
+            return roleDao.findByRoleName(roleName);
         }
     }
 
@@ -54,24 +47,32 @@ public class RoleService {
     public RoleIdNameDto deleteRole(Integer roleId) {
         RoleIdNameDto roleIdNameDto = findByRoleId(roleId);
         roleDao.deleteById(roleId);
-        employeeRoleDao.deleteByRoleId(roleId);
-        rolePermissionDao.deleteByRoleId(roleId);
+        if (!rolePermissionService.findPermissionIdByRoleId(roleId).isEmpty()) {
+            rolePermissionService.deleteByRoleId(roleId);
+        }
+        List<Integer> employeeId = employeeRoleService.findEmployeeIdByRoleId(roleId);
+        if (!employeeId.isEmpty()) {
+            employeeRoleService.deleteByRoleId(roleId);
+            redisService.updateEmployeeRedis(employeeId);
+        }
         return roleIdNameDto;
     }
 
     public void updateRole(RoleIdNameDto roleBefore, RoleIdNameDto roleAfter) {
         Integer roleIdBefore = roleBefore.getRoleId();
         Integer roleIdAfter = roleAfter.getRoleId();
-        List<Integer> employeeIdListBefore = employeeRoleDao.findByRoleId(roleIdBefore)
-                .stream().map(EmployeeRoleEntity::getEmployeeId).collect(Collectors.toList());
-        List<Integer> employeeIdListAfter = employeeRoleDao.findByRoleId(roleIdAfter)
-                .stream().map(EmployeeRoleEntity::getEmployeeId).collect(Collectors.toList());
-        List<Integer> permissionIdListBefore = rolePermissionDao.findByRoleId(roleIdBefore)
-                .stream().map(RolePermissionEntity::getPermissionId).collect(Collectors.toList());
-        List<Integer> permissionIdListAfter = rolePermissionDao.findByRoleId(roleIdAfter)
-                .stream().map(RolePermissionEntity::getPermissionId).collect(Collectors.toList());
-        deleteRole(roleIdBefore);
-        deleteRole(roleIdAfter);
+        List<Integer> employeeIdListBefore = employeeRoleService.findEmployeeIdByRoleId(roleIdBefore);
+        List<Integer> employeeIdListAfter = employeeRoleService.findEmployeeIdByRoleId(roleIdAfter);
+        List<Integer> permissionIdListBefore = rolePermissionService.findPermissionIdByRoleId(roleIdBefore);
+        List<Integer> permissionIdListAfter = rolePermissionService.findPermissionIdByRoleId(roleIdAfter);
+        roleDao.deleteById(roleIdBefore);
+        if (!rolePermissionService.findPermissionIdByRoleId(roleIdBefore).isEmpty()) {
+            rolePermissionService.deleteByRoleId(roleIdBefore);
+        }
+        roleDao.deleteById(roleIdAfter);
+        if (!rolePermissionService.findPermissionIdByRoleId(roleIdAfter).isEmpty()) {
+            rolePermissionService.deleteByRoleId(roleIdAfter);
+        }
         String roleNameBefore = roleBefore.getRoleName();
         String roleNameAfter = roleAfter.getRoleName();
         roleBefore = new RoleIdNameDto(roleIdBefore, roleNameAfter);
@@ -80,9 +81,15 @@ public class RoleService {
         RoleEntity roleEntityAfter = new RoleEntity(roleAfter, System.currentTimeMillis());
         roleDao.save(roleEntityAfter);
         roleDao.save(roleEntityBefore);
-        employeeRoleService.addEmployeeRole(employeeIdListBefore, roleIdBefore);
-        employeeRoleService.addEmployeeRole(employeeIdListAfter, roleIdAfter);
         rolePermissionService.addRolePermissionId(roleIdBefore, permissionIdListAfter);
         rolePermissionService.addRolePermissionId(roleIdAfter, permissionIdListBefore);
+        if (!employeeIdListBefore.isEmpty()) {
+            redisService.updateEmployeeRedis(employeeIdListBefore);
+        }
+        if (!employeeIdListAfter.isEmpty()) {
+            redisService.updateEmployeeRedis(employeeIdListAfter);
+        }
+        redisService.updateRoleRedis(roleIdBefore);
+        redisService.updateRoleRedis(roleIdAfter);
     }
 }

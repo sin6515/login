@@ -45,7 +45,7 @@ public class UserController {
         } else if (!loginDtoFound.getPassWord().equals(DigestUtils.md5DigestAsHex(loginDto.getPassWord().getBytes()))) {
             return ReturnValue.fail(BAD_REQUEST_CODE, LOGIN_ERROR_PASSWORD, loginDto);
         } else {
-            redisService.addRedis(loginDtoFound, USER);
+            redisService.updateUserRedis(loginDtoFound);
             return ReturnValue.success(loginDtoFound);
         }
     }

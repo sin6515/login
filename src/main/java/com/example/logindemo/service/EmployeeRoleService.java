@@ -18,7 +18,7 @@ public class EmployeeRoleService {
     @Autowired
     private EmployeeRoleDao employeeRoleDao;
 
-    public EmployeeRoleDto findEmployeeRole(Integer employeeId, Integer roleId) {
+    public EmployeeRoleDto findByEmployeeIdAndRoleId(Integer employeeId, Integer roleId) {
         EmployeeRoleEntity employeeRoleEntity = employeeRoleDao.findByEmployeeIdAndRoleId(employeeId, roleId);
         if (employeeRoleEntity == null) {
             return null;
@@ -31,6 +31,10 @@ public class EmployeeRoleService {
         return employeeRoleDao.findByEmployeeId(employeeId).stream().map(EmployeeRoleEntity::getRoleId).collect(Collectors.toList());
     }
 
+    public List<Integer> findEmployeeIdByRoleId(Integer roleId) {
+        return employeeRoleDao.findByRoleId(roleId).stream().map(EmployeeRoleEntity::getEmployeeId).collect(Collectors.toList());
+    }
+
     public void addEmployeeRole(Integer employeeId, Integer roleId) {
         EmployeeRoleEntity employeeRoleEntity = new EmployeeRoleEntity(employeeId,
                 roleId, System.currentTimeMillis());
@@ -38,14 +42,18 @@ public class EmployeeRoleService {
     }
 
     public void addEmployeeRole(List<Integer> employeeIdList, Integer roleId) {
-        for (Integer integer : employeeIdList) {
-            if (findEmployeeRole(integer, roleId) == null) {
-                addEmployeeRole(integer, roleId);
+        for (Integer employeeId : employeeIdList) {
+            if (findByEmployeeIdAndRoleId(employeeId, roleId) == null) {
+                addEmployeeRole(employeeId, roleId);
             }
         }
     }
 
     public void deleteEmployeeRole(Integer employeeId, Integer roleId) {
         employeeRoleDao.deleteByEmployeeIdAndRoleId(employeeId, roleId);
+    }
+
+    public void deleteByRoleId(Integer roleId) {
+        employeeRoleDao.deleteByRoleId(roleId);
     }
 }

@@ -72,7 +72,7 @@ public class RolePermissionService {
     }
 
 
-    public void deleteRolePermission(Integer roleId, String permissionName) {
+    public void deleteByRoleIdAndPermissionName(Integer roleId, String permissionName) {
         Integer permissionId = permissionDao.findByPermissionName(permissionName).getId();
         RolePermissionDto rolePermissionDto = new RolePermissionDto();
         rolePermissionDto.setRoleId(rolePermissionDao.findByRoleIdAndPermissionId(roleId, permissionId).getRoleId());
@@ -81,16 +81,22 @@ public class RolePermissionService {
 
     }
 
-    public void deleteRolePermission(Integer roleId, List<String> permissionNameList) {
+    public void deleteByRoleIdAndPermissionName(Integer roleId, List<String> permissionNameList) {
         for (String s : permissionNameList) {
             if (findRolePermission(roleId, s) != null) {
-                deleteRolePermission(roleId, s);
+                deleteByRoleIdAndPermissionName(roleId, s);
             }
         }
+    }
+    public void deleteByRoleId(Integer roleId) {
+        rolePermissionDao.deleteByRoleId(roleId);
     }
 
 
     public List<Integer> findPermissionIdByRoleId(List<Integer> roleId) {
         return rolePermissionDao.findByRoleIdIn(roleId).stream().map(RolePermissionEntity::getPermissionId).collect(Collectors.toList());
+    }
+    public List<Integer> findPermissionIdByRoleId(Integer roleId) {
+        return rolePermissionDao.findByRoleId(roleId).stream().map(RolePermissionEntity::getPermissionId).collect(Collectors.toList());
     }
 }

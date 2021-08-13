@@ -35,19 +35,17 @@ public class RoleController {
     @RequiresPermissions(ROLE_ADD)
     @PostMapping("/roles")
     public ReturnValue addRole(@RequestBody RoleNameDto roleNameDTO) {
-        RoleIdNameDto foundRoleNameDto = roleService.findByRoleName(roleNameDTO.getRoleName());
-        if (null == foundRoleNameDto) {
+        if (null == roleService.findByRoleName(roleNameDTO.getRoleName())) {
             roleService.addRole(roleNameDTO.getRoleName());
-            return ReturnValue.success(redisService.registerRoleRedis(roleNameDTO)
-            );
+            return ReturnValue.success(redisService.updateRoleRedis(roleService.findByRoleName(roleNameDTO.getRoleName()).getId()));
         } else {
-            return ReturnValue.fail(REPEAT_ASK_CODE, ADD_EXISTS, foundRoleNameDto);
+            return ReturnValue.fail(REPEAT_ASK_CODE, ADD_EXISTS, roleNameDTO);
         }
     }
 
     @RequiresPermissions(ROLE_DELETE)
     @DeleteMapping("/roles/{id}")
-    public ReturnValue deletePermission(@PathVariable("id") Integer roleId) {
+    public ReturnValue deleteRole(@PathVariable("id") Integer roleId) {
         RoleIdNameDto foundRoleDto = roleService.findByRoleId(roleId);
         if (null == foundRoleDto) {
             return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, roleId);
@@ -64,9 +62,7 @@ public class RoleController {
         RoleIdNameDto foundRoleDtoAfter = roleService.findByRoleId(updateRoleDto.getRoleIdAfter());
         if (foundRoleDtoBefore != null && foundRoleDtoAfter != null) {
             roleService.updateRole(foundRoleDtoBefore, foundRoleDtoAfter);
-            redisService.updatePermissionRedis(foundRoleDtoAfter.getRoleId());
-            redisService.updatePermissionRedis(foundRoleDtoBefore.getRoleId());
-            return ReturnValue.success(redisService.updatePermissionRedis(foundRoleDtoBefore.getRoleId()));
+            return ReturnValue.success(redisService.updateRoleRedis(foundRoleDtoBefore.getRoleId()));
 
         } else {
             return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, updateRoleDto.getRoleIdBefore() + " or" + updateRoleDto.getRoleIdAfter());
@@ -79,7 +75,7 @@ public class RoleController {
         if (null == roleService.findByRoleId(roleId)) {
             return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, roleId);
         } else {
-            return ReturnValue.success(redisService.updatePermissionRedis(roleId));
+            return ReturnValue.success(redisService.updateRoleRedis(roleId));
         }
     }
 
@@ -95,7 +91,7 @@ public class RoleController {
             } else {
                 if (rolePermissionService.findRolePermission(roleId, permissionName) == null) {
                     rolePermissionService.addRolePermission(roleId, permissionName);
-                    return ReturnValue.success(redisService.updatePermissionRedis(roleId));
+                    return ReturnValue.success(redisService.updateRoleRedis(roleId));
                 } else {
                     return ReturnValue.fail(REPEAT_ASK_CODE, REPEAT_ASK_STATE, permissionName);
                 }
@@ -122,9 +118,9 @@ public class RoleController {
                     } else {
                         RolePermissionDto rolePermissionDtoAfter = rolePermissionService.findRolePermission(roleId, permissionNameAfter);
                         if (null == rolePermissionDtoAfter) {
-                            rolePermissionService.deleteRolePermission(roleId, permissionNameBefore);
+                            rolePermissionService.deleteByRoleIdAndPermissionName(roleId, permissionNameBefore);
                             rolePermissionService.addRolePermission(roleId, permissionNameAfter);
-                            return ReturnValue.success(redisService.updatePermissionRedis(roleId));
+                            return ReturnValue.success(redisService.updateRoleRedis(roleId));
                         } else {
                             return ReturnValue.fail(REPEAT_ASK_CODE, ADD_EXISTS, permissionNameAfter);
                         }
@@ -152,8 +148,8 @@ public class RoleController {
                 if (null == rolePermissionDto) {
                     return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, permissionNameRoleIdDTO);
                 } else {
-                    rolePermissionService.deleteRolePermission(roleId, permissionName);
-                    return ReturnValue.success(redisService.updatePermissionRedis(roleId));
+                    rolePermissionService.deleteByRoleIdAndPermissionName(roleId, permissionName);
+                    return ReturnValue.success(redisService.updateRoleRedis(roleId));
                 }
             }
         } else {

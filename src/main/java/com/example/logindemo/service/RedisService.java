@@ -6,20 +6,20 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.example.logindemo.dao.*;
-import com.example.logindemo.dto.*;
-import com.example.logindemo.entity.PermissionEntity;
-import com.example.logindemo.entity.RolePermissionEntity;
+import com.example.logindemo.dao.UserDao;
+import com.example.logindemo.dto.LoginDto;
+import com.example.logindemo.dto.RedisDto;
+import com.example.logindemo.dto.RolePermissionRedisDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import static com.example.logindemo.dto.ConstantValue.*;
-import static com.example.logindemo.dto.ConstantValue.TIME_OUT;
 
 /**
  * @author hrh13
@@ -34,9 +34,7 @@ public class RedisService {
     @Autowired
     private RoleService roleService;
     @Autowired
-    private RolePermissionDao rolePermissionDao;
-    @Autowired
-    private PermissionDao permissionDao;
+    private PermissionService permissionService;
     @Autowired
     private EmployeeRoleService employeeRoleService;
     @Autowired
@@ -60,33 +58,24 @@ public class RedisService {
         String token = JWT.create()
                 .withClaim(redisName, id)
                 .withIssuedAt(new Date())
-                .withExpiresAt(new Date(System.currentTimeMillis() + TIME_OUT_MILLS * 10))
+                .withExpiresAt(new Date(System.currentTimeMillis() + TIME_OUT_MILLS))
                 .sign(Algorithm.HMAC256(SECRET_KEY));
         return token;
     }
 
-    public boolean verityToken(String token, String redisName, Integer verityId) {
+    public boolean verityToken(String token, Integer verityId) {
         JWTVerifier jwtVerifier = JWT.require(Algorithm.HMAC256(SECRET_KEY)).build();
         DecodedJWT jwt = jwtVerifier.verify(token);
-        Integer id = Integer.parseInt(String.valueOf(jwt.getClaim(redisName)));
+        Integer id = Integer.parseInt(String.valueOf(jwt.getClaim(EMPLOYEE)));
         return verityId.equals(id);
     }
 
-    public void addRedis(LoginDto loginDtO, String redisName) {
+    public void updateUserRedis(LoginDto loginDtO) {
         RedisDto redisDto = new RedisDto(loginDtO.getAccount(),
                 loginDtO.getPassWord(), System.currentTimeMillis());
-        if (USER.equals(redisName)) {
-            redisDto.setId(userDao.findByAccount(redisDto.getAccount()).getId());
-        } else {
-            Integer employId = employeeService.findByEmployeeAccount(redisDto.getAccount()).getId();
-            if (hasRedis(employId, redisName)) {
-                updateEmployeeRedis(employId);
-            }
-            redisDto.setId(employId);
-            redisDto.setCategory(employeeService.findByEmployeeId(redisDto.getId()).getCategory());
-        }
-        key = returnKey(redisDto.getId(), redisName);
-        redisDto.setToken(creatToken(redisDto.getId(), redisName));
+        redisDto.setId(userDao.findByAccount(redisDto.getAccount()).getId());
+        key = returnKey(redisDto.getId(), USER);
+        redisDto.setToken(creatToken(redisDto.getId(), USER));
         String jsonStr = JSON.toJSONString(redisDto);
         if (addLock(key)) {
             stringRedisTemplate.opsForValue().set(key, jsonStr);
@@ -95,12 +84,25 @@ public class RedisService {
         }
     }
 
+    public RedisDto findUserRedis(Integer id) {
+        String value = stringRedisTemplate.opsForValue().get(returnKey(id, USER));
+        JSONObject jsonObject = JSON.parseObject(value);
+        RedisDto redisDto = new RedisDto(jsonObject.getString("id"), jsonObject.getString("account"),
+                jsonObject.getString("passWord"), jsonObject.getString("gmt_creat"));
+        return redisDto;
+    }
+
     public RedisDto updateEmployeeRedis(Integer employeeId) {
         RedisDto redisDto = new RedisDto(employeeId, System.currentTimeMillis());
         key = returnKey(employeeId, EMPLOYEE);
         redisDto.setId(employeeId);
         redisDto.setPassWord(employeeService.findByEmployeeId(employeeId).getPassWord());
-        redisDto.setToken(creatToken(redisDto.getId(), EMPLOYEE));
+//        if (!hasRedis(employeeId, EMPLOYEE)) {
+            redisDto.setToken(creatToken(redisDto.getId(), EMPLOYEE));
+//        } else {
+//            String value = stringRedisTemplate.opsForValue().get(key);
+//            redisDto.setToken((JSON.parseObject(value).getString("token")));
+//        }
         redisDto.setCategory(employeeService.findByEmployeeId(redisDto.getId()).getCategory());
         redisDto.setRoleId(employeeRoleService.findRoleIdByEmployeeId(redisDto.getId()));
         redisDto.setPermissionCode(rolePermissionService.findPermissionNameByRoleId(redisDto.getRoleId()));
@@ -111,6 +113,29 @@ public class RedisService {
             deleteLock(key);
         }
         return redisDto;
+    }
+
+    public void updateEmployeeRedis(List<Integer> employeeId) {
+        for (Integer integer : employeeId) {
+            updateEmployeeRedis(integer);
+        }
+    }
+
+    public RolePermissionRedisDto updateRoleRedis(Integer roleId) {
+        List<Integer> permissionIdList = rolePermissionService.findPermissionIdByRoleId(roleId);
+        List<String> permissionNameList = permissionService.findPermissionNameById(permissionIdList);
+        String roleName = roleService.findByRoleId(roleId).getRoleName();
+        RolePermissionRedisDto redisDto = new RolePermissionRedisDto(roleId, roleName, permissionNameList);
+        key = returnKey(roleId, ROLE);
+        String jsonStr = JSON.toJSONString(redisDto);
+        if (addLock(key)) {
+            stringRedisTemplate.opsForValue().set(key, jsonStr);
+            stringRedisTemplate.expire(key, TIME_OUT, TimeUnit.DAYS);
+            deleteLock(key);
+            return redisDto;
+        } else {
+            return null;
+        }
     }
 
     public List<String> findPermissionByEmployeeRedis(Integer employeeId) {
@@ -125,40 +150,6 @@ public class RedisService {
         return jsonObject.getString("category");
     }
 
-    public RolePermissionRedisDto registerRoleRedis(RoleNameDto roleNameDto) {
-        Integer roleId = roleService.findByRoleName(roleNameDto.getRoleName()).getRoleId();
-        String roleName = roleService.findByRoleName(roleNameDto.getRoleName()).getRoleName();
-        RolePermissionRedisDto redisDto = new RolePermissionRedisDto(roleId, roleName);
-        key = REDIS_ROLE + roleId;
-        String jsonStr = JSON.toJSONString(redisDto);
-        if (addLock(key)) {
-            stringRedisTemplate.opsForValue().set(key, jsonStr);
-            stringRedisTemplate.expire(key, TIME_OUT, TimeUnit.DAYS);
-            deleteLock(key);
-            return redisDto;
-        } else {
-            return null;
-        }
-    }
-
-    public RolePermissionRedisDto updatePermissionRedis(Integer roleId) {
-        List<Integer> permissionIdList = rolePermissionDao.findByRoleId(roleId)
-                .stream().map(RolePermissionEntity::getPermissionId).collect(Collectors.toList());
-        List<String> permissionNameList = permissionDao.findByIdIn(permissionIdList)
-                .stream().map(PermissionEntity::getPermissionName).collect(Collectors.toList());
-        String roleName = roleService.findByRoleId(roleId).getRoleName();
-        RolePermissionRedisDto redisDto = new RolePermissionRedisDto(roleId, roleName, permissionNameList);
-        key = REDIS_ROLE + roleId;
-        String jsonStr = JSON.toJSONString(redisDto);
-        if (addLock(key)) {
-            stringRedisTemplate.opsForValue().set(key, jsonStr);
-            stringRedisTemplate.expire(key, TIME_OUT, TimeUnit.DAYS);
-            deleteLock(key);
-            return redisDto;
-        } else {
-            return null;
-        }
-    }
 
     public void deleteRedis(Integer id, String redisName) {
         key = returnKey(id, redisName);
@@ -166,15 +157,6 @@ public class RedisService {
             stringRedisTemplate.delete(key);
             deleteLock(key);
         }
-    }
-
-
-    public RedisDto findUserRedis(Integer id) {
-        String value = stringRedisTemplate.opsForValue().get(returnKey(id, USER));
-        JSONObject jsonObject = JSON.parseObject(value);
-        RedisDto redisDto = new RedisDto(jsonObject.getString("id"), jsonObject.getString("account"),
-                jsonObject.getString("passWord"), jsonObject.getString("gmt_creat"));
-        return redisDto;
     }
 
     public boolean hasRedis(Integer id, String redisName) {
