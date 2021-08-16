@@ -9,7 +9,7 @@ import java.util.Map;
  */
 public class ErrorConstantValue {
     public static final String ADD_EXISTS = "已存在！", LOGIN_ERROR_ACCOUNT = "该帐户不存在！", LOGIN_ERROR_PASSWORD = "密码错误！",
-            NO_EXIST = "未找到对象，请确认是否存在！", NO_PERMISSION = "未拥有该权限！", HAVE_ROLE = "该角色已拥有！",
+            NO_EXIST = "未找到对象，请确认是否存在！", NO_PERMISSION = "No Permission", HAVE_ROLE = "该角色已拥有！",
             BAD_REQUEST = "Bad Request", FORBIDDEN = "Forbidden", ERROR_INPUT = "Error Input", ERROR_INPUT_STATE = "权限名不合法！",
             NOT_FOUND = "Not Found", NO_LOGIN = "No Login", NO_LOGIN_STATE = "Please login to your account first",
             REPEAT_ASK = "Repeat Ask", REPEAT_ASK_STATE = "对象已存在！",NO_HAVE_HEARER="No Have Header",ERROR_TOKEN="Error Token";
