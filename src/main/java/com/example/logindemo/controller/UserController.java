@@ -2,6 +2,7 @@ package com.example.logindemo.controller;
 
 import com.example.logindemo.dto.AddDto;
 import com.example.logindemo.dto.LoginDto;
+import com.example.logindemo.dto.LoginTokenDto;
 import com.example.logindemo.dto.ReturnValue;
 import com.example.logindemo.service.RedisService;
 import com.example.logindemo.service.UserService;
@@ -45,8 +46,7 @@ public class UserController {
         } else if (!loginDtoFound.getPassWord().equals(DigestUtils.md5DigestAsHex(loginDto.getPassWord().getBytes()))) {
             return ReturnValue.fail(BAD_REQUEST_CODE, LOGIN_ERROR_PASSWORD, loginDto);
         } else {
-            redisService.updateUserRedis(loginDtoFound);
-            return ReturnValue.success(loginDtoFound);
+            return ReturnValue.success(new LoginTokenDto(redisService.updateUserRedis(loginDtoFound)));
         }
     }
 }

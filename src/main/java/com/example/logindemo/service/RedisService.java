@@ -74,7 +74,7 @@ public class RedisService {
         }
     }
 
-    public void updateUserRedis(LoginDto loginDtO) {
+    public RedisDto updateUserRedis(LoginDto loginDtO) {
         RedisDto redisDto = new RedisDto(loginDtO.getAccount(),
                 loginDtO.getPassWord(), System.currentTimeMillis());
         redisDto.setId(userDao.findByAccount(redisDto.getAccount()).getId());
@@ -86,6 +86,7 @@ public class RedisService {
             stringRedisTemplate.expire(key, TIME_OUT, TimeUnit.DAYS);
             deleteLock(key);
         }
+        return redisDto;
     }
 
     public RedisDto findUserRedis(Integer id) {

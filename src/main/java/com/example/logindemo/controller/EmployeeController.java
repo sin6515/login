@@ -49,8 +49,7 @@ public class EmployeeController {
         } else if (!employeeFound.getPassWord().equals(DigestUtils.md5DigestAsHex(loginDto.getPassWord().getBytes()))) {
             return ReturnValue.fail(BAD_REQUEST_CODE, LOGIN_ERROR_PASSWORD, loginDto);
         } else {
-            redisService.updateEmployeeRedis(employeeFound.getId());
-            return ReturnValue.success(new LoginDto(employeeFound));
+            return ReturnValue.success(new LoginTokenDto(redisService.updateEmployeeRedis(employeeFound.getId())));
         }
     }
 
@@ -67,9 +66,9 @@ public class EmployeeController {
                     return ReturnValue.fail(REPEAT_ASK_CODE, ADD_EXISTS, employeeRoleDto);
                 }
             }
-            return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, roleId);
+            return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, ROLE_ID + " : " + roleId);
         } else {
-            return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, employeeId);
+            return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, EMPLOYEE_ID + " : " + employeeId);
         }
     }
 
@@ -121,7 +120,7 @@ public class EmployeeController {
                     return ReturnValue.success(redisService.updateEmployeeRedis(employeeId));
                 }
             }
-            return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, roleId);
+            return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, ROLE_ID + " : " + roleId);
         } else {
             return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, employeeId);
         }

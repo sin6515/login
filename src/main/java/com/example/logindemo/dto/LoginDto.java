@@ -14,7 +14,6 @@ import lombok.Data;
 public class LoginDto {
     private String account;
     private String passWord;
-
     public LoginDto(UserEntity userEntity) {
         setAccount(userEntity.getAccount());
         setPassWord(userEntity.getPassWord());
