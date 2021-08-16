@@ -16,8 +16,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static com.example.logindemo.dto.ConstantValue.*;
-import static com.example.logindemo.dto.ErrorConstantValue.NO_LOGIN_CODE;
-import static com.example.logindemo.dto.ErrorConstantValue.NO_LOGIN_STATE;
+import static com.example.logindemo.dto.ErrorConstantValue.*;
 
 /**
  * @author hrh13
@@ -38,12 +37,9 @@ public class ShiroFilter extends AccessControlFilter {
         passUrl.add("/users");
         passUrl.add("/employees");
         passUrl.add("/employees/login");
-        if (passUrl.contains(uri)) {
-            //允许直接访问
-            return true;
-        }
+        //允许直接访问
+        return passUrl.contains(uri);
         //不允许访问，执行onAccessDenied的拦截内容
-        return false;
     }
 
     @Override
@@ -51,7 +47,7 @@ public class ShiroFilter extends AccessControlFilter {
         HttpServletRequest req = (HttpServletRequest) request;
         if (req.getHeader(HEADER_EMPLOYEE_ID) == null || req.getHeader(HEADER_TOKEN) == null) {
             try {
-                response.getWriter().write(JSON.toJSONString(ReturnValue.fail(NO_LOGIN_CODE, NO_LOGIN_STATE, "NO HEARER")));
+                response.getWriter().write(JSON.toJSONString(ReturnValue.fail(BAD_REQUEST_CODE, NO_HAVE_HEARER, HEADER_EMPLOYEE_ID + " OR " + HEADER_TOKEN)));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -60,7 +56,8 @@ public class ShiroFilter extends AccessControlFilter {
         Integer employeeId = Integer.valueOf(req.getHeader(HEADER_EMPLOYEE_ID));
         String token = req.getHeader(HEADER_TOKEN);
         if (redisService.hasRedis(employeeId, EMPLOYEE)) {
-            if (employeeId.equals(redisService.findTokenId(token))) {
+            Integer foundId = redisService.findTokenId(token);
+            if (employeeId.equals(foundId)) {
                 //将token传入AuthenticationToken
                 AuthenticationToken authenticationToken = new AuthenticationToken() {
                     @Override
@@ -76,10 +73,17 @@ public class ShiroFilter extends AccessControlFilter {
                 //委托给Realm进行认证
                 getSubject(request, response).login(authenticationToken);
                 return true;
+            } else {
+                try {
+                    response.getWriter().write(JSON.toJSONString(ReturnValue.fail(BAD_REQUEST_CODE, ERROR_TOKEN, HEADER_TOKEN + " : " + token)));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                return false;
             }
         }
         try {
-            response.getWriter().write(JSON.toJSONString(ReturnValue.fail(NO_LOGIN_CODE, NO_LOGIN_STATE, employeeId)));
+            response.getWriter().write(JSON.toJSONString(ReturnValue.fail(NO_LOGIN_CODE, NO_LOGIN_STATE, HEADER_EMPLOYEE_ID + " : " + employeeId)));
         } catch (IOException e) {
             e.printStackTrace();
         }

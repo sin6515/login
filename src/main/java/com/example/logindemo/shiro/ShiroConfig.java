@@ -17,6 +17,8 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import static com.example.logindemo.dto.ConstantValue.FILTER_NUM;
+
 /**
  * @author hrh13
  * @date 2021/8/10
@@ -48,9 +50,10 @@ public class ShiroConfig {
         defaultSessionStorageEvaluator.setSessionStorageEnabled(false);
         return defaultSessionStorageEvaluator;
     }
+
     @Bean
     public DefaultWebSecurityManager securityManager(ShiroRealm shiroRealm, SessionStorageEvaluator sessionStorageEvaluator,
-            SubjectFactory subjectFactory, SessionManager sessionManager) {
+                                                     SubjectFactory subjectFactory, SessionManager sessionManager) {
         DefaultWebSecurityManager defaultSecurityManager = new DefaultWebSecurityManager();
 
         defaultSecurityManager.setRealm(shiroRealm);
@@ -66,13 +69,13 @@ public class ShiroConfig {
         return defaultSecurityManager;
     }
 
-    @Bean(name = "shiroFilter")
+    @Bean(name = "shiroFilterBeanName")
     public ShiroFilterFactoryBean shiroFilter(SessionsSecurityManager securityManager) {
         ShiroFilterFactoryBean shiroFilterFactoryBean = new ShiroFilterFactoryBean();
         shiroFilterFactoryBean.setSecurityManager(securityManager);
         shiroFilterFactoryBean.setLoginUrl("/employees/login");
         shiroFilterFactoryBean.setUnauthorizedUrl("/notPermission");
-        Map<String, Filter> filters = new HashMap<>(1);
+        Map<String, Filter> filters = new HashMap<>(FILTER_NUM);
         filters.put("shiroFilter", new ShiroFilter());
         shiroFilterFactoryBean.setFilters(filters);
 
@@ -92,7 +95,7 @@ public class ShiroConfig {
         FilterRegistrationBean filterRegistrationBean = new FilterRegistrationBean();
         DelegatingFilterProxy proxy = new DelegatingFilterProxy();
         proxy.setTargetFilterLifecycle(true);
-        proxy.setTargetBeanName("shiroFilter");
+        proxy.setTargetBeanName("shiroFilterBeanName");
         filterRegistrationBean.setFilter(proxy);
         return filterRegistrationBean;
     }
