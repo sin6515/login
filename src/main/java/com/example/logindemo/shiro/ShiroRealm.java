@@ -1,6 +1,5 @@
 package com.example.logindemo.shiro;
 
-import com.example.logindemo.service.EmployeeService;
 import com.example.logindemo.service.RedisService;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
@@ -22,14 +21,16 @@ import static com.example.logindemo.dto.ConstantValue.ADMIN;
  */
 public class ShiroRealm extends AuthorizingRealm {
     @Autowired
-    private EmployeeService employeeService;
-    @Autowired
     private RedisService redisService;
 
     @Override
+    public boolean supports(AuthenticationToken token) {
+        return true;
+    }
+
+    @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
-        String employeeAccount = String.valueOf(principals.getPrimaryPrincipal());
-        Integer employeeId = employeeService.findByEmployeeAccount(employeeAccount).getId();
+        Integer employeeId = (Integer) principals.getPrimaryPrincipal();
         redisService.updateEmployeeRedis(employeeId);
         SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
         List<String> permissionCode = redisService.findPermissionByEmployeeRedis(employeeId);
@@ -43,15 +44,14 @@ public class ShiroRealm extends AuthorizingRealm {
 
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authenticationToken) throws AuthenticationException {
-        String userName = (String) authenticationToken.getPrincipal();
-        String userPwd = new String((char[]) authenticationToken.getCredentials());
-        return new SimpleAuthenticationInfo(userName, userPwd, getName());
+        Integer employeeId = redisService.findTokenId((String) authenticationToken.getPrincipal());
+        return new SimpleAuthenticationInfo(employeeId, authenticationToken.getCredentials(), getName());
     }
 
     @Override
     public boolean isPermitted(PrincipalCollection principals, String permission) {
-        String employeeAccount = String.valueOf(principals.getPrimaryPrincipal());
-        Integer employeeId = employeeService.findByEmployeeAccount(employeeAccount).getId();
+        Integer employeeId = (Integer) principals.getPrimaryPrincipal();
+        redisService.updateEmployeeRedis(employeeId);
         if (redisService.findCategoryByEmployeeRedis(employeeId).equals(ADMIN)) {
             return true;
         }

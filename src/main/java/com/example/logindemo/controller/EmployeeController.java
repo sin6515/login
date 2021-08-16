@@ -3,17 +3,14 @@ package com.example.logindemo.controller;
 import com.example.logindemo.dto.*;
 import com.example.logindemo.entity.EmployeeEntity;
 import com.example.logindemo.service.*;
-import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
-import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
 
-import static com.example.logindemo.dto.ErrorConstantValue.*;
 import static com.example.logindemo.dto.ConstantValue.*;
+import static com.example.logindemo.dto.ErrorConstantValue.*;
 import static com.example.logindemo.dto.PermissionConstantValue.*;
 
 /**
@@ -46,15 +43,12 @@ public class EmployeeController {
 
     @PostMapping(path = "/employees/login")
     public ReturnValue<LoginDto> login(@RequestBody LoginDto loginDto) {
-        Subject subject = SecurityUtils.getSubject();
-        UsernamePasswordToken token = new UsernamePasswordToken(loginDto.getAccount(), loginDto.getPassWord());
         EmployeeEntity employeeFound = employeeService.findByEmployeeAccount(loginDto.getAccount());
         if (null == employeeFound) {
             return ReturnValue.fail(NOT_FOUND_CODE, LOGIN_ERROR_ACCOUNT, loginDto);
         } else if (!employeeFound.getPassWord().equals(DigestUtils.md5DigestAsHex(loginDto.getPassWord().getBytes()))) {
             return ReturnValue.fail(BAD_REQUEST_CODE, LOGIN_ERROR_PASSWORD, loginDto);
         } else {
-            subject.login(token);
             redisService.updateEmployeeRedis(employeeFound.getId());
             return ReturnValue.success(new LoginDto(employeeFound));
         }

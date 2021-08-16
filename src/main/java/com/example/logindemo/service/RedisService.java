@@ -63,11 +63,10 @@ public class RedisService {
         return token;
     }
 
-    public boolean verityToken(String token, Integer verityId) {
+    public Integer findTokenId(String token) {
         JWTVerifier jwtVerifier = JWT.require(Algorithm.HMAC256(SECRET_KEY)).build();
         DecodedJWT jwt = jwtVerifier.verify(token);
-        Integer id = Integer.parseInt(String.valueOf(jwt.getClaim(EMPLOYEE)));
-        return verityId.equals(id);
+        return Integer.parseInt(String.valueOf(jwt.getClaim(EMPLOYEE)));
     }
 
     public void updateUserRedis(LoginDto loginDtO) {
@@ -96,6 +95,7 @@ public class RedisService {
         RedisDto redisDto = new RedisDto(employeeService.findByEmployeeId(employeeId), System.currentTimeMillis());
         redisDto.setToken(creatToken(redisDto.getId(), EMPLOYEE));
         key = returnKey(employeeId, EMPLOYEE);
+        redisDto.setCategory(employeeService.findByEmployeeId(employeeId).getCategory());
         redisDto.setRoleId(employeeRoleService.findRoleIdByEmployeeId(redisDto.getId()));
         redisDto.setPermissionCode(rolePermissionService.findPermissionNameByRoleId(redisDto.getRoleId()));
         String jsonStr = JSON.toJSONString(redisDto);
