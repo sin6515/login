@@ -22,5 +22,5 @@ public interface UserDao extends JpaRepository<UserEntity, Integer> {
     @Transactional
     @Modifying
     @Query("update UserEntity d set d.passWord=?1 , d.gmtModified=?2  where d.id=?3")
-    Integer updatePassWordById(String pd, long modfied, Integer userid);
+    void updatePassWordById(String pd, long gmtModified, Integer userid);
 }

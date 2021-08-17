@@ -3,8 +3,6 @@ package com.example.logindemo.interceptor;
 import com.alibaba.fastjson.JSON;
 import com.example.logindemo.dto.ReturnValue;
 import com.example.logindemo.service.RedisService;
-import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;

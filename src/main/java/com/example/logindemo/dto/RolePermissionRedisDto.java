@@ -18,14 +18,9 @@ public class RolePermissionRedisDto {
     private String roleName;
     private List<String> permissionName;
 
-
     public RolePermissionRedisDto(Integer roleId, String roleName, List<String> permissionName) {
         setRoleId(roleId);
         setRoleName(roleName);
         setPermissionName(permissionName);
-    }
-
-    public RolePermissionRedisDto(String roleId, String roleName, List<String> permissionName) {
-        new RolePermissionRedisDto(Integer.parseInt(roleId), roleName, permissionName);
     }
 }

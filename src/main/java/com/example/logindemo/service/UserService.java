@@ -2,7 +2,6 @@ package com.example.logindemo.service;
 
 import com.example.logindemo.dao.UserDao;
 import com.example.logindemo.dto.AddDto;
-import com.example.logindemo.dto.LoginDto;
 import com.example.logindemo.dto.UserDto;
 import com.example.logindemo.entity.UserEntity;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,11 +24,11 @@ public class UserService {
         return new UserDto(userEntity);
     }
 
-    public LoginDto findUser(String account) {
+    public UserEntity findUser(String account) {
         if (userDao.findByAccount(account) == null) {
             return null;
         } else {
-            return new LoginDto(userDao.findByAccount(account));
+            return userDao.findByAccount(account);
         }
 
     }
