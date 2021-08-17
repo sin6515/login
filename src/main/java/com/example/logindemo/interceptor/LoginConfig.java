@@ -3,9 +3,12 @@ package com.example.logindemo.interceptor;
 import com.example.logindemo.controller.LoginException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import java.util.List;
 
 /**
  * @author hrh13
@@ -24,8 +27,8 @@ public class LoginConfig implements WebMvcConfigurer {
         registration.addPathPatterns("/**");
         registration.excludePathPatterns("/users/login", "/users", "/employees", "/employees/login");
     }
-//    @Override
-//    public void configureHandlerExceptionResolvers(List<HandlerExceptionResolver> resolvers) {
-//        resolvers.add(loginException);
-//    }
+    @Override
+    public void configureHandlerExceptionResolvers(List<HandlerExceptionResolver> resolvers) {
+        resolvers.add(loginException);
+    }
 }
