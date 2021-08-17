@@ -57,7 +57,6 @@ public class ShiroConfig {
         DefaultWebSecurityManager defaultSecurityManager = new DefaultWebSecurityManager();
 
         defaultSecurityManager.setRealm(shiroRealm);
-
         DefaultSubjectDAO defaultSubjectDAO = new DefaultSubjectDAO();
         defaultSubjectDAO.setSessionStorageEvaluator(sessionStorageEvaluator);
         defaultSecurityManager.setSubjectDAO(defaultSubjectDAO);

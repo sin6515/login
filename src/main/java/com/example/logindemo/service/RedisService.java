@@ -5,7 +5,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.example.logindemo.dao.UserDao;
 import com.example.logindemo.dto.LoginDto;
@@ -66,12 +65,8 @@ public class RedisService {
 
     public Integer findTokenId(String token) {
         JWTVerifier jwtVerifier = JWT.require(Algorithm.HMAC256(SECRET_KEY)).build();
-        try {
-            DecodedJWT jwt = jwtVerifier.verify(token);
-            return Integer.parseInt(String.valueOf(jwt.getClaim(EMPLOYEE)));
-        } catch (JWTVerificationException e) {
-            return -1;
-        }
+        DecodedJWT jwt = jwtVerifier.verify(token);
+        return Integer.parseInt(String.valueOf(jwt.getClaim(EMPLOYEE)));
     }
 
     public RedisDto updateUserRedis(LoginDto loginDtO) {
