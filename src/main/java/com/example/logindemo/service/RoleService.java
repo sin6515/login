@@ -33,7 +33,10 @@ public class RoleService {
     }
 
     public RoleIdNameDto findByRoleId(Integer roleId) {
-        return new RoleIdNameDto(roleId, roleDao.findById(roleId).get().getRoleName());
+        if (roleDao.findById(roleId).isPresent()) {
+            return new RoleIdNameDto(roleId, roleDao.findById(roleId).get().getRoleName());
+        }
+        return null;
     }
 
     public RoleIdNameDto deleteRole(Integer roleId) {

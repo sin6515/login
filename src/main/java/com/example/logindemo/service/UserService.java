@@ -29,7 +29,10 @@ public class UserService {
     }
 
     public UserDto findById(Integer userId) {
-        return new UserDto(userDao.findById(userId).get());
+        if (userDao.findById(userId).isPresent()) {
+            return new UserDto(userDao.findById(userId).get());
+        }
+        return null;
     }
 
     public UserDto deleteUser(Integer userId) {

@@ -3,7 +3,6 @@ package com.example.logindemo.service;
 import com.example.logindemo.dao.EmployeeDao;
 import com.example.logindemo.dto.AddDto;
 import com.example.logindemo.dto.EmployeeDto;
-import com.example.logindemo.dto.LoginDto;
 import com.example.logindemo.entity.EmployeeEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,6 +30,9 @@ public class EmployeeService {
     }
 
     public EmployeeEntity findByEmployeeId(Integer employeeId) {
-        return employeeDao.findById(employeeId).get();
+        if (employeeDao.findById(employeeId).isPresent()) {
+            return employeeDao.findById(employeeId).get();
+        }
+        return null;
     }
 }

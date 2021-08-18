@@ -2,7 +2,7 @@ package com.example.logindemo.shiro;
 
 import com.alibaba.fastjson.JSON;
 import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.example.logindemo.controller.ErrorController;
+import com.example.logindemo.error.ErrorController;
 import com.example.logindemo.dto.ReturnValue;
 import com.example.logindemo.service.RedisService;
 import org.apache.shiro.authc.AuthenticationToken;

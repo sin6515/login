@@ -1,10 +1,12 @@
 package com.example.logindemo.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.example.logindemo.dto.AddDto;
 import com.example.logindemo.dto.LoginDto;
 import com.example.logindemo.dto.LoginTokenDto;
 import com.example.logindemo.dto.ReturnValue;
 import com.example.logindemo.entity.UserEntity;
+import com.example.logindemo.error.NotFoundException;
 import com.example.logindemo.service.RedisService;
 import com.example.logindemo.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,10 +42,10 @@ public class UserController {
     }
 
     @PostMapping(path = "/users/login")
-    public ReturnValue<LoginDto> login(@RequestBody LoginDto loginDto) {
+    public ReturnValue<LoginDto> login(@RequestBody LoginDto loginDto) throws NotFoundException {
         UserEntity loginFound = userService.findByAccount(loginDto.getAccount());
         if (null == loginFound) {
-            return ReturnValue.fail(NOT_FOUND_CODE, LOGIN_ERROR_ACCOUNT, loginDto);
+            throw new NotFoundException(JSON.toJSONString(loginDto));
         } else if (!loginFound.getPassWord().equals(DigestUtils.md5DigestAsHex(loginDto.getPassWord().getBytes()))) {
             return ReturnValue.fail(BAD_REQUEST_CODE, LOGIN_ERROR_PASSWORD, loginDto);
         } else {

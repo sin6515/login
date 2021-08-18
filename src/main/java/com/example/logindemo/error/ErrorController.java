@@ -1,5 +1,8 @@
-package com.example.logindemo.controller;
+package com.example.logindemo.error;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.JSONObject;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.example.logindemo.dto.ReturnValue;
 import org.apache.shiro.authc.UnknownAccountException;
@@ -29,5 +32,14 @@ public class ErrorController {
     @ExceptionHandler
     public ReturnValue<String> handleError(UnknownAccountException e) {
         return ReturnValue.fail(NO_LOGIN_CODE, NO_LOGIN_STATE, e.getMessage());
+    }
+
+    @ExceptionHandler
+    public ReturnValue handleError(NotFoundException e) {
+        try {
+            return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, JSONObject.parseObject(e.getMessage()));
+        } catch (JSONException exception) {
+            return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, e.getMessage());
+        }
     }
 }

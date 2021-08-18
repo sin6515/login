@@ -1,7 +1,9 @@
 package com.example.logindemo.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.example.logindemo.dto.*;
 import com.example.logindemo.entity.EmployeeEntity;
+import com.example.logindemo.error.NotFoundException;
 import com.example.logindemo.service.*;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,10 +44,10 @@ public class EmployeeController {
     }
 
     @PostMapping(path = "/employees/login")
-    public ReturnValue<LoginDto> login(@RequestBody LoginDto loginDto) {
+    public ReturnValue<LoginDto> login(@RequestBody LoginDto loginDto) throws NotFoundException {
         EmployeeEntity employeeFound = employeeService.findByEmployeeAccount(loginDto.getAccount());
         if (null == employeeFound) {
-            return ReturnValue.fail(NOT_FOUND_CODE, LOGIN_ERROR_ACCOUNT, loginDto);
+            throw new NotFoundException(JSON.toJSONString(loginDto));
         } else if (!employeeFound.getPassWord().equals(DigestUtils.md5DigestAsHex(loginDto.getPassWord().getBytes()))) {
             return ReturnValue.fail(BAD_REQUEST_CODE, LOGIN_ERROR_PASSWORD, loginDto);
         } else {
@@ -55,7 +57,7 @@ public class EmployeeController {
 
     @RequiresPermissions(EMPLOYEE_ROLE_ADD)
     @PostMapping("/employees/{employeeId}/roles/{roleId}")
-    public ReturnValue addEmployeeRole(@PathVariable(EMPLOYEE_ID) Integer employeeId, @PathVariable(ROLE_ID) Integer roleId) {
+    public ReturnValue addEmployeeRole(@PathVariable(EMPLOYEE_ID) Integer employeeId, @PathVariable(ROLE_ID) Integer roleId) throws NotFoundException {
         if (employeeService.findByEmployeeId(employeeId) != null) {
             if (roleService.findByRoleId(roleId) != null) {
                 EmployeeRoleDto employeeRoleDto = employeeRoleService.findByEmployeeIdAndRoleId(employeeId, roleId);
@@ -66,15 +68,15 @@ public class EmployeeController {
                     return ReturnValue.fail(REPEAT_ASK_CODE, ADD_EXISTS, employeeRoleDto);
                 }
             }
-            return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, ROLE_ID + " : " + roleId);
+            throw new NotFoundException(ROLE_ID + " : " + roleId);
         } else {
-            return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, EMPLOYEE_ID + " : " + employeeId);
+            throw new NotFoundException(EMPLOYEE_ID + " : " + employeeId);
         }
     }
 
     @RequiresPermissions(EMPLOYEE_ROLE_UPDATE)
     @PutMapping("/employees/{employeeId}/roles")
-    public ReturnValue updateEmployeeRole(@PathVariable(EMPLOYEE_ID) Integer employeeId, @RequestBody UpdateRoleDto updateRoleDto) {
+    public ReturnValue updateEmployeeRole(@PathVariable(EMPLOYEE_ID) Integer employeeId, @RequestBody UpdateRoleDto updateRoleDto) throws NotFoundException {
         Integer roleIdBefore = updateRoleDto.getRoleIdBefore();
         Integer roleIdAfter = updateRoleDto.getRoleIdAfter();
         if (employeeService.findByEmployeeId(employeeId) != null) {
@@ -91,17 +93,17 @@ public class EmployeeController {
                             return ReturnValue.fail(REPEAT_ASK_CODE, HAVE_ROLE, roleIdAfter);
                         }
                     } else {
-                        return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, employeeId + " " + roleIdBefore);
+                        throw new NotFoundException(EMPLOYEE_ID + ":" + employeeId + " " + NO_HAVE + ROLE_ID + ": " + roleIdBefore);
                     }
                 } else {
-                    return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, roleIdAfter);
+                    throw new NotFoundException(ROLE_ID + " : " + roleIdAfter);
                 }
             } else {
-                return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, roleIdBefore);
+                throw new NotFoundException(ROLE_ID + " : " + roleIdBefore);
             }
 
         } else {
-            return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, employeeId);
+            throw new NotFoundException(EMPLOYEE_ID + " : " + employeeId);
         }
 
 
@@ -109,26 +111,26 @@ public class EmployeeController {
 
     @RequiresPermissions(EMPLOYEE_ROLE_DELETE)
     @DeleteMapping("/employees/{employeeId}/roles/{roleId}")
-    public ReturnValue deleteEmployeeRole(@PathVariable(EMPLOYEE_ID) Integer employeeId, @PathVariable(ROLE_ID) Integer roleId) {
+    public ReturnValue<RedisDto> deleteEmployeeRole(@PathVariable(EMPLOYEE_ID) Integer employeeId, @PathVariable(ROLE_ID) Integer roleId) throws NotFoundException {
         if (employeeService.findByEmployeeId(employeeId) != null) {
             if (roleService.findByRoleId(roleId) != null) {
                 EmployeeRoleDto employeeRoleDto = employeeRoleService.findByEmployeeIdAndRoleId(employeeId, roleId);
                 if (null == employeeRoleDto) {
-                    return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, employeeId + " " + roleId);
+                    throw new NotFoundException(EMPLOYEE_ID + ":" + employeeId + " " + NO_HAVE + ROLE_ID + ": " + roleId);
                 } else {
                     employeeRoleService.deleteEmployeeRole(employeeId, roleId);
                     return ReturnValue.success(redisService.updateEmployeeRedis(employeeId));
                 }
             }
-            return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, ROLE_ID + " : " + roleId);
+            throw new NotFoundException(ROLE_ID + " : " + roleId);
         } else {
-            return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, employeeId);
+            throw new NotFoundException(EMPLOYEE_ID + " : " + employeeId);
         }
     }
 
     @RequiresPermissions(USER_FIND)
     @GetMapping(path = "/employees/users/{userId}")
-    public ReturnValue find(@PathVariable(USER_ID) Integer userId) {
+    public ReturnValue find(@PathVariable(USER_ID) Integer userId) throws NotFoundException{
         UserDto userDto = userService.findById(userId);
         if (userDto != null) {
             if (redisService.hasRedis(userId, USER)) {
@@ -141,14 +143,14 @@ public class EmployeeController {
                 return ReturnValue.success(userDto);
             }
         } else {
-            return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, userId);
+            throw new NotFoundException(USER_ID + " : " + userId);
         }
 
     }
 
     @RequiresPermissions(USER_DELETE)
     @DeleteMapping("/employees/users/{userId}")
-    public ReturnValue delete(@PathVariable(USER_ID) Integer userId) {
+    public ReturnValue<UserDto> delete(@PathVariable(USER_ID) Integer userId) throws NotFoundException{
         UserDto userDto = userService.findById(userId);
         if (userDto != null) {
             if (redisService.hasRedis(userId, USER)) {
@@ -156,13 +158,13 @@ public class EmployeeController {
             }
             return ReturnValue.success(userService.deleteUser(userId));
         } else {
-            return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, userId);
+            throw new NotFoundException(USER_ID + " : " + userId);
         }
     }
 
     @RequiresPermissions(USER_UPDATE)
     @PutMapping("/employees/users/{userId}")
-    public ReturnValue update(@PathVariable(USER_ID) Integer userId, @RequestBody UpdatePassWordDto updatePassWordDTO) {
+    public ReturnValue<UserDto> update(@PathVariable(USER_ID) Integer userId, @RequestBody UpdatePassWordDto updatePassWordDTO) throws NotFoundException{
         UserDto userDto = userService.findById(userId);
         if (userDto != null) {
             if (redisService.hasRedis(userId, USER)) {
@@ -173,7 +175,7 @@ public class EmployeeController {
             }
             return ReturnValue.success(userService.updateUser(userId, updatePassWordDTO.getPassWord()));
         } else {
-            return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, userId);
+            throw new NotFoundException(USER_ID + " : " + userId);
         }
     }
 
