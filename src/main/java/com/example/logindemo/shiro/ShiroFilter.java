@@ -56,7 +56,6 @@ public class ShiroFilter extends AccessControlFilter {
         Integer employeeId = Integer.valueOf(req.getHeader(HEADER_EMPLOYEE_ID));
         String token = req.getHeader(HEADER_TOKEN);
         if (redisService.hasRedis(employeeId, EMPLOYEE)) {
-            if (employeeId.equals(redisService.findTokenId(token))) {
                 //将token传入AuthenticationToken
                 AuthenticationToken authenticationToken = new AuthenticationToken() {
                     @Override
@@ -72,7 +71,6 @@ public class ShiroFilter extends AccessControlFilter {
                 //委托给Realm进行认证
                 getSubject(request, response).login(authenticationToken);
                 return true;
-            }
         }
         try {
             response.getWriter().write(JSON.toJSONString(ReturnValue.fail(NO_LOGIN_CODE, NO_LOGIN_STATE, HEADER_EMPLOYEE_ID + " : " + employeeId)));

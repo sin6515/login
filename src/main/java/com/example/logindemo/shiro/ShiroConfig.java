@@ -1,5 +1,6 @@
 package com.example.logindemo.shiro;
 
+import com.example.logindemo.controller.LoginException;
 import org.apache.shiro.mgt.*;
 import org.apache.shiro.session.mgt.DefaultSessionManager;
 import org.apache.shiro.session.mgt.SessionManager;
@@ -11,6 +12,8 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.filter.DelegatingFilterProxy;
+import org.springframework.web.servlet.HandlerExceptionResolver;
+import org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver;
 
 import javax.servlet.Filter;
 import java.util.HashMap;
@@ -31,7 +34,10 @@ public class ShiroConfig {
         shiroRealm.setCachingEnabled(false);
         return shiroRealm;
     }
-
+    @Bean(name = "exceptionHandler")
+    public HandlerExceptionResolver handlerExceptionResolver(){
+        return new LoginException();
+    }
     @Bean
     public SubjectFactory subjectFactory() {
         return new ShiroDefaultSubjectFactory();

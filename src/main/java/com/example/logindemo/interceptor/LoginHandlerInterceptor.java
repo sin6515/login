@@ -26,27 +26,27 @@ public class LoginHandlerInterceptor implements HandlerInterceptor {
     private RedisService redisService;
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
-        if (request.getHeader(HEADER_EMPLOYEE_ID) == null || request.getHeader(HEADER_TOKEN) == null) {
-            try {
-                response.getWriter().write(JSON.toJSONString(ReturnValue.fail(NO_LOGIN_CODE, NO_LOGIN_STATE, "NO HEARER")));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return false;
-        }
-        Integer employeeId = Integer.valueOf(request.getHeader(HEADER_EMPLOYEE_ID));
-        String token = request.getHeader(HEADER_TOKEN);
-        if (redisService.hasRedis(employeeId, EMPLOYEE)) {
-            if (employeeId.equals(redisService.findTokenId(token))) {
-                return true;
-            }
-        }
-        try {
-            response.getWriter().write(JSON.toJSONString(ReturnValue.fail(NO_LOGIN_CODE, NO_LOGIN_STATE, employeeId)));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return false;
-//        return true;
+//        if (request.getHeader(HEADER_EMPLOYEE_ID) == null || request.getHeader(HEADER_TOKEN) == null) {
+//            try {
+//                response.getWriter().write(JSON.toJSONString(ReturnValue.fail(NO_LOGIN_CODE, NO_LOGIN_STATE, "NO HEARER")));
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//            return false;
+//        }
+//        Integer employeeId = Integer.valueOf(request.getHeader(HEADER_EMPLOYEE_ID));
+//        String token = request.getHeader(HEADER_TOKEN);
+//        if (redisService.hasRedis(employeeId, EMPLOYEE)) {
+//            if (employeeId.equals(redisService.findTokenId(token))) {
+//                return true;
+//            }
+//        }
+//        try {
+//            response.getWriter().write(JSON.toJSONString(ReturnValue.fail(NO_LOGIN_CODE, NO_LOGIN_STATE, employeeId)));
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//        return false;
+        return true;
     }
 }
