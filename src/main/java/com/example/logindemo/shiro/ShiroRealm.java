@@ -22,10 +22,9 @@ import static com.example.logindemo.dto.ConstantValue.ADMIN;
 public class ShiroRealm extends AuthorizingRealm {
     @Autowired
     private RedisService redisService;
-
     @Override
     public boolean supports(AuthenticationToken token) {
-        return true;
+            return true;
     }
 
     @Override
@@ -44,8 +43,8 @@ public class ShiroRealm extends AuthorizingRealm {
 
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authenticationToken) throws AuthenticationException {
-        Integer employeeId = redisService.findTokenId((String) authenticationToken.getPrincipal());
-        return new SimpleAuthenticationInfo(employeeId, authenticationToken.getCredentials(), getName());
+            Integer employeeId = redisService.findTokenId((String) authenticationToken.getPrincipal());
+            return new SimpleAuthenticationInfo(employeeId, authenticationToken.getCredentials(), getName());
     }
 
     @Override

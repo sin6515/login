@@ -1,6 +1,8 @@
 package com.example.logindemo.shiro;
 
 import com.alibaba.fastjson.JSON;
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.example.logindemo.controller.LoginException;
 import com.example.logindemo.dto.ReturnValue;
 import com.example.logindemo.service.RedisService;
 import org.apache.shiro.authc.AuthenticationToken;
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Component;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
@@ -26,6 +29,8 @@ import static com.example.logindemo.dto.ErrorConstantValue.*;
 public class ShiroFilter extends AccessControlFilter {
     @Autowired
     private RedisService redisService;
+    @Autowired
+    private LoginException loginException;
 
     @Override
     protected boolean isAccessAllowed(ServletRequest request, ServletResponse response, Object mappedValue) {
@@ -45,6 +50,7 @@ public class ShiroFilter extends AccessControlFilter {
     @Override
     protected boolean onAccessDenied(ServletRequest request, ServletResponse response) {
         HttpServletRequest req = (HttpServletRequest) request;
+        HttpServletResponse res = (HttpServletResponse) response;
         if (req.getHeader(HEADER_EMPLOYEE_ID) == null || req.getHeader(HEADER_TOKEN) == null) {
             try {
                 response.getWriter().write(JSON.toJSONString(ReturnValue.fail(BAD_REQUEST_CODE, NO_HAVE_HEARER, HEADER_EMPLOYEE_ID + " OR " + HEADER_TOKEN)));
@@ -56,21 +62,27 @@ public class ShiroFilter extends AccessControlFilter {
         Integer employeeId = Integer.valueOf(req.getHeader(HEADER_EMPLOYEE_ID));
         String token = req.getHeader(HEADER_TOKEN);
         if (redisService.hasRedis(employeeId, EMPLOYEE)) {
-                //将token传入AuthenticationToken
-                AuthenticationToken authenticationToken = new AuthenticationToken() {
-                    @Override
-                    public Object getPrincipal() {
-                        return token;
-                    }
+            try {
+                if (employeeId.equals(redisService.findTokenId(token))) {
+                    AuthenticationToken authenticationToken = new AuthenticationToken() {
+                        @Override
+                        public Object getPrincipal() {
+                            return token;
+                        }
 
-                    @Override
-                    public Object getCredentials() {
-                        return token;
-                    }
-                };
-                //委托给Realm进行认证
-                getSubject(request, response).login(authenticationToken);
-                return true;
+                        @Override
+                        public Object getCredentials() {
+                            return token;
+                        }
+                    };
+                    //委托给Realm进行认证
+                    getSubject(request, response).login(authenticationToken);
+                    return true;
+                }
+            } catch (JWTVerificationException e) {
+                loginException.resolveException(req, res, null, new JWTVerificationException("dad"));
+                return false;
+            }
         }
         try {
             response.getWriter().write(JSON.toJSONString(ReturnValue.fail(NO_LOGIN_CODE, NO_LOGIN_STATE, HEADER_EMPLOYEE_ID + " : " + employeeId)));
