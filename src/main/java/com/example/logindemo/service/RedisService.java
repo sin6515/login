@@ -70,7 +70,7 @@ public class RedisService {
     public RedisDto updateUserRedis(LoginDto loginDtO) {
         RedisDto redisDto = new RedisDto(loginDtO.getAccount(),
                 loginDtO.getPassWord(), System.currentTimeMillis());
-        redisDto.setId(userService.findUser(redisDto.getAccount()).getId());
+        redisDto.setId(userService.findByAccount(redisDto.getAccount()).getId());
         key = returnKey(redisDto.getId(), USER);
         redisDto.setToken(creatToken(redisDto.getId(), USER));
         String jsonStr = JSON.toJSONString(redisDto);

@@ -29,19 +29,11 @@ public class RoleService {
     }
 
     public RoleEntity findByRoleName(String roleName) {
-        if (roleDao.findByRoleName(roleName) == null) {
-            return null;
-        } else {
-            return roleDao.findByRoleName(roleName);
-        }
+        return roleDao.findByRoleName(roleName);
     }
 
     public RoleIdNameDto findByRoleId(Integer roleId) {
-        if (roleDao.findById(roleId).isPresent()) {
-            return new RoleIdNameDto(roleId, roleDao.findById(roleId).get().getRoleName());
-        } else {
-            return null;
-        }
+        return new RoleIdNameDto(roleId, roleDao.findById(roleId).get().getRoleName());
     }
 
     public RoleIdNameDto deleteRole(Integer roleId) {

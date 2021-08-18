@@ -33,11 +33,11 @@ public class EmployeeController {
 
     @PostMapping("/employees")
     public ReturnValue add(@RequestBody AddDto addDto) {
-        LoginDto loginDtoFound = employeeService.findLoginDtoByEmployeeAccount(addDto.getAccount());
-        if (null == loginDtoFound) {
+        EmployeeEntity loginFound = employeeService.findByEmployeeAccount(addDto.getAccount());
+        if (null == loginFound) {
             return ReturnValue.success(employeeService.addEmployee(addDto));
         } else {
-            return ReturnValue.fail(REPEAT_ASK_CODE, ADD_EXISTS, loginDtoFound);
+            return ReturnValue.fail(REPEAT_ASK_CODE, ADD_EXISTS, new LoginDto(loginFound));
         }
     }
 
@@ -129,7 +129,7 @@ public class EmployeeController {
     @RequiresPermissions(USER_FIND)
     @GetMapping(path = "/employees/users/{userId}")
     public ReturnValue find(@PathVariable(USER_ID) Integer userId) {
-        UserDto userDto = userService.findUser(userId);
+        UserDto userDto = userService.findById(userId);
         if (userDto != null) {
             if (redisService.hasRedis(userId, USER)) {
                 return ReturnValue.success(redisService.findUserRedis(userId));
@@ -149,7 +149,7 @@ public class EmployeeController {
     @RequiresPermissions(USER_DELETE)
     @DeleteMapping("/employees/users/{userId}")
     public ReturnValue delete(@PathVariable(USER_ID) Integer userId) {
-        UserDto userDto = userService.findUser(userId);
+        UserDto userDto = userService.findById(userId);
         if (userDto != null) {
             if (redisService.hasRedis(userId, USER)) {
                 redisService.deleteRedis(userId, USER);
@@ -163,7 +163,7 @@ public class EmployeeController {
     @RequiresPermissions(USER_UPDATE)
     @PutMapping("/employees/users/{userId}")
     public ReturnValue update(@PathVariable(USER_ID) Integer userId, @RequestBody UpdatePassWordDto updatePassWordDTO) {
-        UserDto userDto = userService.findUser(userId);
+        UserDto userDto = userService.findById(userId);
         if (userDto != null) {
             if (redisService.hasRedis(userId, USER)) {
                 LoginDto loginDto = new LoginDto();

@@ -26,25 +26,11 @@ public class EmployeeService {
 
     }
 
-    public LoginDto findLoginDtoByEmployeeAccount(String account) {
-        if (findByEmployeeAccount(account) == null) {
-            return null;
-        } else {
-            return new LoginDto(findByEmployeeAccount(account));
-        }
-    }
-
     public EmployeeEntity findByEmployeeAccount(String account) {
-        if (employeeDao.findByAccount(account) == null) {
-            return null;
-        }
         return employeeDao.findByAccount(account);
     }
 
     public EmployeeEntity findByEmployeeId(Integer employeeId) {
-        if (employeeDao.findById(employeeId).isEmpty()) {
-            return null;
-        }
         return employeeDao.findById(employeeId).get();
     }
 }

@@ -1,6 +1,5 @@
 package com.example.logindemo.interceptor;
 
-import com.example.logindemo.controller.LoginException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistration;
@@ -15,8 +14,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class LoginConfig implements WebMvcConfigurer {
     @Autowired
     private LoginHandlerInterceptor loginHandlerInterceptor;
-    @Autowired
-    private LoginException loginException;
+
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         //注册TestInterceptor拦截器

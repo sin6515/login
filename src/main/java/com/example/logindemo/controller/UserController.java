@@ -31,7 +31,7 @@ public class UserController {
 
     @PostMapping("/users")
     public ReturnValue add(@RequestBody AddDto addDto) {
-        UserEntity loginFound = userService.findUser(addDto.getAccount());
+        UserEntity loginFound = userService.findByAccount(addDto.getAccount());
         if (null == loginFound) {
             return ReturnValue.success(userService.addUser(addDto));
         } else {
@@ -41,7 +41,7 @@ public class UserController {
 
     @PostMapping(path = "/users/login")
     public ReturnValue<LoginDto> login(@RequestBody LoginDto loginDto) {
-        UserEntity loginFound = userService.findUser(loginDto.getAccount());
+        UserEntity loginFound = userService.findByAccount(loginDto.getAccount());
         if (null == loginFound) {
             return ReturnValue.fail(NOT_FOUND_CODE, LOGIN_ERROR_ACCOUNT, loginDto);
         } else if (!loginFound.getPassWord().equals(DigestUtils.md5DigestAsHex(loginDto.getPassWord().getBytes()))) {

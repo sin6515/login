@@ -24,31 +24,22 @@ public class UserService {
         return new UserDto(userEntity);
     }
 
-    public UserEntity findUser(String account) {
-        if (userDao.findByAccount(account) == null) {
-            return null;
-        } else {
-            return userDao.findByAccount(account);
-        }
-
+    public UserEntity findByAccount(String account) {
+        return userDao.findByAccount(account);
     }
 
-    public UserDto findUser(Integer userId) {
-        if (userDao.findById(userId).isPresent()) {
-            return new UserDto(userDao.findById(userId).get());
-        } else {
-            return null;
-        }
+    public UserDto findById(Integer userId) {
+        return new UserDto(userDao.findById(userId).get());
     }
 
     public UserDto deleteUser(Integer userId) {
-        UserDto userDto = findUser(userId);
+        UserDto userDto = findById(userId);
         userDao.deleteById(userId);
         return userDto;
     }
 
     public UserDto updateUser(Integer userId, String pd) {
         userDao.updatePassWordById(DigestUtils.md5DigestAsHex(pd.getBytes()), System.currentTimeMillis(), userId);
-        return findUser(userId);
+        return findById(userId);
     }
 }
