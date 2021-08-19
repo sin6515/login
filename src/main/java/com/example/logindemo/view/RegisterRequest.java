@@ -1,13 +1,13 @@
-package com.example.logindemo.dto;
+package com.example.logindemo.view;
 
 import lombok.Data;
 
 /**
  * @author hrh13
- * @date 2021/7/23
+ * @date 2021/8/19
  */
 @Data
-public class AddDto {
+public class RegisterRequest {
     private String account;
     private String passWord;
     private String nickname;

@@ -6,6 +6,10 @@ import com.example.logindemo.error.NotFoundException;
 import com.example.logindemo.error.PasswordErrorException;
 import com.example.logindemo.error.RepeatAskException;
 import com.example.logindemo.service.*;
+import com.example.logindemo.view.EmployeeRoleRequest;
+import com.example.logindemo.view.LoginRequest;
+import com.example.logindemo.view.RegisterRequest;
+import com.example.logindemo.view.UpdatePasswordRequest;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -13,7 +17,7 @@ import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
 
 import static com.example.logindemo.dto.ConstantValue.*;
-import static com.example.logindemo.dto.ErrorConstantValue.NO_HAVE;
+import static com.example.logindemo.error.ErrorConstantValue.NO_HAVE;
 import static com.example.logindemo.dto.PermissionConstantValue.*;
 
 /**
@@ -35,90 +39,74 @@ public class EmployeeController {
     private RoleService roleService;
 
     @PostMapping("/employees")
-    public ReturnValue<EmployeeDto> add(@RequestBody AddDto addDto) throws RepeatAskException {
-        EmployeeEntity loginFound = employeeService.findByEmployeeAccount(addDto.getAccount());
-        if (null == loginFound) {
-            return ReturnValue.success(employeeService.addEmployee(addDto));
+    public ReturnValue<EmployeeDto> registerEmployee(@RequestBody RegisterRequest request) throws RepeatAskException {
+        if (employeeService.existsByAccount(request.getAccount())) {
+            throw new RepeatAskException(ACCOUNT + " : " + request.getAccount());
         } else {
-            throw new RepeatAskException(ACCOUNT + " : " + addDto.getAccount());
+            return ReturnValue.success(employeeService.addEmployee(request));
         }
     }
 
     @PostMapping(path = "/employees/login")
-    public ReturnValue<LoginDto> login(@RequestBody LoginDto loginDto) throws NotFoundException, PasswordErrorException {
-        EmployeeEntity employeeFound = employeeService.findByEmployeeAccount(loginDto.getAccount());
+    public ReturnValue<LoginRequest> loginEmployee(@RequestBody LoginRequest request) throws NotFoundException, PasswordErrorException {
+        EmployeeEntity employeeFound = employeeService.findByEmployeeAccount(request.getAccount());
         if (null == employeeFound) {
-            throw new NotFoundException(ACCOUNT + " : " + loginDto.getAccount());
-        } else if (!employeeFound.getPassWord().equals(DigestUtils.md5DigestAsHex(loginDto.getPassWord().getBytes()))) {
-            throw new PasswordErrorException(PASSWORD + " : " + loginDto.getPassWord());
+            throw new NotFoundException(ACCOUNT + " : " + request.getAccount());
+        } else if (!employeeFound.getPassWord().equals(DigestUtils.md5DigestAsHex(request.getPassWord().getBytes()))) {
+            throw new PasswordErrorException(PASSWORD + " : " + request.getPassWord());
         } else {
             return ReturnValue.success(new LoginTokenDto(redisService.updateEmployeeRedis(employeeFound.getId())));
         }
     }
 
     @RequiresPermissions(EMPLOYEE_ROLE_ADD)
-    @PostMapping("/employees/{employeeId}/roles/{roleId}")
-    public ReturnValue<RedisDto> addEmployeeRole(@PathVariable(EMPLOYEE_ID) Integer employeeId, @PathVariable(ROLE_ID) Integer roleId) throws NotFoundException, RepeatAskException {
-        if (employeeService.findByEmployeeId(employeeId) != null) {
-            if (roleService.findByRoleId(roleId) != null) {
-                EmployeeRoleDto employeeRoleDto = employeeRoleService.findByEmployeeIdAndRoleId(employeeId, roleId);
-                if (null == employeeRoleDto) {
-                    employeeRoleService.addEmployeeRole(employeeId, roleId);
-                    return ReturnValue.success(redisService.updateEmployeeRedis(employeeId));
+    @PostMapping("/employees//roles")
+    public ReturnValue<RedisDto> addEmployeeRole(EmployeeRoleRequest request) throws NotFoundException, RepeatAskException {
+        if (employeeService.existsByEmployeeId(request.getEmployeeId())) {
+            if (roleService.existsByRoleId(request.getRoleId())) {
+                if (employeeRoleService.existByEmployeeIdAndRoleId(request.getEmployeeId(), request.getRoleId())) {
+                    throw new RepeatAskException(ROLE_ID + " : " + request.getRoleId());
                 } else {
-                    throw new RepeatAskException(ROLE_ID + " : " + roleId);
+                    employeeRoleService.addEmployeeRole(request.getEmployeeId(), request.getRoleId());
+                    return ReturnValue.success(redisService.updateEmployeeRedis(request.getEmployeeId()));
                 }
             }
-            throw new NotFoundException(ROLE_ID + " : " + roleId);
+            throw new NotFoundException(ROLE_ID + " : " + request.getRoleId());
         } else {
-            throw new NotFoundException(EMPLOYEE_ID + " : " + employeeId);
+            throw new NotFoundException(EMPLOYEE_ID + " : " + request.getEmployeeId());
         }
     }
 
     @RequiresPermissions(EMPLOYEE_ROLE_UPDATE)
-    @PutMapping("/employees/{employeeId}/roles")
-    public ReturnValue<RedisDto> updateEmployeeRole(@PathVariable(EMPLOYEE_ID) Integer employeeId, @RequestBody UpdateRoleDto updateRoleDto) throws NotFoundException, RepeatAskException {
-        Integer roleIdBefore = updateRoleDto.getRoleIdBefore();
-        Integer roleIdAfter = updateRoleDto.getRoleIdAfter();
-        if (employeeService.findByEmployeeId(employeeId) != null) {
-            if (roleService.findByRoleId(roleIdBefore) != null) {
-                EmployeeRoleDto employeeRoleDtoBefore = employeeRoleService.findByEmployeeIdAndRoleId(employeeId, roleIdBefore);
-                EmployeeRoleDto employeeRoleDtoAfter = employeeRoleService.findByEmployeeIdAndRoleId(employeeId, roleIdAfter);
-                if (roleService.findByRoleId(roleIdAfter) != null) {
-                    if (null != employeeRoleDtoBefore) {
-                        if (null == employeeRoleDtoAfter) {
-                            employeeRoleService.deleteEmployeeRole(employeeId, roleIdBefore);
-                            employeeRoleService.addEmployeeRole(employeeId, roleIdAfter);
-                            return ReturnValue.success(redisService.updateEmployeeRedis(employeeId));
-                        } else {
-                            throw new RepeatAskException(ROLE_ID + " : " + roleIdAfter);
-                        }
-                    } else {
-                        throw new NotFoundException(EMPLOYEE_ID + ":" + employeeId + " " + NO_HAVE + ROLE_ID + ": " + roleIdBefore);
-                    }
+    @PutMapping("/employees/roles")
+    public ReturnValue<RedisDto> updateEmployeeRole(EmployeeRoleRequest request) throws NotFoundException, RepeatAskException {
+        if (employeeService.existsByEmployeeId(request.getEmployeeId())) {
+            if (roleService.existsByRoleId(request.getRoleId())) {
+                if (employeeRoleService.existByEmployeeIdAndRoleId(request.getEmployeeId(), request.getRoleId())) {
+                    throw new RepeatAskException(ROLE_ID + " : " + request.getRoleId());
                 } else {
-                    throw new NotFoundException(ROLE_ID + " : " + roleIdAfter);
+                    employeeRoleService.deleteByEmployeeId(request.getEmployeeId());
+                    employeeRoleService.addEmployeeRole(request.getEmployeeId(), request.getRoleId());
+                    return ReturnValue.success(redisService.updateEmployeeRedis(request.getEmployeeId()));
                 }
             } else {
-                throw new NotFoundException(ROLE_ID + " : " + roleIdBefore);
+                throw new NotFoundException(ROLE_ID + " : " + request.getRoleId());
             }
-
         } else {
-            throw new NotFoundException(EMPLOYEE_ID + " : " + employeeId);
+            throw new NotFoundException(EMPLOYEE_ID + " : " + request.getEmployeeId());
         }
     }
 
     @RequiresPermissions(EMPLOYEE_ROLE_DELETE)
     @DeleteMapping("/employees/{employeeId}/roles/{roleId}")
-    public ReturnValue<RedisDto> deleteEmployeeRole(@PathVariable(EMPLOYEE_ID) Integer employeeId, @PathVariable(ROLE_ID) Integer roleId) throws NotFoundException {
-        if (employeeService.findByEmployeeId(employeeId) != null) {
-            if (roleService.findByRoleId(roleId) != null) {
-                EmployeeRoleDto employeeRoleDto = employeeRoleService.findByEmployeeIdAndRoleId(employeeId, roleId);
-                if (null == employeeRoleDto) {
-                    throw new NotFoundException(EMPLOYEE_ID + ":" + employeeId + " " + NO_HAVE + ROLE_ID + ": " + roleId);
-                } else {
+    public ReturnValue<?> deleteEmployeeRole(@PathVariable(EMPLOYEE_ID) Integer employeeId, @PathVariable(ROLE_ID) Integer roleId) throws NotFoundException {
+        if (employeeService.existsByEmployeeId(employeeId)) {
+            if (roleService.existsByRoleId(roleId)) {
+                if (employeeRoleService.existByEmployeeIdAndRoleId(employeeId, roleId)) {
                     employeeRoleService.deleteEmployeeRole(employeeId, roleId);
-                    return ReturnValue.success(redisService.updateEmployeeRedis(employeeId));
+                    return ReturnValue.success();
+                } else {
+                    throw new NotFoundException(EMPLOYEE_ID + ":" + employeeId + " " + NO_HAVE + ROLE_ID + ": " + roleId);
                 }
             }
             throw new NotFoundException(ROLE_ID + " : " + roleId);
@@ -129,15 +117,15 @@ public class EmployeeController {
 
     @RequiresPermissions(USER_FIND)
     @GetMapping(path = "/employees/users/{userId}")
-    public ReturnValue<RedisDto> find(@PathVariable(USER_ID) Integer userId) throws NotFoundException {
-        UserDto userDto = userService.findById(userId);
-        if (userDto != null) {
-            if (!redisService.hasRedis(userId, USER)) {
-                LoginDto loginDto = new LoginDto();
-                loginDto.setAccount(userDto.getAccount());
-                loginDto.setPassWord(userDto.getPassWord());
-                redisService.updateUserRedis(loginDto);
-            }
+    public ReturnValue<RedisDto> findUser(@PathVariable(USER_ID) Integer userId) throws NotFoundException {
+        if (redisService.existsRedis(userId, USER)) {
+            return ReturnValue.success(redisService.findUserRedis(userId));
+        } else if (userService.existsById(userId)) {
+            UserDto userDto = userService.findById(userId);
+            LoginRequest request = new LoginRequest();
+            request.setAccount(userDto.getAccount());
+            request.setPassWord(userDto.getPassWord());
+            redisService.updateUserRedis(request);
             return ReturnValue.success(redisService.findUserRedis(userId));
         } else {
             throw new NotFoundException(USER_ID + " : " + userId);
@@ -147,33 +135,22 @@ public class EmployeeController {
 
     @RequiresPermissions(USER_DELETE)
     @DeleteMapping("/employees/users/{userId}")
-    public ReturnValue<UserDto> delete(@PathVariable(USER_ID) Integer userId) throws NotFoundException {
-        UserDto userDto = userService.findById(userId);
-        if (userDto != null) {
-            if (redisService.hasRedis(userId, USER)) {
-                redisService.deleteRedis(userId, USER);
-            }
-            return ReturnValue.success(userService.deleteUser(userId));
+    public ReturnValue<?> deleteUser(@PathVariable(USER_ID) Integer userId) throws NotFoundException {
+        if (userService.existsById(userId)) {
+            userService.deleteUser(userId);
+            return ReturnValue.success();
         } else {
             throw new NotFoundException(USER_ID + " : " + userId);
         }
     }
 
     @RequiresPermissions(USER_UPDATE)
-    @PutMapping("/employees/users/{userId}")
-    public ReturnValue<UserDto> update(@PathVariable(USER_ID) Integer userId, @RequestBody UpdatePassWordDto updatePassWordDTO) throws NotFoundException {
-        UserDto userDto = userService.findById(userId);
-        if (userDto != null) {
-            if (redisService.hasRedis(userId, USER)) {
-                LoginDto loginDto = new LoginDto();
-                loginDto.setAccount(userDto.getAccount());
-                loginDto.setPassWord(DigestUtils.md5DigestAsHex(updatePassWordDTO.getPassWord().getBytes()));
-                redisService.updateUserRedis(loginDto);
-            }
-            return ReturnValue.success(userService.updateUser(userId, updatePassWordDTO.getPassWord()));
+    @PutMapping("/employees/users")
+    public ReturnValue<UserDto> updateUser(@RequestBody UpdatePasswordRequest request) throws NotFoundException {
+        if (userService.existsById(request.getId())) {
+            return ReturnValue.success(userService.updatePassword(request.getId(), request.getPassWord()));
         } else {
-            throw new NotFoundException(USER_ID + " : " + userId);
+            throw new NotFoundException(USER_ID + " : " + request.getId());
         }
     }
-
 }

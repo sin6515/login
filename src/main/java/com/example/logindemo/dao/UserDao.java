@@ -14,11 +14,26 @@ import javax.transaction.Transactional;
  */
 @Repository
 public interface UserDao extends JpaRepository<UserEntity, Integer> {
-    public UserEntity findByAccount(String account);
+    /**
+     * description:
+     * @param account
+     * @return com.example.logindemo.entity.UserEntity
+     * @author hrh
+     * @date 2021/8/19
+     */
+    UserEntity findByAccount(String account);
 
+    /**
+     * description:
+     * @param id
+     * @return void
+     * @author hrh
+     * @date 2021/8/19
+     */
     @Override
-    public void deleteById(Integer id);
+    void deleteById(Integer id);
 
+    Boolean existsByAccount(String account);
     @Transactional
     @Modifying
     @Query("update UserEntity d set d.passWord=?1 , d.gmtModified=?2  where d.id=?3")

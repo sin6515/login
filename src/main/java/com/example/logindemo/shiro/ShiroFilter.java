@@ -18,7 +18,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static com.example.logindemo.dto.ConstantValue.*;
-import static com.example.logindemo.dto.ErrorConstantValue.*;
+import static com.example.logindemo.error.ErrorConstantValue.*;
 
 /**
  * @author hrh13
@@ -59,7 +59,7 @@ public class ShiroFilter extends AccessControlFilter {
         }
         Integer employeeId = Integer.valueOf(req.getHeader(HEADER_EMPLOYEE_ID));
         String token = req.getHeader(HEADER_TOKEN);
-        if (redisService.hasRedis(employeeId, EMPLOYEE)) {
+        if (redisService.existsRedis(employeeId, EMPLOYEE)) {
             try {
                 if (employeeId.equals(redisService.findTokenId(token))) {
                     AuthenticationToken authenticationToken = new AuthenticationToken() {

@@ -1,6 +1,5 @@
 package com.example.logindemo.entity;
 
-
 import com.alibaba.fastjson.annotation.JSONType;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;

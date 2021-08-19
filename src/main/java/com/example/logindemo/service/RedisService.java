@@ -6,9 +6,9 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.example.logindemo.dto.LoginDto;
 import com.example.logindemo.dto.RedisDto;
 import com.example.logindemo.dto.RolePermissionRedisDto;
+import com.example.logindemo.view.LoginRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -67,9 +67,9 @@ public class RedisService {
         return Integer.parseInt(String.valueOf(jwt.getClaim(EMPLOYEE)));
     }
 
-    public RedisDto updateUserRedis(LoginDto loginDtO) {
-        RedisDto redisDto = new RedisDto(loginDtO.getAccount(),
-                loginDtO.getPassWord(), System.currentTimeMillis());
+    public RedisDto updateUserRedis(LoginRequest request) {
+        RedisDto redisDto = new RedisDto(request.getAccount(),
+                request.getPassWord(), System.currentTimeMillis());
         redisDto.setId(userService.findByAccount(redisDto.getAccount()).getId());
         key = returnKey(redisDto.getId(), USER);
         redisDto.setToken(creatToken(redisDto.getId(), USER));
@@ -82,6 +82,7 @@ public class RedisService {
         return redisDto;
     }
 
+    //todo
     public RedisDto findUserRedis(Integer id) {
         String value = stringRedisTemplate.opsForValue().get(returnKey(id, USER));
         JSONObject jsonObject = JSON.parseObject(value);
@@ -128,12 +129,6 @@ public class RedisService {
         }
     }
 
-    public String findRoleRedis(Integer roleIdBefore, Integer roleIdAfter) {
-        String valueBefore = stringRedisTemplate.opsForValue().get(returnKey(roleIdBefore, ROLE));
-        String valueAfter = stringRedisTemplate.opsForValue().get(returnKey(roleIdAfter, ROLE));
-        return valueBefore + " " + valueAfter;
-    }
-
     public List<String> findPermissionByEmployeeRedis(Integer employeeId) {
         String value = stringRedisTemplate.opsForValue().get(returnKey(employeeId, EMPLOYEE));
         JSONObject jsonObject = JSON.parseObject(value);
@@ -155,7 +150,7 @@ public class RedisService {
         }
     }
 
-    public boolean hasRedis(Integer id, String redisName) {
+    public boolean existsRedis(Integer id, String redisName) {
         return Boolean.TRUE.equals(stringRedisTemplate.hasKey(returnKey(id, redisName)));
     }
 
@@ -166,6 +161,15 @@ public class RedisService {
 
     public void deleteLock(String key) {
         stringRedisTemplate.delete(LOCK_KEY + key);
+    }
+
+    public boolean addDateBaseLock(Integer id, String redisName) {
+        Boolean lock = stringRedisTemplate.opsForValue().setIfAbsent(LOCK_KEY + DATABASE + returnKey(id, redisName), LOCK_VALUE, LOCK_TIME_OUT, TimeUnit.SECONDS);
+        return lock != null && lock;
+    }
+
+    public void deleteDataLock(Integer id, String redisName) {
+        stringRedisTemplate.delete(LOCK_KEY + DATABASE + returnKey(id, redisName));
     }
 
 }

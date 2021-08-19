@@ -10,8 +10,8 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface EmployeeDao extends JpaRepository<EmployeeEntity, Integer> {
-    public EmployeeEntity findByAccount(String account);
-
+    EmployeeEntity findByAccount(String account);
+    Boolean existsByAccount(String account);
     @Override
-    public void deleteById(Integer id);
+    void deleteById(Integer id);
 }

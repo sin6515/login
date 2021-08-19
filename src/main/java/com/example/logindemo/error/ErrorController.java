@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import static com.example.logindemo.dto.ErrorConstantValue.*;
+import static com.example.logindemo.error.ErrorConstantValue.*;
 
 /**
  * @author hrh13
@@ -17,6 +17,17 @@ import static com.example.logindemo.dto.ErrorConstantValue.*;
 @RestControllerAdvice
 @ControllerAdvice
 public class ErrorController {
+//    //todo 使用switch
+//    @ExceptionHandler
+//    public ReturnValue<String> handleError(Exception e) {
+//        switch (getClass().toString()){
+//            case "JWTVerificationException.class":
+//                return ReturnValue.fail(BAD_REQUEST_CODE, ERROR_TOKEN, e.getMessage());
+//        }
+//        return ReturnValue.fail(BAD_REQUEST_CODE, "UnKnow Error", getClass().toString());
+//    }
+
+
     @ExceptionHandler
     public ReturnValue<String> handleError(JWTVerificationException e) {
         return ReturnValue.fail(BAD_REQUEST_CODE, ERROR_TOKEN, e.getMessage());

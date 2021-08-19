@@ -19,10 +19,14 @@ public interface EmployeeRoleDao extends JpaRepository<EmployeeRoleEntity, Integ
 
     List<EmployeeRoleEntity> findByRoleId(Integer roleId);
 
-    @Transactional
-    public void deleteByRoleId(Integer roleId);
+    Boolean existsByEmployeeIdAndRoleId(Integer employeeId, Integer roleId);
 
     @Transactional
-    public void deleteByEmployeeIdAndRoleId(Integer employeeId, Integer roleId);
+    void deleteByRoleId(Integer roleId);
+    @Transactional
+    void deleteByEmployeeId(Integer employeeId);
+
+    @Transactional
+    void deleteByEmployeeIdAndRoleId(Integer employeeId, Integer roleId);
 
 }

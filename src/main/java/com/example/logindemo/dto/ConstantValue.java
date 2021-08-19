@@ -13,7 +13,7 @@ public class ConstantValue {
             ID = "id", ACCOUNT = "account", PASSWORD = "passWord", GMT_CREAT = "gmt_creat",
             HEADER_EMPLOYEE_ID = "EmployeeId", HEADER_TOKEN = "Token",
             REDIS_USER = "user:", REDIS_EMPLOYEE = "employee:", REDIS_ROLE = "role:",
-            SECRET_KEY = "secret", ADMIN = "admin", NORMAL = "normal";
+            SECRET_KEY = "secret", ADMIN = "admin", NORMAL = "normal",DATABASE="DateBase";
 
     public static final Integer FILTER_NUM = 1, TIME_OUT = 3, LOCK_TIME_OUT = 10, TIME_OUT_MILLS = 1000 * 60 * 60 * 24 * TIME_OUT;
 

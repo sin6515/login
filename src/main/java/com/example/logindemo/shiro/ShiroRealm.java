@@ -31,6 +31,7 @@ public class ShiroRealm extends AuthorizingRealm {
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
         Integer employeeId = (Integer) principals.getPrimaryPrincipal();
+        //todo
         redisService.updateEmployeeRedis(employeeId);
         SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
         List<String> permissionCode = redisService.findPermissionByEmployeeRedis(employeeId);
@@ -51,7 +52,7 @@ public class ShiroRealm extends AuthorizingRealm {
     @Override
     public boolean isPermitted(PrincipalCollection principals, String permission) {
         Integer employeeId = (Integer) principals.getPrimaryPrincipal();
-        redisService.updateEmployeeRedis(employeeId);
+        //redisService.updateEmployeeRedis(employeeId);
         if (redisService.findCategoryByEmployeeRedis(employeeId).equals(ADMIN)) {
             return true;
         }

@@ -1,4 +1,4 @@
-package com.example.logindemo.dto;
+package com.example.logindemo.error;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -1,7 +1,6 @@
 package com.example.logindemo.service;
 
 import com.example.logindemo.dao.EmployeeRoleDao;
-import com.example.logindemo.dto.EmployeeRoleDto;
 import com.example.logindemo.entity.EmployeeRoleEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,15 +17,17 @@ public class EmployeeRoleService {
     @Autowired
     private EmployeeRoleDao employeeRoleDao;
 
-    public EmployeeRoleDto findByEmployeeIdAndRoleId(Integer employeeId, Integer roleId) {
-        EmployeeRoleEntity employeeRoleEntity = employeeRoleDao.findByEmployeeIdAndRoleId(employeeId, roleId);
-        if (employeeRoleEntity == null) {
-            return null;
-        } else {
-            return new EmployeeRoleDto(employeeRoleEntity);
-        }
+    public Boolean existByEmployeeIdAndRoleId(Integer employeeId, Integer roleId){
+        return employeeRoleDao.existsByEmployeeIdAndRoleId(employeeId,roleId);
     }
-
+    public Boolean existByEmployeeIdAndRoleId(Integer employeeId, List<Integer> roleId){
+        for (Integer integer:roleId){
+            if (!existByEmployeeIdAndRoleId(employeeId,integer)){
+                return false;
+            }
+        }
+        return true;
+    }
     public List<Integer> findRoleIdByEmployeeId(Integer employeeId) {
         return employeeRoleDao.findByEmployeeId(employeeId).stream().map(EmployeeRoleEntity::getRoleId).collect(Collectors.toList());
     }
@@ -40,12 +41,19 @@ public class EmployeeRoleService {
                 roleId, System.currentTimeMillis());
         employeeRoleDao.save(employeeRoleEntity);
     }
-
+    public void addEmployeeRole(Integer employeeId, List<Integer> roleId) {
+       for (Integer integer:roleId){
+           addEmployeeRole(employeeId,integer);
+       }
+    }
     public void deleteEmployeeRole(Integer employeeId, Integer roleId) {
         employeeRoleDao.deleteByEmployeeIdAndRoleId(employeeId, roleId);
     }
 
     public void deleteByRoleId(Integer roleId) {
         employeeRoleDao.deleteByRoleId(roleId);
+    }
+    public void deleteByEmployeeId(Integer employeeId) {
+        employeeRoleDao.deleteByEmployeeId(employeeId);
     }
 }

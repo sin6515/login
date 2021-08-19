@@ -17,13 +17,8 @@ public class PermissionService {
     @Autowired
     private PermissionDao permissionDao;
 
-    public boolean hasPermission(List<String> permissionName) {
-        for (String s : permissionName) {
-            if (permissionDao.findByPermissionName(s) == null) {
-                return false;
-            }
-        }
-        return true;
+    public boolean existsPermission(List<String> permissionName) {
+       return permissionDao.existsByPermissionNameIn(permissionName);
     }
     public List<String> findPermissionNameById(List<Integer> permissionId){
         return permissionDao.findByIdIn(permissionId).stream().map(PermissionEntity::getPermissionName).collect(Collectors.toList());

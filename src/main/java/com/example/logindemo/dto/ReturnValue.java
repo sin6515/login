@@ -5,8 +5,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import static com.example.logindemo.dto.ErrorConstantValue.ERROR_MAP;
-import static com.example.logindemo.dto.ErrorConstantValue.OK_CODE;
+import static com.example.logindemo.error.ErrorConstantValue.ERROR_MAP;
+import static com.example.logindemo.error.ErrorConstantValue.OK_CODE;
 
 /**
  * @author hrh13
@@ -28,6 +28,13 @@ public class ReturnValue<T> {
         returnValue.setDetail(detail);
         return returnValue;
     }
+
+    public static <T> ReturnValue<T> success() {
+        ReturnValue returnValue = new ReturnValue();
+        returnValue.setCode(OK_CODE);
+        return returnValue;
+    }
+
 
     public static ReturnValue fail(Integer code, String message, String detail) {
         ReturnValue returnValue = new ReturnValue();

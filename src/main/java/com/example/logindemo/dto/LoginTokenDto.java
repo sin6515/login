@@ -1,5 +1,6 @@
 package com.example.logindemo.dto;
 
+import com.example.logindemo.view.LoginRequest;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -9,7 +10,7 @@ import lombok.EqualsAndHashCode;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class LoginTokenDto extends LoginDto{
+public class LoginTokenDto extends LoginRequest {
     private String token;
     public LoginTokenDto(RedisDto redisDto){
         setAccount(redisDto.getAccount());

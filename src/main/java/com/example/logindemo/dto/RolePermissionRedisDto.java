@@ -16,11 +16,12 @@ import java.util.List;
 public class RolePermissionRedisDto {
     private Integer roleId;
     private String roleName;
+    //todo
     private List<String> permissionName;
 
     public RolePermissionRedisDto(Integer roleId, String roleName, List<String> permissionName) {
-        setRoleId(roleId);
-        setRoleName(roleName);
-        setPermissionName(permissionName);
+        this.setRoleId(roleId);
+        this.setRoleName(roleName);
+        this.setPermissionName(permissionName);
     }
 }

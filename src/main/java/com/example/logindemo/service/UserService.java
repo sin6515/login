@@ -1,12 +1,15 @@
 package com.example.logindemo.service;
 
 import com.example.logindemo.dao.UserDao;
-import com.example.logindemo.dto.AddDto;
 import com.example.logindemo.dto.UserDto;
 import com.example.logindemo.entity.UserEntity;
+import com.example.logindemo.view.LoginRequest;
+import com.example.logindemo.view.RegisterRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
+
+import static com.example.logindemo.dto.ConstantValue.USER;
 
 /**
  * @author hrh13
@@ -16,10 +19,12 @@ import org.springframework.util.DigestUtils;
 public class UserService {
     @Autowired
     private UserDao userDao;
+    @Autowired
+    private RedisService redisService;
 
-    public UserDto addUser(AddDto addDto) {
-        UserEntity userEntity = new UserEntity(addDto.getAccount(), DigestUtils.md5DigestAsHex(addDto.getPassWord().getBytes()),
-                addDto.getNickname(), addDto.getEmail(), addDto.getPhone(), System.currentTimeMillis());
+    public UserDto addUser(RegisterRequest request) {
+        UserEntity userEntity = new UserEntity(request.getAccount(), DigestUtils.md5DigestAsHex(request.getPassWord().getBytes()),
+                request.getNickname(), request.getEmail(), request.getPhone(), System.currentTimeMillis());
         userDao.save(userEntity);
         return new UserDto(userEntity);
     }
@@ -35,14 +40,33 @@ public class UserService {
         return null;
     }
 
-    public UserDto deleteUser(Integer userId) {
-        UserDto userDto = findById(userId);
-        userDao.deleteById(userId);
-        return userDto;
+    public Boolean existsById(Integer userId) {
+        return userDao.existsById(userId);
+    }
+    public Boolean existsByAccount(String account) {
+        return userDao.existsByAccount(account);
+    }
+    public void deleteUser(Integer userId) {
+        if (redisService.addDateBaseLock(userId, USER)) {
+            userDao.deleteById(userId);
+            if (redisService.existsRedis(userId, USER)) {
+                redisService.deleteRedis(userId, USER);
+            }
+            redisService.deleteDataLock(userId, USER);
+        }
     }
 
-    public UserDto updateUser(Integer userId, String pd) {
-        userDao.updatePassWordById(DigestUtils.md5DigestAsHex(pd.getBytes()), System.currentTimeMillis(), userId);
+    public UserDto updatePassword(Integer userId, String pd) {
+        if (redisService.addDateBaseLock(userId, USER)) {
+            if (redisService.existsRedis(userId, USER)) {
+                LoginRequest request = new LoginRequest();
+                request.setAccount(request.getAccount());
+                request.setPassWord(DigestUtils.md5DigestAsHex(request.getPassWord().getBytes()));
+                redisService.updateUserRedis(request);
+            }
+            userDao.updatePassWordById(DigestUtils.md5DigestAsHex(pd.getBytes()), System.currentTimeMillis(), userId);
+            redisService.deleteDataLock(userId, USER);
+        }
         return findById(userId);
     }
 }

@@ -56,13 +56,6 @@ public class RolePermissionService {
         rolePermissionDao.save(rolePermissionEntity);
     }
 
-    public void addRolePermissionId(Integer roleId, List<Integer> permissionIdList) {
-        for (Integer integer : permissionIdList) {
-            RolePermissionEntity rolePermissionEntity = new RolePermissionEntity(roleId, integer, System.currentTimeMillis());
-            rolePermissionDao.save(rolePermissionEntity);
-        }
-    }
-
     public void addRolePermission(Integer roleId, List<String> permissionNameList) {
         for (String s : permissionNameList) {
             if (findRolePermission(roleId, s) == null) {

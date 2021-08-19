@@ -1,9 +1,9 @@
 package com.example.logindemo.service;
 
 import com.example.logindemo.dao.EmployeeDao;
-import com.example.logindemo.dto.AddDto;
 import com.example.logindemo.dto.EmployeeDto;
 import com.example.logindemo.entity.EmployeeEntity;
+import com.example.logindemo.view.RegisterRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
@@ -17,9 +17,9 @@ public class EmployeeService {
     @Autowired
     private EmployeeDao employeeDao;
 
-    public EmployeeDto addEmployee(AddDto addDto) {
-        EmployeeEntity employeeEntity = new EmployeeEntity(addDto.getAccount(), DigestUtils.md5DigestAsHex(addDto.getPassWord().getBytes()),
-                addDto.getNickname(), System.currentTimeMillis());
+    public EmployeeDto addEmployee(RegisterRequest request) {
+        EmployeeEntity employeeEntity = new EmployeeEntity(request.getAccount(), DigestUtils.md5DigestAsHex(request.getPassWord().getBytes()),
+                request.getNickname(), System.currentTimeMillis());
         employeeDao.save(employeeEntity);
         return new EmployeeDto(employeeEntity);
 
@@ -34,5 +34,12 @@ public class EmployeeService {
             return employeeDao.findById(employeeId).get();
         }
         return null;
+    }
+
+    public Boolean existsByAccount(String account) {
+        return employeeDao.existsByAccount(account);
+    }
+    public Boolean existsByEmployeeId(Integer employeeId){
+        return employeeDao.existsById(employeeId);
     }
 }

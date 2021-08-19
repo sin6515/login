@@ -1,7 +1,5 @@
 package com.example.logindemo.interceptor;
 
-import com.alibaba.fastjson.JSON;
-import com.example.logindemo.dto.ReturnValue;
 import com.example.logindemo.service.RedisService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
@@ -10,10 +8,6 @@ import org.springframework.web.servlet.HandlerInterceptor;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-
-import static com.example.logindemo.dto.ConstantValue.*;
-import static com.example.logindemo.dto.ErrorConstantValue.*;
 
 /**
  * @author hrh13
