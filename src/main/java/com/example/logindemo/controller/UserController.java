@@ -1,12 +1,10 @@
 package com.example.logindemo.controller;
 
-import com.alibaba.fastjson.JSON;
-import com.example.logindemo.dto.AddDto;
-import com.example.logindemo.dto.LoginDto;
-import com.example.logindemo.dto.LoginTokenDto;
-import com.example.logindemo.dto.ReturnValue;
+import com.example.logindemo.dto.*;
 import com.example.logindemo.entity.UserEntity;
 import com.example.logindemo.error.NotFoundException;
+import com.example.logindemo.error.PasswordErrorException;
+import com.example.logindemo.error.RepeatAskException;
 import com.example.logindemo.service.RedisService;
 import com.example.logindemo.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +14,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import static com.example.logindemo.dto.ErrorConstantValue.*;
+import static com.example.logindemo.dto.ConstantValue.ACCOUNT;
+import static com.example.logindemo.dto.ConstantValue.PASSWORD;
 
 /**
  * @author hrh13
@@ -32,22 +31,22 @@ public class UserController {
     private RedisService redisService;
 
     @PostMapping("/users")
-    public ReturnValue add(@RequestBody AddDto addDto) {
+    public ReturnValue<UserDto> add(@RequestBody AddDto addDto) throws RepeatAskException {
         UserEntity loginFound = userService.findByAccount(addDto.getAccount());
         if (null == loginFound) {
             return ReturnValue.success(userService.addUser(addDto));
         } else {
-            return ReturnValue.fail(REPEAT_ASK_CODE, ADD_EXISTS, new LoginDto(loginFound));
+            throw new RepeatAskException(ACCOUNT + " : " + addDto.getAccount());
         }
     }
 
     @PostMapping(path = "/users/login")
-    public ReturnValue<LoginDto> login(@RequestBody LoginDto loginDto) throws NotFoundException {
+    public ReturnValue<LoginDto> login(@RequestBody LoginDto loginDto) throws NotFoundException, PasswordErrorException {
         UserEntity loginFound = userService.findByAccount(loginDto.getAccount());
         if (null == loginFound) {
-            throw new NotFoundException(JSON.toJSONString(loginDto));
+            throw new NotFoundException(ACCOUNT + " : " + loginDto.getAccount());
         } else if (!loginFound.getPassWord().equals(DigestUtils.md5DigestAsHex(loginDto.getPassWord().getBytes()))) {
-            return ReturnValue.fail(BAD_REQUEST_CODE, LOGIN_ERROR_PASSWORD, loginDto);
+            throw new PasswordErrorException(PASSWORD + " : " + loginDto.getPassWord());
         } else {
             return ReturnValue.success(new LoginTokenDto(redisService.updateUserRedis(new LoginDto(loginFound))));
         }

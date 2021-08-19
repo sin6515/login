@@ -13,7 +13,7 @@ import static com.example.logindemo.dto.ErrorConstantValue.OK_CODE;
  * @date 2021/7/28
  */
 @Data
-@JSONType(orders = {"error","code", "message", "detail"})
+@JSONType(orders = {"error", "code", "message", "detail"})
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class ReturnValue<T> {
@@ -22,13 +22,14 @@ public class ReturnValue<T> {
     private String message;
     private T detail;
 
-    public static<T> ReturnValue<T> success(T detail) {
+    public static <T> ReturnValue<T> success(T detail) {
         ReturnValue returnValue = new ReturnValue();
         returnValue.setCode(OK_CODE);
         returnValue.setDetail(detail);
         return returnValue;
     }
-    public static<T> ReturnValue<T> fail(Integer code,String message,T detail) {
+
+    public static ReturnValue fail(Integer code, String message, String detail) {
         ReturnValue returnValue = new ReturnValue();
         returnValue.setCode(code);
         returnValue.setMessage(message);
@@ -36,5 +37,4 @@ public class ReturnValue<T> {
         returnValue.setDetail(detail);
         return returnValue;
     }
-
 }

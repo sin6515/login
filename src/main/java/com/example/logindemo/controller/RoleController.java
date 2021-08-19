@@ -1,8 +1,9 @@
 package com.example.logindemo.controller;
 
-import com.alibaba.fastjson.JSON;
 import com.example.logindemo.dto.*;
+import com.example.logindemo.error.IllegalInputException;
 import com.example.logindemo.error.NotFoundException;
+import com.example.logindemo.error.RepeatAskException;
 import com.example.logindemo.service.PermissionService;
 import com.example.logindemo.service.RedisService;
 import com.example.logindemo.service.RolePermissionService;
@@ -16,7 +17,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.example.logindemo.dto.ConstantValue.*;
-import static com.example.logindemo.dto.ErrorConstantValue.*;
+import static com.example.logindemo.dto.ErrorConstantValue.NO_HAVE;
 import static com.example.logindemo.dto.PermissionConstantValue.*;
 
 /**
@@ -37,12 +38,12 @@ public class RoleController {
 
     @RequiresPermissions(ROLE_ADD)
     @PostMapping("/roles")
-    public ReturnValue addRole(@RequestBody RoleNameDto roleNameDTO) {
+    public ReturnValue<RolePermissionRedisDto> addRole(@RequestBody RoleNameDto roleNameDTO) throws RepeatAskException {
         if (null == roleService.findByRoleName(roleNameDTO.getRoleName())) {
             roleService.addRole(roleNameDTO.getRoleName());
             return ReturnValue.success(redisService.updateRoleRedis(roleService.findByRoleName(roleNameDTO.getRoleName()).getId()));
         } else {
-            return ReturnValue.fail(REPEAT_ASK_CODE, ADD_EXISTS, roleNameDTO);
+            throw new RepeatAskException(ROLE_NAME + " : " + roleNameDTO.getRoleName());
         }
     }
 
@@ -86,7 +87,7 @@ public class RoleController {
 
     @RequiresPermissions(ROLE_PERMISSION_ADD)
     @PostMapping("/roles/permissions")
-    public ReturnValue addPermission(@RequestBody PermissionNameRoleIdDto permissionNameRoleIdDTO) throws NotFoundException {
+    public ReturnValue<RolePermissionRedisDto> addPermission(@RequestBody PermissionNameRoleIdDto permissionNameRoleIdDTO) throws NotFoundException, RepeatAskException, IllegalInputException {
         List<String> permissionName = permissionNameRoleIdDTO.getPermissionName().stream().distinct().collect(Collectors.toList());
         Integer roleId = permissionNameRoleIdDTO.getRoleId();
         if (permissionService.hasPermission(permissionName)) {
@@ -97,17 +98,17 @@ public class RoleController {
                     rolePermissionService.addRolePermission(roleId, permissionName);
                     return ReturnValue.success(redisService.updateRoleRedis(roleId));
                 } else {
-                    return ReturnValue.fail(REPEAT_ASK_CODE, REPEAT_ASK_STATE, permissionName);
+                    throw new RepeatAskException(PERMISSION_NAME + " : " + permissionName);
                 }
             }
         } else {
-            return ReturnValue.fail(ERROR_INPUT_CODE, ERROR_INPUT_STATE, permissionNameRoleIdDTO);
+            throw new IllegalInputException(PERMISSION_NAME + " : " + permissionName);
         }
     }
 
     @RequiresPermissions(ROLE_PERMISSION_UPDATE)
     @PutMapping("/roles/permissions")
-    public ReturnValue updatePermission(@RequestBody UpdatePermissionDto updatePermissionDTO) throws NotFoundException {
+    public ReturnValue<RolePermissionRedisDto> updatePermission(@RequestBody UpdatePermissionDto updatePermissionDTO) throws NotFoundException, RepeatAskException, IllegalInputException {
         List<String> permissionNameBefore = updatePermissionDTO.getPermissionNameBefore().stream().distinct().collect(Collectors.toList());
         List<String> permissionNameAfter = updatePermissionDTO.getPermissionNameAfter().stream().distinct().collect(Collectors.toList());
         Integer roleId = updatePermissionDTO.getRoleId();
@@ -126,21 +127,21 @@ public class RoleController {
                             rolePermissionService.addRolePermission(roleId, permissionNameAfter);
                             return ReturnValue.success(redisService.updateRoleRedis(roleId));
                         } else {
-                            return ReturnValue.fail(REPEAT_ASK_CODE, ADD_EXISTS, permissionNameAfter);
+                            throw new RepeatAskException(PERMISSION_NAME + " : " + permissionNameAfter);
                         }
                     }
                 }
             } else {
-                return ReturnValue.fail(ERROR_INPUT_CODE, ERROR_INPUT_STATE, permissionNameAfter);
+                throw new IllegalInputException(PERMISSION_NAME + " : " + permissionNameAfter.toString());
             }
         } else {
-            return ReturnValue.fail(ERROR_INPUT_CODE, ERROR_INPUT_STATE, permissionNameBefore);
+            throw new IllegalInputException(PERMISSION_NAME + " : " + permissionNameBefore.toString());
         }
     }
 
     @RequiresPermissions(ROLE_PERMISSION_DELETE)
     @DeleteMapping("/roles/permissions")
-    public ReturnValue deletePermission(@RequestBody PermissionNameRoleIdDto permissionNameRoleIdDTO) throws NotFoundException {
+    public ReturnValue<RolePermissionRedisDto> deletePermission(@RequestBody PermissionNameRoleIdDto permissionNameRoleIdDTO) throws NotFoundException, IllegalInputException {
         List<String> permissionName = permissionNameRoleIdDTO.getPermissionName().stream().distinct().collect(Collectors.toList());
         Integer roleId = permissionNameRoleIdDTO.getRoleId();
         if (permissionService.hasPermission(permissionName)) {
@@ -149,14 +150,14 @@ public class RoleController {
             } else {
                 RolePermissionDto rolePermissionDto = rolePermissionService.findRolePermission(roleId, permissionName);
                 if (null == rolePermissionDto) {
-                    throw new NotFoundException(JSON.toJSONString(permissionNameRoleIdDTO));
+                    throw new NotFoundException(PERMISSION_NAME + " : " + permissionName);
                 } else {
                     rolePermissionService.deleteByRoleIdAndPermissionName(roleId, permissionName);
                     return ReturnValue.success(redisService.updateRoleRedis(roleId));
                 }
             }
         } else {
-            return ReturnValue.fail(ERROR_INPUT_CODE, ERROR_INPUT_STATE, permissionNameRoleIdDTO);
+            throw new IllegalInputException(PERMISSION_NAME + " : " + permissionName);
         }
     }
 }
