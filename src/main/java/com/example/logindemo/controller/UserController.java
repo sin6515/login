@@ -7,7 +7,6 @@ import com.example.logindemo.entity.UserEntity;
 import com.example.logindemo.error.NotFoundException;
 import com.example.logindemo.error.PasswordErrorException;
 import com.example.logindemo.error.RepeatAskException;
-import com.example.logindemo.service.RedisService;
 import com.example.logindemo.service.UserService;
 import com.example.logindemo.view.LoginRequest;
 import com.example.logindemo.view.RegisterRequest;
@@ -31,8 +30,6 @@ import static com.example.logindemo.dto.ConstantValue.PASSWORD;
 public class UserController {
     @Autowired
     private UserService userService;
-    @Autowired
-    private RedisService redisService;
 
     @PostMapping("/users")
     public ReturnValue<UserDto> add(@RequestBody RegisterRequest request) throws RepeatAskException {
@@ -51,7 +48,7 @@ public class UserController {
         } else if (!loginFound.getPassWord().equals(DigestUtils.md5DigestAsHex(request.getPassWord().getBytes()))) {
             throw new PasswordErrorException(PASSWORD + " : " + request.getPassWord());
         } else {
-            return ReturnValue.success(new LoginTokenDto(redisService.updateUserRedis(new LoginRequest(loginFound))));
+            return ReturnValue.success(new LoginTokenDto(userService.updateUserRedis(new LoginRequest(loginFound))));
         }
     }
 }

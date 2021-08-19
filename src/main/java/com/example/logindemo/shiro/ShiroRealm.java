@@ -1,5 +1,6 @@
 package com.example.logindemo.shiro;
 
+import com.example.logindemo.service.EmployeeService;
 import com.example.logindemo.service.RedisService;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
@@ -22,6 +23,8 @@ import static com.example.logindemo.dto.ConstantValue.ADMIN;
 public class ShiroRealm extends AuthorizingRealm {
     @Autowired
     private RedisService redisService;
+    @Autowired
+    private EmployeeService employeeService;
 
     @Override
     public boolean supports(AuthenticationToken token) {
@@ -31,10 +34,8 @@ public class ShiroRealm extends AuthorizingRealm {
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
         Integer employeeId = (Integer) principals.getPrimaryPrincipal();
-        //todo
-        redisService.updateEmployeeRedis(employeeId);
         SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
-        List<String> permissionCode = redisService.findPermissionByEmployeeRedis(employeeId);
+        List<String> permissionCode = employeeService.findPermissionByEmployeeRedis(employeeId);
         if (permissionCode == null) {
             return null;
         }
@@ -53,7 +54,7 @@ public class ShiroRealm extends AuthorizingRealm {
     public boolean isPermitted(PrincipalCollection principals, String permission) {
         Integer employeeId = (Integer) principals.getPrimaryPrincipal();
         //redisService.updateEmployeeRedis(employeeId);
-        if (redisService.findCategoryByEmployeeRedis(employeeId).equals(ADMIN)) {
+        if (employeeService.findCategoryByEmployeeRedis(employeeId).equals(ADMIN)) {
             return true;
         }
         return super.isPermitted(principals, permission);

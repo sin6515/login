@@ -48,7 +48,7 @@ public class RoleController {
             throw new RepeatAskException(ROLE_NAME + " : " + request.getRoleName());
         } else {
             roleService.addRole(request.getRoleName());
-            return ReturnValue.success(redisService.updateRoleRedis(roleService.findByRoleName(request.getRoleName()).getId()));
+            return ReturnValue.success(roleService.updateRoleRedis(roleService.findByRoleName(request.getRoleName()).getId()));
         }
     }
 
@@ -85,7 +85,7 @@ public class RoleController {
     @GetMapping("/roles/{roleId}")
     public ReturnValue<RolePermissionRedisDto> findRole(@PathVariable(ROLE_ID) Integer roleId) throws NotFoundException {
         if (roleService.existsByRoleId(roleId)) {
-            return ReturnValue.success(redisService.updateRoleRedis(roleId));
+            return ReturnValue.success(roleService.updateRoleRedis(roleId));
         } else {
             throw new NotFoundException(ROLE_ID + " : " + roleId);
         }
@@ -100,7 +100,7 @@ public class RoleController {
             if (roleService.existsByRoleId(roleId)) {
                 if (rolePermissionService.findRolePermission(roleId, permissionName) == null) {
                     rolePermissionService.addRolePermission(roleId, permissionName);
-                    return ReturnValue.success(redisService.updateRoleRedis(roleId));
+                    return ReturnValue.success(roleService.updateRoleRedis(roleId));
                 } else {
                     throw new RepeatAskException(PERMISSION_NAME + " : " + permissionName);
                 }
@@ -122,7 +122,7 @@ public class RoleController {
                 if (rolePermissionService.findRolePermission(roleId, permissionName) == null) {
                     rolePermissionService.deleteByRoleId(roleId);
                     rolePermissionService.addRolePermission(roleId, permissionName);
-                    return ReturnValue.success(redisService.updateRoleRedis(roleId));
+                    return ReturnValue.success(roleService.updateRoleRedis(roleId));
                 } else {
                     throw new RepeatAskException(PERMISSION_NAME + " : " + permissionName);
                 }
@@ -146,7 +146,7 @@ public class RoleController {
                     throw new NotFoundException(PERMISSION_NAME + " : " + permissionName);
                 } else {
                     rolePermissionService.deleteByRoleIdAndPermissionName(roleId, permissionName);
-                    redisService.updateRoleRedis(roleId);
+                    roleService.updateRoleRedis(roleId);
                     return ReturnValue.success();
                 }
             } else {

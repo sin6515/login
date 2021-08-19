@@ -55,7 +55,7 @@ public class EmployeeController {
         } else if (!employeeFound.getPassWord().equals(DigestUtils.md5DigestAsHex(request.getPassWord().getBytes()))) {
             throw new PasswordErrorException(PASSWORD + " : " + request.getPassWord());
         } else {
-            return ReturnValue.success(new LoginTokenDto(redisService.updateEmployeeRedis(employeeFound.getId())));
+            return ReturnValue.success(new LoginTokenDto(employeeService.updateEmployeeRedis(employeeFound.getId())));
         }
     }
 
@@ -68,7 +68,7 @@ public class EmployeeController {
                     throw new RepeatAskException(ROLE_ID + " : " + request.getRoleId());
                 } else {
                     employeeRoleService.addEmployeeRole(request.getEmployeeId(), request.getRoleId());
-                    return ReturnValue.success(redisService.updateEmployeeRedis(request.getEmployeeId()));
+                    return ReturnValue.success(employeeService.updateEmployeeRedis(request.getEmployeeId()));
                 }
             }
             throw new NotFoundException(ROLE_ID + " : " + request.getRoleId());
@@ -87,7 +87,7 @@ public class EmployeeController {
                 } else {
                     employeeRoleService.deleteByEmployeeId(request.getEmployeeId());
                     employeeRoleService.addEmployeeRole(request.getEmployeeId(), request.getRoleId());
-                    return ReturnValue.success(redisService.updateEmployeeRedis(request.getEmployeeId()));
+                    return ReturnValue.success(employeeService.updateEmployeeRedis(request.getEmployeeId()));
                 }
             } else {
                 throw new NotFoundException(ROLE_ID + " : " + request.getRoleId());
@@ -119,14 +119,14 @@ public class EmployeeController {
     @GetMapping(path = "/employees/users/{userId}")
     public ReturnValue<RedisDto> findUser(@PathVariable(USER_ID) Integer userId) throws NotFoundException {
         if (redisService.existsRedis(userId, USER)) {
-            return ReturnValue.success(redisService.findUserRedis(userId));
+            return ReturnValue.success(userService.findByRedis(userId));
         } else if (userService.existsById(userId)) {
             UserDto userDto = userService.findById(userId);
             LoginRequest request = new LoginRequest();
             request.setAccount(userDto.getAccount());
             request.setPassWord(userDto.getPassWord());
-            redisService.updateUserRedis(request);
-            return ReturnValue.success(redisService.findUserRedis(userId));
+            userService.updateUserRedis(request);
+            return ReturnValue.success(userService.findByRedis(userId));
         } else {
             throw new NotFoundException(USER_ID + " : " + userId);
         }
