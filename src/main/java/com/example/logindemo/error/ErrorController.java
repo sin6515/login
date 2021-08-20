@@ -2,7 +2,6 @@ package com.example.logindemo.error;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.example.logindemo.dto.ReturnValue;
-import org.apache.shiro.authc.UnknownAccountException;
 import org.apache.shiro.authz.UnauthorizedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -44,11 +43,6 @@ public class ErrorController {
     }
 
     @ExceptionHandler
-    public ReturnValue<String> handleError(UnknownAccountException e) {
-        return ReturnValue.fail(NO_LOGIN_CODE, NO_LOGIN_STATE, e.getMessage());
-    }
-
-    @ExceptionHandler
     public ReturnValue<String> handleError(NotFoundException e) {
         return ReturnValue.fail(NOT_FOUND_CODE, NO_EXIST, e.getMessage());
     }
@@ -66,5 +60,10 @@ public class ErrorController {
     @ExceptionHandler
     public ReturnValue<String> handleError(PasswordErrorException e) {
         return ReturnValue.fail(BAD_REQUEST_CODE, LOGIN_ERROR_PASSWORD, e.getMessage());
+    }
+
+    @ExceptionHandler
+    public ReturnValue<String> handleError(Exception e) {
+        return ReturnValue.fail(INTERNAL_SERVER_ERROR_CODE, INTERNAL_SERVER_ERROR_STATE, e.getMessage());
     }
 }

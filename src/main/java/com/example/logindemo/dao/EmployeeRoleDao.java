@@ -22,10 +22,11 @@ public interface EmployeeRoleDao extends JpaRepository<EmployeeRoleEntity, Integ
     @Transactional
     void deleteByRoleId(Integer roleId);
 
-    @Transactional
-    void deleteByEmployeeId(Integer employeeId);
 
     @Transactional
     void deleteByEmployeeIdAndRoleId(Integer employeeId, Integer roleId);
+
+    @Transactional
+    void deleteByEmployeeIdAndRoleIdIn(Integer employeeId, List<Integer> roleId);
 
 }

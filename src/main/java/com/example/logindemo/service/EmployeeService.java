@@ -14,8 +14,7 @@ import org.springframework.util.DigestUtils;
 import java.util.Collections;
 import java.util.List;
 
-import static com.example.logindemo.dto.ConstantValue.EMPLOYEE;
-import static com.example.logindemo.dto.ConstantValue.PERMISSION_CODE;
+import static com.example.logindemo.dto.ConstantValue.*;
 
 /**
  * @author hrh13
@@ -52,13 +51,17 @@ public class EmployeeService {
     }
 
     /**
-     * description:通过id获取redis对应value，再获取permissionCode，对["permissionCode"]进行处理，去除首尾两字符
+     * description:通过id获取redis对应value，再获取permissionCode，对["permissionCode"]进行处理，去除首尾两字符(为空则为“【】”)
+     *
      * @author hrh
      * @date 2021/8/20
      */
     public List<String> findPermissionByEmployeeRedis(Integer employeeId) {
         JSONObject jsonObject = JSON.parseObject(redisService.findRedis(employeeId, EMPLOYEE));
         String json = jsonObject.getString(PERMISSION_CODE);
+        if (json.length() == PERMISSION_CODE_FIRST_SIZE) {
+            return null;
+        }
         return Collections.singletonList(json.substring(2, json.length() - 2));
     }
 
@@ -89,6 +92,9 @@ public class EmployeeService {
     }
 
     public Boolean existsByEmployeeId(Integer employeeId) {
+        if (redisService.existsRedis(employeeId, EMPLOYEE)) {
+            return true;
+        }
         return employeeDao.existsById(employeeId);
     }
 }

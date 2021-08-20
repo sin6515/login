@@ -9,7 +9,7 @@ import lombok.Data;
  * @date 2021/8/6
  */
 @Data
-@JSONType(orders = {"id","account","passWord","nickname"})
+@JSONType(orders = {"id", "account", "passWord", "nickname"})
 public class EmployeeDto {
     private Integer id;
     private String account;

@@ -2,8 +2,8 @@ package com.example.logindemo.controller;
 
 import com.example.logindemo.dto.ReturnValue;
 import com.example.logindemo.dto.RoleIdNameDto;
-import com.example.logindemo.dto.RolePermissionDto;
 import com.example.logindemo.dto.RolePermissionRedisDto;
+import com.example.logindemo.dto.UpdateDto;
 import com.example.logindemo.error.IllegalInputException;
 import com.example.logindemo.error.NotFoundException;
 import com.example.logindemo.error.RepeatAskException;
@@ -95,11 +95,13 @@ public class RoleController {
         Integer roleId = request.getRoleId();
         if (permissionService.existsPermission(permissionName)) {
             if (roleService.existsByRoleId(roleId)) {
-                if (rolePermissionService.findRolePermission(roleId, permissionName) == null) {
-                    rolePermissionService.addRolePermission(roleId, permissionName);
-                    return ReturnValue.success(roleService.updateRoleRedis(roleId));
-                } else {
+                List<Integer> permissionId = permissionService.findIdByPermissionName(permissionName);
+                UpdateDto updateDto = rolePermissionService.findPermissionIdDeleteAndAdd(roleId, permissionId);
+                if (updateDto.getIdAdd().isEmpty()) {
                     throw new RepeatAskException(PERMISSION_NAME + " : " + permissionName);
+                } else {
+                    rolePermissionService.addRolePermission(roleId, updateDto.getIdAdd());
+                    return ReturnValue.success(roleService.updateRoleRedis(roleId));
                 }
             } else {
                 throw new NotFoundException(ROLE_ID + " : " + roleId);
@@ -111,18 +113,17 @@ public class RoleController {
 
     @RequiresPermissions(ROLE_PERMISSION_UPDATE)
     @PutMapping("/roles/permissions")
-    public ReturnValue<RolePermissionRedisDto> updateRolePermission(@RequestBody @Valid RolePermissionRequest request) throws NotFoundException, RepeatAskException, IllegalInputException {
+    public ReturnValue<RolePermissionRedisDto> updateRolePermission(@RequestBody @Valid RolePermissionRequest request) throws NotFoundException, IllegalInputException {
         List<String> permissionName = request.getPermissionName().stream().distinct().collect(Collectors.toList());
         Integer roleId = request.getRoleId();
         if (permissionService.existsPermission(permissionName)) {
             if (roleService.existsByRoleId(roleId)) {
-                if (rolePermissionService.findRolePermission(roleId, permissionName) == null) {
-                    rolePermissionService.deleteByRoleId(roleId);
-                    rolePermissionService.addRolePermission(roleId, permissionName);
-                    return ReturnValue.success(roleService.updateRoleRedis(roleId));
-                } else {
-                    throw new RepeatAskException(PERMISSION_NAME + " : " + permissionName);
+                List<Integer> permissionId = permissionService.findIdByPermissionName(permissionName);
+                UpdateDto updateDto = rolePermissionService.findPermissionIdDeleteAndAdd(roleId, permissionId);
+                if (updateDto != null) {
+                    rolePermissionService.updateRolePermission(roleId, updateDto.getIdDelete(), updateDto.getIdAdd());
                 }
+                return ReturnValue.success(roleService.updateRoleRedis(roleId));
             } else {
                 throw new NotFoundException(ROLE_ID + " : " + roleId);
             }
@@ -138,12 +139,12 @@ public class RoleController {
         Integer roleId = request.getRoleId();
         if (permissionService.existsPermission(permissionName)) {
             if (roleService.existsByRoleId(roleId)) {
-                RolePermissionDto rolePermissionDto = rolePermissionService.findRolePermission(roleId, permissionName);
-                if (rolePermissionDto == null) {
-                    throw new NotFoundException(PERMISSION_NAME + " : " + permissionName);
-                } else {
-                    rolePermissionService.deleteByRoleIdAndPermissionName(roleId, permissionName);
+                List<Integer> permissionId = permissionService.findIdByPermissionName(permissionName);
+                if (rolePermissionService.existsRolePermission(roleId, permissionId)) {
+                    rolePermissionService.deleteByRoleIdAndPermissionId(roleId, permissionId);
                     return ReturnValue.success();
+                } else {
+                    throw new NotFoundException(PERMISSION_NAME + " : " + permissionName);
                 }
             } else {
                 throw new NotFoundException(ROLE_ID + " : " + roleId);

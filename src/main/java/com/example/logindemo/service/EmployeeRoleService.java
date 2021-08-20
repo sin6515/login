@@ -1,10 +1,12 @@
 package com.example.logindemo.service;
 
 import com.example.logindemo.dao.EmployeeRoleDao;
+import com.example.logindemo.dto.UpdateDto;
 import com.example.logindemo.entity.EmployeeRoleEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,19 +28,16 @@ public class EmployeeRoleService {
     public Boolean existByEmployeeIdAndRoleId(Integer employeeId, Integer roleId) {
         return employeeRoleDao.existsByEmployeeIdAndRoleId(employeeId, roleId);
     }
-    /**
-     * description:判断用户是否已拥有该角色list的一个角色，存在为true
-     * @return {@link Boolean}
-     * @author hrh
-     * @date 2021/8/20
-     */
-    public Boolean existByEmployeeIdAndRoleId(Integer employeeId, List<Integer> roleId) {
-        for (Integer integer : roleId) {
-            if (existByEmployeeIdAndRoleId(employeeId, integer)) {
-               return true;
-            }
+
+    public UpdateDto findRoleIdDeleteAndAdd(Integer employeeId, List<Integer> roleIdPut) {
+        List<Integer> roleIdDelete = findRoleIdByEmployeeId(employeeId);
+        List<Integer> roleIdAdd = new ArrayList<>(roleIdPut);
+        roleIdDelete.removeAll(roleIdPut);
+        roleIdAdd.removeAll(findRoleIdByEmployeeId(employeeId));
+        if (roleIdDelete.isEmpty() && roleIdAdd.isEmpty()) {
+            return null;
         }
-        return false;
+        return new UpdateDto(roleIdDelete, roleIdAdd);
     }
 
     public List<Integer> findRoleIdByEmployeeId(Integer employeeId) {
@@ -80,9 +79,16 @@ public class EmployeeRoleService {
         employeeRoleDao.deleteByRoleId(roleId);
     }
 
-    public void deleteByEmployeeId(Integer employeeId) {
+    public void updateEmployeeRole(Integer employeeId, List<Integer> roleIdDelete, List<Integer> roleIdAdd) {
         if (redisService.addDateBaseLock(employeeId, EMPLOYEE)) {
-            employeeRoleDao.deleteByEmployeeId(employeeId);
+            if (!roleIdDelete.isEmpty()) {
+                employeeRoleDao.deleteByEmployeeIdAndRoleIdIn(employeeId, roleIdDelete);
+            }
+            if (!roleIdAdd.isEmpty()) {
+                for (Integer integer : roleIdAdd) {
+                    addEmployeeRole(employeeId, integer);
+                }
+            }
             if (redisService.existsRedis(employeeId, EMPLOYEE)) {
                 employeeService.updateEmployeeRedis(employeeId);
             }

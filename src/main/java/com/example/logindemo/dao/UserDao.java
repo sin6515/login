@@ -16,6 +16,7 @@ import javax.transaction.Transactional;
 public interface UserDao extends JpaRepository<UserEntity, Integer> {
     /**
      * description:
+     *
      * @param account
      * @return com.example.logindemo.entity.UserEntity
      * @author hrh
@@ -25,6 +26,7 @@ public interface UserDao extends JpaRepository<UserEntity, Integer> {
 
     /**
      * description:
+     *
      * @param id
      * @return void
      * @author hrh
@@ -34,6 +36,7 @@ public interface UserDao extends JpaRepository<UserEntity, Integer> {
     void deleteById(Integer id);
 
     Boolean existsByAccount(String account);
+
     @Transactional
     @Modifying
     @Query("update UserEntity d set d.passWord=?1 , d.gmtModified=?2  where d.id=?3")

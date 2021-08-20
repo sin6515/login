@@ -17,10 +17,12 @@ import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.example.logindemo.dto.ConstantValue.*;
-import static com.example.logindemo.error.ErrorConstantValue.NO_HAVE;
 import static com.example.logindemo.dto.PermissionConstantValue.*;
+import static com.example.logindemo.error.ErrorConstantValue.NO_HAVE;
 
 /**
  * @author hrh13
@@ -41,7 +43,7 @@ public class EmployeeController {
     private RoleService roleService;
 
     @PostMapping("/employees")
-    public ReturnValue<EmployeeDto> registerEmployee(@RequestBody  @Valid RegisterRequest request) throws RepeatAskException {
+    public ReturnValue<EmployeeDto> registerEmployee(@RequestBody @Valid RegisterRequest request) throws RepeatAskException {
         if (employeeService.existsByAccount(request.getAccount())) {
             throw new RepeatAskException(ACCOUNT + " : " + request.getAccount());
         } else {
@@ -65,13 +67,14 @@ public class EmployeeController {
     @PostMapping("/employees//roles")
     public ReturnValue<RedisDto> addEmployeeRole(@RequestBody @Valid EmployeeRoleRequest request) throws NotFoundException, RepeatAskException {
         if (employeeService.existsByEmployeeId(request.getEmployeeId())) {
-            if (roleService.existsByRoleId(request.getRoleId())) {
-                if (employeeRoleService.existByEmployeeIdAndRoleId(request.getEmployeeId(), request.getRoleId())) {
-                    throw new RepeatAskException(ROLE_ID + " : " + request.getRoleId());
-                } else {
-                    employeeRoleService.addEmployeeRole(request.getEmployeeId(), request.getRoleId());
-                    return ReturnValue.success(employeeService.updateEmployeeRedis(request.getEmployeeId()));
+            List<Integer> roleId = request.getRoleId().stream().distinct().collect(Collectors.toList());
+            if (roleService.existsByRoleId(roleId)) {
+                UpdateDto updateDto = employeeRoleService.findRoleIdDeleteAndAdd(request.getEmployeeId(), roleId);
+                if (updateDto.getIdAdd().isEmpty()) {
+                    throw new RepeatAskException(ROLE_ID + " : " + roleId);
                 }
+                employeeRoleService.addEmployeeRole(request.getEmployeeId(), updateDto.getIdAdd());
+                return ReturnValue.success(employeeService.updateEmployeeRedis(request.getEmployeeId()));
             }
             throw new NotFoundException(ROLE_ID + " : " + request.getRoleId());
         } else {
@@ -81,16 +84,16 @@ public class EmployeeController {
 
     @RequiresPermissions(EMPLOYEE_ROLE_UPDATE)
     @PutMapping("/employees/roles")
-    public ReturnValue<RedisDto> updateEmployeeRole(@RequestBody @Valid EmployeeRoleRequest request) throws NotFoundException, RepeatAskException {
+    public ReturnValue<RedisDto> updateEmployeeRole(@RequestBody @Valid EmployeeRoleRequest request) throws NotFoundException {
         if (employeeService.existsByEmployeeId(request.getEmployeeId())) {
-            if (roleService.existsByRoleId(request.getRoleId())) {
-                if (employeeRoleService.existByEmployeeIdAndRoleId(request.getEmployeeId(), request.getRoleId())) {
-                    throw new RepeatAskException(ROLE_ID + " : " + request.getRoleId());
-                } else {
-                    employeeRoleService.deleteByEmployeeId(request.getEmployeeId());
-                    employeeRoleService.addEmployeeRole(request.getEmployeeId(), request.getRoleId());
-                    return ReturnValue.success(employeeService.updateEmployeeRedis(request.getEmployeeId()));
+            List<Integer> roleId = request.getRoleId().stream().distinct().collect(Collectors.toList());
+            if (roleService.existsByRoleId(roleId)) {
+                UpdateDto updateDto = employeeRoleService.findRoleIdDeleteAndAdd(request.getEmployeeId(), roleId);
+                if (updateDto != null) {
+                    employeeRoleService.updateEmployeeRole(request.getEmployeeId(), roleId, request.getRoleId());
                 }
+                return ReturnValue.success(employeeService.updateEmployeeRedis(request.getEmployeeId()));
+
             } else {
                 throw new NotFoundException(ROLE_ID + " : " + request.getRoleId());
             }

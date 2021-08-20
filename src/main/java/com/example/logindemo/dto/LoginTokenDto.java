@@ -12,7 +12,8 @@ import lombok.EqualsAndHashCode;
 @Data
 public class LoginTokenDto extends LoginRequest {
     private String token;
-    public LoginTokenDto(RedisDto redisDto){
+
+    public LoginTokenDto(RedisDto redisDto) {
         setAccount(redisDto.getAccount());
         setPassWord(redisDto.getPassWord());
         setToken(redisDto.getToken());

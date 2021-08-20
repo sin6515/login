@@ -13,9 +13,9 @@ import java.util.Optional;
  */
 @Repository
 public interface PermissionDao extends JpaRepository<PermissionEntity, Integer> {
-    PermissionEntity findByPermissionName(String permissionName);
-
     List<PermissionEntity> findByIdIn(List<Integer> permissionId);
+
+    List<PermissionEntity> findByPermissionNameIn(List<String> permissionName);
 
     Boolean existsByPermissionNameIn(List<String> permissionName);
 

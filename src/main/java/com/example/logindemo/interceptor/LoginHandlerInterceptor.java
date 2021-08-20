@@ -18,6 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 public class LoginHandlerInterceptor implements HandlerInterceptor {
     @Autowired
     private RedisService redisService;
+
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
 //        if (request.getHeader(HEADER_EMPLOYEE_ID) == null || request.getHeader(HEADER_TOKEN) == null) {

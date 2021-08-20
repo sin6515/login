@@ -7,7 +7,8 @@ import lombok.Data;
 
 import java.util.List;
 
-import static com.example.logindemo.dto.ConstantValue.*;
+import static com.example.logindemo.dto.ConstantValue.TIME_OUT;
+import static com.example.logindemo.dto.ConstantValue.TIME_OUT_MILLS;
 
 /**
  * @author hrh13

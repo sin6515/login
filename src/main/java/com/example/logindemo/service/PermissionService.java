@@ -18,9 +18,14 @@ public class PermissionService {
     private PermissionDao permissionDao;
 
     public boolean existsPermission(List<String> permissionName) {
-       return permissionDao.existsByPermissionNameIn(permissionName);
+        return permissionDao.existsByPermissionNameIn(permissionName);
     }
-    public List<String> findPermissionNameById(List<Integer> permissionId){
+
+    public List<String> findPermissionNameById(List<Integer> permissionId) {
         return permissionDao.findByIdIn(permissionId).stream().map(PermissionEntity::getPermissionName).collect(Collectors.toList());
+    }
+
+    public List<Integer> findIdByPermissionName(List<String> permissionName) {
+        return permissionDao.findByPermissionNameIn(permissionName).stream().map(PermissionEntity::getId).collect(Collectors.toList());
     }
 }

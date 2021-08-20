@@ -17,12 +17,11 @@ public interface RolePermissionDao extends JpaRepository<RolePermissionEntity, I
 
     List<RolePermissionEntity> findByRoleIdIn(List<Integer> roleId);
 
-    RolePermissionEntity findByRoleIdAndPermissionId(Integer roleId, Integer permissionId);
-
-    @Transactional
-    void deleteByRoleIdAndPermissionId(Integer roleId, Integer permissionId);
+    Boolean existsByRoleIdAndPermissionIdIn(Integer roleId, List<Integer> permissionId);
 
     @Transactional
     void deleteByRoleId(Integer roleId);
 
+    @Transactional
+    void deleteByRoleIdAndPermissionIdIn(Integer roleId, List<Integer> permissionId);
 }

@@ -50,6 +50,9 @@ public class UserService {
     }
 
     public Boolean existsById(Integer userId) {
+        if (redisService.existsRedis(userId, USER)) {
+            return true;
+        }
         return userDao.existsById(userId);
     }
 
@@ -66,15 +69,17 @@ public class UserService {
             redisService.deleteDataLock(userId, USER);
         }
     }
-    public RedisDto updateUserRedis(LoginRequest request){
+
+    public RedisDto updateUserRedis(LoginRequest request) {
         RedisDto redisDto = new RedisDto(request.getAccount(),
                 request.getPassWord(), System.currentTimeMillis());
         redisDto.setId(findByAccount(redisDto.getAccount()).getId());
         String key = redisService.returnKey(redisDto.getId(), USER);
         redisDto.setToken(redisService.creatToken(redisDto.getId(), USER));
-        redisService.updateRedis(key,JSON.toJSONString(redisDto));
+        redisService.updateRedis(key, JSON.toJSONString(redisDto));
         return redisDto;
     }
+
     public UserDto updatePassword(Integer userId, String pd) {
         if (redisService.addDateBaseLock(userId, USER)) {
             if (redisService.existsRedis(userId, USER)) {

@@ -2,12 +2,13 @@ package com.example.logindemo.service;
 
 import com.example.logindemo.dao.PermissionDao;
 import com.example.logindemo.dao.RolePermissionDao;
-import com.example.logindemo.dto.RolePermissionDto;
+import com.example.logindemo.dto.UpdateDto;
 import com.example.logindemo.entity.PermissionEntity;
 import com.example.logindemo.entity.RolePermissionEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,25 +31,20 @@ public class RolePermissionService {
     @Autowired
     private RoleService roleService;
 
-    public RolePermissionDto findRolePermission(Integer roleId, String permissionName) {
-        Integer permissionId = permissionDao.findByPermissionName(permissionName).getId();
-        if (rolePermissionDao.findByRoleIdAndPermissionId(roleId, permissionId) == null) {
+    public UpdateDto findPermissionIdDeleteAndAdd(Integer roleId, List<Integer> permissionIdPut) {
+        List<Integer> permissionIdDelete = findPermissionIdByRoleId(roleId);
+        List<Integer> permissionIdAdd = new ArrayList<>(permissionIdPut);
+        permissionIdDelete.removeAll(permissionIdPut);
+        permissionIdAdd.removeAll(findPermissionIdByRoleId(roleId));
+        if (permissionIdAdd.isEmpty() && permissionIdDelete.isEmpty()) {
             return null;
-        } else {
-            RolePermissionDto rolePermissionDto = new RolePermissionDto();
-            rolePermissionDto.setRoleId(rolePermissionDao.findByRoleIdAndPermissionId(roleId, permissionId).getRoleId());
-            rolePermissionDto.setPermissionId(rolePermissionDao.findByRoleIdAndPermissionId(roleId, permissionId).getPermissionId());
-            return rolePermissionDto;
         }
+        return new UpdateDto(permissionIdDelete, permissionIdAdd);
+
     }
 
-    public RolePermissionDto findRolePermission(Integer roleId, List<String> permissionNameList) {
-        for (String s : permissionNameList) {
-            if (findRolePermission(roleId, s) == null) {
-                return null;
-            }
-        }
-        return new RolePermissionDto();
+    public Boolean existsRolePermission(Integer roleId, List<Integer> permissionId) {
+        return rolePermissionDao.existsByRoleIdAndPermissionIdIn(roleId, permissionId);
     }
 
     public List<String> findPermissionNameByRoleId(List<Integer> roleId) {
@@ -56,43 +52,29 @@ public class RolePermissionService {
         return permissionDao.findByIdIn(permissionId).stream().map(PermissionEntity::getPermissionName).collect(Collectors.toList());
     }
 
-    public void addRolePermission(Integer roleId, String permissionName) {
-        Integer permissionId = permissionDao.findByPermissionName(permissionName).getId();
+    public void addRolePermission(Integer roleId, Integer permissionId) {
         RolePermissionEntity rolePermissionEntity = new RolePermissionEntity(roleId, permissionId, System.currentTimeMillis());
         rolePermissionDao.save(rolePermissionEntity);
     }
 
-    public void addRolePermission(Integer roleId, List<String> permissionNameList) {
+    public void addRolePermission(Integer roleId, List<Integer> permissionId) {
         if (redisService.addDateBaseLock(roleId, ROLE)) {
-            for (String s : permissionNameList) {
-                if (findRolePermission(roleId, s) == null) {
-                    addRolePermission(roleId, s);
-                }
+            for (Integer integer : permissionId) {
+                addRolePermission(roleId, integer);
             }
+        }
+        if (redisService.existsRedis(roleId, ROLE)) {
+            roleService.updateRoleRedis(roleId);
+        }
+        redisService.deleteDataLock(roleId, ROLE);
+    }
+
+    public void deleteByRoleIdAndPermissionId(Integer roleId, List<Integer> permissionId) {
+        if (redisService.addDateBaseLock(roleId, ROLE)) {
+            rolePermissionDao.deleteByRoleIdAndPermissionIdIn(roleId, permissionId);
             if (redisService.existsRedis(roleId, ROLE)) {
                 roleService.updateRoleRedis(roleId);
             }
-            redisService.deleteDataLock(roleId, ROLE);
-        }
-    }
-
-    public void deleteByRoleIdAndPermissionName(Integer roleId, String permissionName) {
-        Integer permissionId = permissionDao.findByPermissionName(permissionName).getId();
-        RolePermissionDto rolePermissionDto = new RolePermissionDto();
-        rolePermissionDto.setRoleId(rolePermissionDao.findByRoleIdAndPermissionId(roleId, permissionId).getRoleId());
-        rolePermissionDto.setPermissionId(rolePermissionDao.findByRoleIdAndPermissionId(roleId, permissionId).getPermissionId());
-        rolePermissionDao.deleteByRoleIdAndPermissionId(roleId, permissionId);
-
-    }
-
-    public void deleteByRoleIdAndPermissionName(Integer roleId, List<String> permissionNameList) {
-        if (redisService.addDateBaseLock(roleId, ROLE)) {
-            for (String s : permissionNameList) {
-                if (findRolePermission(roleId, s) != null) {
-                    deleteByRoleIdAndPermissionName(roleId, s);
-                }
-            }
-            roleService.updateRoleRedis(roleId);
             redisService.deleteDataLock(roleId, ROLE);
         }
     }
@@ -108,5 +90,22 @@ public class RolePermissionService {
 
     public List<Integer> findPermissionIdByRoleId(Integer roleId) {
         return rolePermissionDao.findByRoleId(roleId).stream().map(RolePermissionEntity::getPermissionId).collect(Collectors.toList());
+    }
+
+    public void updateRolePermission(Integer roleId, List<Integer> permissionIdDelete, List<Integer> permissionIdAdd) {
+        if (redisService.addDateBaseLock(roleId, ROLE)) {
+            if (!permissionIdDelete.isEmpty()) {
+                rolePermissionDao.deleteByRoleIdAndPermissionIdIn(roleId, permissionIdDelete);
+            }
+            if (!permissionIdAdd.isEmpty()) {
+                for (Integer integer : permissionIdAdd) {
+                    addRolePermission(roleId, integer);
+                }
+            }
+            if (redisService.existsRedis(roleId, ROLE)) {
+                roleService.updateRoleRedis(roleId);
+            }
+            redisService.deleteDataLock(roleId, ROLE);
+        }
     }
 }
