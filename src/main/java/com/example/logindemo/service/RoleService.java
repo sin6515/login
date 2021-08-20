@@ -64,9 +64,6 @@ public class RoleService {
     }
 
     public Boolean existsByRoleId(Integer roleId) {
-        if (redisService.existsRedis(roleId, ROLE)) {
-            return true;
-        }
         return roleDao.existsById(roleId);
     }
 

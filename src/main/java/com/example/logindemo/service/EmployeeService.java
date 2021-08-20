@@ -61,9 +61,7 @@ public class EmployeeService {
         if (json.length() == PERMISSION_CODE_FIRST_SIZE) {
             return null;
         }
-        json = json.substring(1, json.length() - 1);
-        String result=json.replace("\"", "");
-        return Collections.singletonList(result);
+        return Collections.singletonList(json.substring(1, json.length() - 1).replace("\"", ""));
     }
 
     public String findCategoryByEmployeeRedis(Integer employeeId) {
@@ -93,9 +91,6 @@ public class EmployeeService {
     }
 
     public Boolean existsByEmployeeId(Integer employeeId) {
-        if (redisService.existsRedis(employeeId, EMPLOYEE)) {
-            return true;
-        }
         return employeeDao.existsById(employeeId);
     }
 }
