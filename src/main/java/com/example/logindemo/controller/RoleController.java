@@ -8,7 +8,6 @@ import com.example.logindemo.error.IllegalInputException;
 import com.example.logindemo.error.NotFoundException;
 import com.example.logindemo.error.RepeatAskException;
 import com.example.logindemo.service.PermissionService;
-import com.example.logindemo.service.RedisService;
 import com.example.logindemo.service.RolePermissionService;
 import com.example.logindemo.service.RoleService;
 import com.example.logindemo.view.AddRoleRequest;
@@ -19,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,15 +35,13 @@ public class RoleController {
     @Autowired
     private RoleService roleService;
     @Autowired
-    private RedisService redisService;
-    @Autowired
     private RolePermissionService rolePermissionService;
     @Autowired
     private PermissionService permissionService;
 
     @RequiresPermissions(ROLE_ADD)
     @PostMapping("/roles")
-    public ReturnValue<RolePermissionRedisDto> addRole(@RequestBody AddRoleRequest request) throws RepeatAskException {
+    public ReturnValue<RolePermissionRedisDto> addRole(@RequestBody @Valid AddRoleRequest request) throws RepeatAskException {
         if (roleService.existsByRoleName(request.getRoleName())) {
             throw new RepeatAskException(ROLE_NAME + " : " + request.getRoleName());
         } else {
@@ -56,7 +54,6 @@ public class RoleController {
     @DeleteMapping("/roles/{id}")
     public ReturnValue<?> deleteRole(@PathVariable("id") Integer roleId) throws NotFoundException {
         if (roleService.existsByRoleId(roleId)) {
-            redisService.deleteRedis(roleId, ROLE);
             roleService.deleteRole(roleId);
             return ReturnValue.success();
         } else {
@@ -66,7 +63,7 @@ public class RoleController {
 
     @RequiresPermissions(ROLE_UPDATE)
     @PutMapping("/roles")
-    public ReturnValue<RoleIdNameDto> updateRole(@RequestBody UpdateRoleNameRequest request) throws NotFoundException, RepeatAskException {
+    public ReturnValue<RoleIdNameDto> updateRole(@RequestBody @Valid UpdateRoleNameRequest request) throws NotFoundException, RepeatAskException {
         if (roleService.existsByRoleId(request.getRoleId())) {
             if (roleService.findByRoleId(request.getRoleId()).getRoleName().equals(request.getRoleName())) {
                 throw new RepeatAskException(ROLE_ID + " : " + request.getRoleId() + "名称已为" + request.getRoleName());
@@ -93,7 +90,7 @@ public class RoleController {
 
     @RequiresPermissions(ROLE_PERMISSION_ADD)
     @PostMapping("/roles/permissions")
-    public ReturnValue<RolePermissionRedisDto> addRolePermission(@RequestBody RolePermissionRequest request) throws NotFoundException, RepeatAskException, IllegalInputException {
+    public ReturnValue<RolePermissionRedisDto> addRolePermission(@RequestBody @Valid RolePermissionRequest request) throws NotFoundException, RepeatAskException, IllegalInputException {
         List<String> permissionName = request.getPermissionName().stream().distinct().collect(Collectors.toList());
         Integer roleId = request.getRoleId();
         if (permissionService.existsPermission(permissionName)) {
@@ -114,7 +111,7 @@ public class RoleController {
 
     @RequiresPermissions(ROLE_PERMISSION_UPDATE)
     @PutMapping("/roles/permissions")
-    public ReturnValue<RolePermissionRedisDto> updateRolePermission(@RequestBody RolePermissionRequest request) throws NotFoundException, RepeatAskException, IllegalInputException {
+    public ReturnValue<RolePermissionRedisDto> updateRolePermission(@RequestBody @Valid RolePermissionRequest request) throws NotFoundException, RepeatAskException, IllegalInputException {
         List<String> permissionName = request.getPermissionName().stream().distinct().collect(Collectors.toList());
         Integer roleId = request.getRoleId();
         if (permissionService.existsPermission(permissionName)) {
@@ -136,7 +133,7 @@ public class RoleController {
 
     @RequiresPermissions(ROLE_PERMISSION_DELETE)
     @DeleteMapping("/roles/permissions")
-    public ReturnValue<?> deleteRolePermission(@RequestBody RolePermissionRequest request) throws NotFoundException, IllegalInputException {
+    public ReturnValue<?> deleteRolePermission(@RequestBody @Valid RolePermissionRequest request) throws NotFoundException, IllegalInputException {
         List<String> permissionName = request.getPermissionName().stream().distinct().collect(Collectors.toList());
         Integer roleId = request.getRoleId();
         if (permissionService.existsPermission(permissionName)) {
@@ -146,7 +143,6 @@ public class RoleController {
                     throw new NotFoundException(PERMISSION_NAME + " : " + permissionName);
                 } else {
                     rolePermissionService.deleteByRoleIdAndPermissionName(roleId, permissionName);
-                    roleService.updateRoleRedis(roleId);
                     return ReturnValue.success();
                 }
             } else {

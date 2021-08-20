@@ -76,7 +76,14 @@ public class RoleService {
     public void deleteRole(Integer roleId) {
         roleDao.deleteById(roleId);
         if (!rolePermissionService.findPermissionIdByRoleId(roleId).isEmpty()) {
-            rolePermissionService.deleteByRoleId(roleId);
+            if (redisService.addDateBaseLock(roleId,ROLE)){
+                rolePermissionService.deleteByRoleId(roleId);
+                if (redisService.existsRedis(roleId,ROLE)){
+                    redisService.deleteRedis(roleId, ROLE);
+                }
+                redisService.deleteDataLock(roleId,ROLE);
+            }
+
         }
         List<Integer> employeeId = employeeRoleService.findEmployeeIdByRoleId(roleId);
         if (!employeeId.isEmpty()) {

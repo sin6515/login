@@ -15,7 +15,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.example.logindemo.dto.ConstantValue.EMPLOYEE;
-import static com.example.logindemo.dto.ConstantValue.PERMISSION_NAME;
+import static com.example.logindemo.dto.ConstantValue.PERMISSION_CODE;
 
 /**
  * @author hrh13
@@ -50,15 +50,23 @@ public class EmployeeService {
         }
         return null;
     }
+
+    /**
+     * description:通过id获取redis对应value，再获取permissionCode，对["permissionCode"]进行处理，去除首尾两字符
+     * @author hrh
+     * @date 2021/8/20
+     */
     public List<String> findPermissionByEmployeeRedis(Integer employeeId) {
-        JSONObject jsonObject = JSON.parseObject(redisService.findRedis(employeeId,EMPLOYEE));
-        return Collections.singletonList(jsonObject.getString(PERMISSION_NAME));
+        JSONObject jsonObject = JSON.parseObject(redisService.findRedis(employeeId, EMPLOYEE));
+        String json = jsonObject.getString(PERMISSION_CODE);
+        return Collections.singletonList(json.substring(2, json.length() - 2));
     }
 
     public String findCategoryByEmployeeRedis(Integer employeeId) {
-        JSONObject jsonObject = JSON.parseObject(redisService.findRedis(employeeId,EMPLOYEE));
+        JSONObject jsonObject = JSON.parseObject(redisService.findRedis(employeeId, EMPLOYEE));
         return jsonObject.getString("category");
     }
+
     public RedisDto updateEmployeeRedis(Integer employeeId) {
         RedisDto redisDto = new RedisDto(findByEmployeeId(employeeId), System.currentTimeMillis());
         redisDto.setToken(redisService.creatToken(redisDto.getId(), EMPLOYEE));
@@ -69,11 +77,13 @@ public class EmployeeService {
         redisService.updateRedis(key, JSON.toJSONString(redisDto));
         return redisDto;
     }
+
     public void updateEmployeeRedis(List<Integer> employeeId) {
         for (Integer integer : employeeId) {
             updateEmployeeRedis(integer);
         }
     }
+
     public Boolean existsByAccount(String account) {
         return employeeDao.existsByAccount(account);
     }

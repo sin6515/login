@@ -15,14 +15,13 @@ import java.util.List;
 public interface EmployeeRoleDao extends JpaRepository<EmployeeRoleEntity, Integer> {
     List<EmployeeRoleEntity> findByEmployeeId(Integer employeeId);
 
-    EmployeeRoleEntity findByEmployeeIdAndRoleId(Integer employeeId, Integer roleId);
-
     List<EmployeeRoleEntity> findByRoleId(Integer roleId);
 
     Boolean existsByEmployeeIdAndRoleId(Integer employeeId, Integer roleId);
 
     @Transactional
     void deleteByRoleId(Integer roleId);
+
     @Transactional
     void deleteByEmployeeId(Integer employeeId);
 

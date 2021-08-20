@@ -1,8 +1,5 @@
 package com.example.logindemo.dto;
 
-import java.util.LinkedList;
-import java.util.List;
-
 /**
  * @author hrh13
  * @date 2021/8/11
@@ -14,23 +11,4 @@ public class PermissionConstantValue {
             ROLE_ADD = "ROLE_ADD", ROLE_UPDATE = "ROLE_UPDATE", ROLE_DELETE = "ROLE_DELETE",
             ROLE_PERMISSION_FIND = "ROLE_PERMISSION_FIND", ROLE_PERMISSION_DELETE = "ROLE_PERMISSION_DELETE",
             ROLE_PERMISSION_ADD = "ROLE_PERMISSION_ADD", ROLE_PERMISSION_UPDATE = "ROLE_PERMISSION_UPDATE";
-    public static final List<String> STRING_LIST = new LinkedList<>();
-
-    static {
-        STRING_LIST.add(USER_FIND);
-        STRING_LIST.add(USER_UPDATE);
-        STRING_LIST.add(USER_DELETE);
-        STRING_LIST.add(EMPLOYEE_ROLE_DELETE);
-        STRING_LIST.add(EMPLOYEE_ROLE_ADD);
-        STRING_LIST.add(EMPLOYEE_ROLE_FIND);
-        STRING_LIST.add(EMPLOYEE_ROLE_UPDATE);
-        STRING_LIST.add(ROLE_ADD);
-        STRING_LIST.add(ROLE_UPDATE);
-        STRING_LIST.add(ROLE_DELETE);
-        STRING_LIST.add(ROLE_PERMISSION_DELETE);
-        STRING_LIST.add(ROLE_PERMISSION_FIND);
-        STRING_LIST.add(ROLE_PERMISSION_ADD);
-        STRING_LIST.add(ROLE_PERMISSION_UPDATE);
-
-    }
 }

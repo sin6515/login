@@ -53,7 +53,6 @@ public class ShiroRealm extends AuthorizingRealm {
     @Override
     public boolean isPermitted(PrincipalCollection principals, String permission) {
         Integer employeeId = (Integer) principals.getPrimaryPrincipal();
-        //redisService.updateEmployeeRedis(employeeId);
         if (employeeService.findCategoryByEmployeeRedis(employeeId).equals(ADMIN)) {
             return true;
         }

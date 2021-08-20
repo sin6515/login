@@ -16,9 +16,12 @@ import java.util.Optional;
 @Repository
 public interface RoleDao extends JpaRepository<RoleEntity, Integer> {
     RoleEntity findByRoleName(String roleName);
+
     Boolean existsByRoleName(String roleName);
+
     @Override
     Optional<RoleEntity> findById(Integer roleId);
+
     @Transactional
     @Modifying
     @Query("update RoleEntity d set d.roleName=?1 , d.gmtModified=?2  where d.id=?3")

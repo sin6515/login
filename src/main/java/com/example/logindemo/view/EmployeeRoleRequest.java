@@ -2,6 +2,8 @@ package com.example.logindemo.view;
 
 import lombok.Data;
 
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -10,7 +12,9 @@ import java.util.List;
  */
 @Data
 public class EmployeeRoleRequest {
+    @NotNull
     Integer employeeId;
+    @NotEmpty
     List<Integer> roleId;
 
     public EmployeeRoleRequest(Integer employeeId, List<Integer> roleId) {

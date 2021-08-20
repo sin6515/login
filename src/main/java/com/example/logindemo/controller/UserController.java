@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
+
 import static com.example.logindemo.dto.ConstantValue.ACCOUNT;
 import static com.example.logindemo.dto.ConstantValue.PASSWORD;
 
@@ -32,16 +34,16 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("/users")
-    public ReturnValue<UserDto> add(@RequestBody RegisterRequest request) throws RepeatAskException {
+    public ReturnValue<UserDto> add(@RequestBody @Valid RegisterRequest request) throws RepeatAskException {
         if (userService.existsByAccount(request.getAccount())) {
-            return ReturnValue.success(userService.addUser(request));
-        } else {
             throw new RepeatAskException(ACCOUNT + " : " + request.getAccount());
+        } else {
+            return ReturnValue.success(userService.addUser(request));
         }
     }
 
     @PostMapping(path = "/users/login")
-    public ReturnValue<LoginRequest> login(@RequestBody LoginRequest request) throws NotFoundException, PasswordErrorException {
+    public ReturnValue<LoginRequest> login(@RequestBody @Valid LoginRequest request) throws NotFoundException, PasswordErrorException {
         UserEntity loginFound = userService.findByAccount(request.getAccount());
         if (null == loginFound) {
             throw new NotFoundException(ACCOUNT + " : " + request.getAccount());

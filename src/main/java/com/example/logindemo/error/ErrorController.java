@@ -4,6 +4,7 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.example.logindemo.dto.ReturnValue;
 import org.apache.shiro.authc.UnknownAccountException;
 import org.apache.shiro.authz.UnauthorizedException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -27,6 +28,10 @@ public class ErrorController {
 //        return ReturnValue.fail(BAD_REQUEST_CODE, "UnKnow Error", getClass().toString());
 //    }
 
+    @ExceptionHandler
+    public ReturnValue<String> handleError(MethodArgumentNotValidException e) {
+        return ReturnValue.fail(BAD_REQUEST_CODE, NOT_VALID, e.getMessage());
+    }
 
     @ExceptionHandler
     public ReturnValue<String> handleError(JWTVerificationException e) {

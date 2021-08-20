@@ -2,6 +2,8 @@ package com.example.logindemo.view;
 
 import lombok.Data;
 
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -10,6 +12,8 @@ import java.util.List;
  */
 @Data
 public class RolePermissionRequest {
+    @NotNull
     private Integer roleId;
+    @NotEmpty
     private List<String> permissionName;
 }

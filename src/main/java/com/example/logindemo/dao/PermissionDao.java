@@ -16,6 +16,7 @@ public interface PermissionDao extends JpaRepository<PermissionEntity, Integer> 
     PermissionEntity findByPermissionName(String permissionName);
 
     List<PermissionEntity> findByIdIn(List<Integer> permissionId);
+
     Boolean existsByPermissionNameIn(List<String> permissionName);
 
     @Override

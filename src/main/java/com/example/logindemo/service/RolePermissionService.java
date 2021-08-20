@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.example.logindemo.dto.ConstantValue.ROLE;
+
 /**
  * @author hrh13
  * @date 2021/8/10
@@ -23,6 +25,10 @@ public class RolePermissionService {
     private PermissionDao permissionDao;
     @Autowired
     private RolePermissionService rolePermissionService;
+    @Autowired
+    private RedisService redisService;
+    @Autowired
+    private RoleService roleService;
 
     public RolePermissionDto findRolePermission(Integer roleId, String permissionName) {
         Integer permissionId = permissionDao.findByPermissionName(permissionName).getId();
@@ -57,10 +63,16 @@ public class RolePermissionService {
     }
 
     public void addRolePermission(Integer roleId, List<String> permissionNameList) {
-        for (String s : permissionNameList) {
-            if (findRolePermission(roleId, s) == null) {
-                addRolePermission(roleId, s);
+        if (redisService.addDateBaseLock(roleId, ROLE)) {
+            for (String s : permissionNameList) {
+                if (findRolePermission(roleId, s) == null) {
+                    addRolePermission(roleId, s);
+                }
             }
+            if (redisService.existsRedis(roleId, ROLE)) {
+                roleService.updateRoleRedis(roleId);
+            }
+            redisService.deleteDataLock(roleId, ROLE);
         }
     }
 
@@ -74,10 +86,14 @@ public class RolePermissionService {
     }
 
     public void deleteByRoleIdAndPermissionName(Integer roleId, List<String> permissionNameList) {
-        for (String s : permissionNameList) {
-            if (findRolePermission(roleId, s) != null) {
-                deleteByRoleIdAndPermissionName(roleId, s);
+        if (redisService.addDateBaseLock(roleId, ROLE)) {
+            for (String s : permissionNameList) {
+                if (findRolePermission(roleId, s) != null) {
+                    deleteByRoleIdAndPermissionName(roleId, s);
+                }
             }
+            roleService.updateRoleRedis(roleId);
+            redisService.deleteDataLock(roleId, ROLE);
         }
     }
 
