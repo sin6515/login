@@ -89,8 +89,8 @@ public class EmployeeController {
             List<Integer> roleId = request.getRoleId().stream().distinct().collect(Collectors.toList());
             if (roleService.existsByRoleId(roleId)) {
                 UpdateDto updateDto = employeeRoleService.findRoleIdDeleteAndAdd(request.getEmployeeId(), roleId);
-                if (updateDto != null) {
-                    employeeRoleService.updateEmployeeRole(request.getEmployeeId(), roleId, request.getRoleId());
+                if (!updateDto.getIdAdd().isEmpty() || !updateDto.getIdDelete().isEmpty()) {
+                    employeeRoleService.updateEmployeeRole(request.getEmployeeId(), updateDto.getIdDelete(), updateDto.getIdAdd());
                 }
                 return ReturnValue.success(employeeService.updateEmployeeRedis(request.getEmployeeId()));
 

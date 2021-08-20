@@ -54,6 +54,7 @@ public class RoleService {
         RolePermissionRedisDto redisDto = new RolePermissionRedisDto(roleId, roleName, permissionNameList);
         String key = redisService.returnKey(roleId, ROLE);
         redisService.updateRedis(key, JSON.toJSONString(redisDto));
+        employeeService.updateEmployeeRedis(employeeRoleService.findEmployeeIdByRoleId(roleId));
         return redisDto;
 
     }
@@ -79,16 +80,15 @@ public class RoleService {
     }
 
     public void deleteRole(Integer roleId) {
-        roleDao.deleteById(roleId);
-        if (!rolePermissionService.findPermissionIdByRoleId(roleId).isEmpty()) {
-            if (redisService.addDateBaseLock(roleId, ROLE)) {
+        if (redisService.addDateBaseLock(roleId, ROLE)) {
+            roleDao.deleteById(roleId);
+            if (rolePermissionService.existsByRoleId(roleId)) {
                 rolePermissionService.deleteByRoleId(roleId);
-                if (redisService.existsRedis(roleId, ROLE)) {
-                    redisService.deleteRedis(roleId, ROLE);
-                }
-                redisService.deleteDataLock(roleId, ROLE);
             }
-
+            if (redisService.existsRedis(roleId, ROLE)) {
+                redisService.deleteRedis(roleId, ROLE);
+            }
+            redisService.deleteDataLock(roleId, ROLE);
         }
         List<Integer> employeeId = employeeRoleService.findEmployeeIdByRoleId(roleId);
         if (!employeeId.isEmpty()) {

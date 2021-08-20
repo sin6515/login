@@ -120,7 +120,7 @@ public class RoleController {
             if (roleService.existsByRoleId(roleId)) {
                 List<Integer> permissionId = permissionService.findIdByPermissionName(permissionName);
                 UpdateDto updateDto = rolePermissionService.findPermissionIdDeleteAndAdd(roleId, permissionId);
-                if (updateDto != null) {
+                if (!updateDto.getIdAdd().isEmpty() || !updateDto.getIdDelete().isEmpty()) {
                     rolePermissionService.updateRolePermission(roleId, updateDto.getIdDelete(), updateDto.getIdAdd());
                 }
                 return ReturnValue.success(roleService.updateRoleRedis(roleId));

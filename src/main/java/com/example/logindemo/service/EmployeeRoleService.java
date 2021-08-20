@@ -34,9 +34,6 @@ public class EmployeeRoleService {
         List<Integer> roleIdAdd = new ArrayList<>(roleIdPut);
         roleIdDelete.removeAll(roleIdPut);
         roleIdAdd.removeAll(findRoleIdByEmployeeId(employeeId));
-        if (roleIdDelete.isEmpty() && roleIdAdd.isEmpty()) {
-            return null;
-        }
         return new UpdateDto(roleIdDelete, roleIdAdd);
     }
 

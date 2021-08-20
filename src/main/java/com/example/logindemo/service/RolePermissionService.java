@@ -36,11 +36,7 @@ public class RolePermissionService {
         List<Integer> permissionIdAdd = new ArrayList<>(permissionIdPut);
         permissionIdDelete.removeAll(permissionIdPut);
         permissionIdAdd.removeAll(findPermissionIdByRoleId(roleId));
-        if (permissionIdAdd.isEmpty() && permissionIdDelete.isEmpty()) {
-            return null;
-        }
         return new UpdateDto(permissionIdDelete, permissionIdAdd);
-
     }
 
     public Boolean existsRolePermission(Integer roleId, List<Integer> permissionId) {
@@ -107,5 +103,9 @@ public class RolePermissionService {
             }
             redisService.deleteDataLock(roleId, ROLE);
         }
+    }
+
+    public Boolean existsByRoleId(Integer roleId) {
+        return rolePermissionDao.existsByRoleId(roleId);
     }
 }
