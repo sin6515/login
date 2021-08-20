@@ -51,8 +51,7 @@ public class EmployeeService {
     }
 
     /**
-     * description:通过id获取redis对应value，再获取permissionCode，对["permissionCode"]进行处理，去除首尾两字符(为空则为“【】”)
-     *
+     * description:通过id获取redis对应value，再获取permissionCode，对["permissionCode"]进行处理，去除首尾字符(为空则为“【】”)，去除字符的双引号
      * @author hrh
      * @date 2021/8/20
      */
@@ -62,7 +61,9 @@ public class EmployeeService {
         if (json.length() == PERMISSION_CODE_FIRST_SIZE) {
             return null;
         }
-        return Collections.singletonList(json.substring(2, json.length() - 2));
+        json = json.substring(1, json.length() - 1);
+        String result=json.replace("\"", "");
+        return Collections.singletonList(result);
     }
 
     public String findCategoryByEmployeeRedis(Integer employeeId) {
