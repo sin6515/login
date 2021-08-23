@@ -19,8 +19,8 @@ public class LoginRequest {
     private String passWord;
 
     public LoginRequest(UserEntity userEntity) {
-        setAccount(userEntity.getAccount());
-        setPassWord(userEntity.getPassWord());
+        this.setAccount(userEntity.getAccount());
+        this.setPassWord(userEntity.getPassWord());
     }
 
     public LoginRequest() {

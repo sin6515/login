@@ -14,8 +14,8 @@ public class LoginTokenDto extends LoginRequest {
     private String token;
 
     public LoginTokenDto(RedisDto redisDto) {
-        setAccount(redisDto.getAccount());
-        setPassWord(redisDto.getPassWord());
-        setToken(redisDto.getToken());
+        this.setAccount(redisDto.getAccount());
+        this.setPassWord(redisDto.getPassWord());
+        this.setToken(redisDto.getToken());
     }
 }

@@ -40,12 +40,12 @@ public class UserEntity {
     private long gmtModified;
 
     public UserEntity(String account, String passWord, String nickname, String email, String phone, long gmtCreate) {
-        setAccount(account);
-        setPassWord(passWord);
-        setNickname(nickname);
-        setEmail(email);
-        setPhone(phone);
-        setGmtCreate(gmtCreate);
+        this.setAccount(account);
+        this.setPassWord(passWord);
+        this.setNickname(nickname);
+        this.setEmail(email);
+        this.setPhone(phone);
+        this.setGmtCreate(gmtCreate);
     }
 
     public UserEntity() {

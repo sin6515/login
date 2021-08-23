@@ -1,6 +1,5 @@
 package com.example.logindemo.entity;
 
-import com.example.logindemo.dto.RoleIdNameDto;
 import lombok.Data;
 import org.hibernate.annotations.GenericGenerator;
 
@@ -29,18 +28,11 @@ public class RoleEntity {
     private long gmtModified;
 
     public RoleEntity(String roleName, long gmtCreate) {
-        setRoleName(roleName);
-        setGmtCreate(gmtCreate);
-    }
-
-    public RoleEntity(RoleIdNameDto roleIdNameDto, long gmtCreate) {
-        setId(roleIdNameDto.getRoleId());
-        setRoleName(roleIdNameDto.getRoleName());
-        setGmtCreate(gmtCreate);
+        this.setRoleName(roleName);
+        this.setGmtCreate(gmtCreate);
     }
 
     public RoleEntity() {
 
     }
-
 }

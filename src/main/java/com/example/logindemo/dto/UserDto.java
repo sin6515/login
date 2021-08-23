@@ -19,12 +19,12 @@ public class UserDto {
     private String phone;
 
     public UserDto(UserEntity userEntity) {
-        setId(userEntity.getId());
-        setAccount(userEntity.getAccount());
-        setPassWord(userEntity.getPassWord());
-        setNickname(userEntity.getNickname());
-        setEmail(userEntity.getEmail());
-        setPhone(userEntity.getPhone());
+        this.setId(userEntity.getId());
+        this.setAccount(userEntity.getAccount());
+        this.setPassWord(userEntity.getPassWord());
+        this.setNickname(userEntity.getNickname());
+        this.setEmail(userEntity.getEmail());
+        this.setPhone(userEntity.getPhone());
     }
 
 }

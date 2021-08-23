@@ -26,9 +26,9 @@ public class EmployeeRoleEntity {
     private long gmtModified;
 
     public EmployeeRoleEntity(Integer employeeId, Integer roleId, long gmtCreate) {
-        setEmployeeId(employeeId);
-        setRoleId(roleId);
-        setGmtCreate(gmtCreate);
+        this.setEmployeeId(employeeId);
+        this.setRoleId(roleId);
+        this.setGmtCreate(gmtCreate);
     }
 
     public EmployeeRoleEntity() {

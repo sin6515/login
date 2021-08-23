@@ -5,7 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * @author hrh13
@@ -18,8 +17,4 @@ public interface PermissionDao extends JpaRepository<PermissionEntity, Integer> 
     List<PermissionEntity> findByPermissionNameIn(List<String> permissionName);
 
     Boolean existsByPermissionNameIn(List<String> permissionName);
-
-    @Override
-    Optional<PermissionEntity> findById(Integer permissionId);
-
 }

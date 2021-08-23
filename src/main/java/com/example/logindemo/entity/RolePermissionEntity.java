@@ -25,9 +25,9 @@ public class RolePermissionEntity {
     private long gmtModified;
 
     public RolePermissionEntity(Integer roleId, Integer permissionId, long gmtCreate) {
-        setRoleId(roleId);
-        setPermissionId(permissionId);
-        setGmtCreate(gmtCreate);
+        this.setRoleId(roleId);
+        this.setPermissionId(permissionId);
+        this.setGmtCreate(gmtCreate);
     }
 
     public RolePermissionEntity() {

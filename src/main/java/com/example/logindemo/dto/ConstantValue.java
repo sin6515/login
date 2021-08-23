@@ -11,7 +11,7 @@ public class ConstantValue {
     public static final String EMPLOYEE = "employee", USER = "user", ROLE = "role", LOCK_KEY = "key", LOCK_VALUE = "value",
             USER_ID = "userId", ROLE_ID = "roleId", EMPLOYEE_ID = "employeeId", PERMISSION_NAME = "permissionName", ROLE_NAME = "roleName", PERMISSION_CODE = "permissionCode",
             ID = "id", ACCOUNT = "account", PASSWORD = "passWord", GMT_CREAT = "gmt_creat",
-            HEADER_EMPLOYEE_ID = "EmployeeId", HEADER_TOKEN = "Token",
+            HEADER_EMPLOYEE_ID = "EmployeeId", HEADER_TOKEN = "Token", CATEGORY = "category",
             REDIS_USER = "user:", REDIS_EMPLOYEE = "employee:", REDIS_ROLE = "role:",
             SECRET_KEY = "secret", ADMIN = "admin", NORMAL = "normal", DATABASE = "DateBase";
 

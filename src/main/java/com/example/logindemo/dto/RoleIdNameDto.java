@@ -14,7 +14,7 @@ public class RoleIdNameDto {
     private String roleName;
 
     public RoleIdNameDto(Integer roleId, String roleName) {
-        setRoleId(roleId);
-        setRoleName(roleName);
+        this.setRoleId(roleId);
+        this.setRoleName(roleName);
     }
 }

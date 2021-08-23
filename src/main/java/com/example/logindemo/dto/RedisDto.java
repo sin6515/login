@@ -29,26 +29,26 @@ public class RedisDto {
     private String token;
 
     public RedisDto(String account, String passWord, long gmt_creat) {
-        setAccount(account);
-        setPassWord(passWord);
-        setGmt_creat(gmt_creat);
-        setExpireTime(gmt_creat + TIME_OUT_MILLS);
+        this.setAccount(account);
+        this.setPassWord(passWord);
+        this.setGmt_creat(gmt_creat);
+        this.setExpireTime(gmt_creat + TIME_OUT_MILLS);
     }
 
     public RedisDto(String id, String account, String passWord, String gmt_creat) {
-        setId(Integer.valueOf(id));
-        setAccount(account);
-        setPassWord(passWord);
-        setGmt_creat(Long.parseLong(gmt_creat));
-        setExpireTime(Long.parseLong(gmt_creat) + 1000L * 60 * 60 * 24 * TIME_OUT);
+        this.setId(Integer.valueOf(id));
+        this.setAccount(account);
+        this.setPassWord(passWord);
+        this.setGmt_creat(Long.parseLong(gmt_creat));
+        this.setExpireTime(Long.parseLong(gmt_creat) + 1000L * 60 * 60 * 24 * TIME_OUT);
     }
 
     public RedisDto(EmployeeEntity employeeEntity, long gmt_creat) {
-        setId(employeeEntity.getId());
-        setAccount(employeeEntity.getAccount());
-        setPassWord(employeeEntity.getPassWord());
-        setCategory(employeeEntity.getCategory());
-        setGmt_creat(gmt_creat);
-        setExpireTime(gmt_creat + TIME_OUT_MILLS);
+        this.setId(employeeEntity.getId());
+        this.setAccount(employeeEntity.getAccount());
+        this.setPassWord(employeeEntity.getPassWord());
+        this.setCategory(employeeEntity.getCategory());
+        this.setGmt_creat(gmt_creat);
+        this.setExpireTime(gmt_creat + TIME_OUT_MILLS);
     }
 }

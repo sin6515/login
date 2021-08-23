@@ -51,7 +51,8 @@ public class EmployeeService {
     }
 
     /**
-     * description:通过id获取redis对应value，再获取permissionCode，对["permissionCode"]进行处理，去除首尾字符(为空则为“【】”)，去除字符的双引号
+     * description:通过id获取redis对应value，再获取permissionCode，对["permissionCode"]进行处理，去除首尾字符(为空则为“[]”)，去除字符的双引号
+     *
      * @author hrh
      * @date 2021/8/20
      */
@@ -66,7 +67,7 @@ public class EmployeeService {
 
     public String findCategoryByEmployeeRedis(Integer employeeId) {
         JSONObject jsonObject = JSON.parseObject(redisService.findRedis(employeeId, EMPLOYEE));
-        return jsonObject.getString("category");
+        return jsonObject.getString(CATEGORY);
     }
 
     public RedisDto updateEmployeeRedis(Integer employeeId) {

@@ -17,10 +17,9 @@ public class EmployeeDto {
     private String nickname;
 
     public EmployeeDto(EmployeeEntity employeeEntity) {
-        setId(employeeEntity.getId());
-        setAccount(employeeEntity.getAccount());
-        setPassWord(employeeEntity.getPassWord());
-        setNickname(employeeEntity.getNickname());
-
+        this.setId(employeeEntity.getId());
+        this.setAccount(employeeEntity.getAccount());
+        this.setPassWord(employeeEntity.getPassWord());
+        this.setNickname(employeeEntity.getNickname());
     }
 }

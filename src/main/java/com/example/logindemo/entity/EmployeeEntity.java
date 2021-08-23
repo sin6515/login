@@ -34,11 +34,11 @@ public class EmployeeEntity {
     private long gmtModified;
 
     public EmployeeEntity(String account, String passWord, String nickname, long gmtCreate) {
-        setAccount(account);
-        setPassWord(passWord);
-        setNickname(nickname);
-        setGmtCreate(gmtCreate);
-        setCategory(NORMAL);
+        this.setAccount(account);
+        this.setPassWord(passWord);
+        this.setNickname(nickname);
+        this.setGmtCreate(gmtCreate);
+        this.setCategory(NORMAL);
     }
 
     public EmployeeEntity() {
