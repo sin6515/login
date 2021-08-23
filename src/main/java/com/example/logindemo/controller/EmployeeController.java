@@ -63,6 +63,16 @@ public class EmployeeController {
         }
     }
 
+    @RequiresPermissions(EMPLOYEE_ROLE_FIND)
+    @GetMapping("/employees/{employeeId}")
+    public ReturnValue<RedisDto> findEmployeeRole(@PathVariable(EMPLOYEE_ID) Integer employeeId) throws NotFoundException {
+        if (employeeService.existsByEmployeeId(employeeId)) {
+            return ReturnValue.success(employeeService.updateEmployeeRedis(employeeId));
+        } else {
+            throw new NotFoundException(EMPLOYEE_ID + " : " + employeeId);
+        }
+    }
+
     @RequiresPermissions(EMPLOYEE_ROLE_ADD)
     @PostMapping("/employees//roles")
     public ReturnValue<RedisDto> addEmployeeRole(@RequestBody @Valid EmployeeRoleRequest request) throws NotFoundException, RepeatAskException {
@@ -81,6 +91,7 @@ public class EmployeeController {
             throw new NotFoundException(EMPLOYEE_ID + " : " + request.getEmployeeId());
         }
     }
+
 
     @RequiresPermissions(EMPLOYEE_ROLE_UPDATE)
     @PutMapping("/employees/roles")

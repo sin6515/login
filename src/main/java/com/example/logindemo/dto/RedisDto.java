@@ -2,7 +2,6 @@ package com.example.logindemo.dto;
 
 import com.alibaba.fastjson.annotation.JSONType;
 import com.example.logindemo.entity.EmployeeEntity;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
 import java.util.List;
@@ -16,7 +15,6 @@ import static com.example.logindemo.dto.ConstantValue.TIME_OUT_MILLS;
  */
 @Data
 @JSONType(orders = {"id", "account", "passWord", "category", "roleId", "permissionCode", "gmt_creat", "expireTime", "token"})
-@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class RedisDto {
     private Integer id;
     private String account;
