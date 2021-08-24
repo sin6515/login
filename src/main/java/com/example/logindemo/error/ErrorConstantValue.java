@@ -10,7 +10,7 @@ import java.util.Map;
 public class ErrorConstantValue {
     public static final String LOGIN_ERROR_PASSWORD = "密码错误！",
             NO_EXIST = "未找到对象，请确认是否存在！", NO_PERMISSION = "No Permission", NO_HAVE = "未拥有",
-            BAD_REQUEST = "Bad Request", FORBIDDEN = "Forbidden", ILLEGAL_INPUT = "Illegal input", ILLEGAL_INPUT_STATE = "权限名不合法！",
+            BAD_REQUEST = "Bad Request", FORBIDDEN = "Forbidden", ILLEGAL_INPUT = "Illegal input", ILLEGAL_INPUT_STATE = "不合法输入！",
             NOT_FOUND = "Not Found", NO_LOGIN = "No Login", NO_LOGIN_STATE = "Please login to your account first", NOT_VALID = "必填项为空！",
             REPEAT_ASK = "Repeat Ask", INTERNAL_SERVER_ERROR = "Internal Server Error", REPEAT_ASK_STATE = "对象已存在！",
             INTERNAL_SERVER_ERROR_STATE = "UnKnow Error", NO_HAVE_HEARER = "No Have Header", ERROR_TOKEN = "Error Token";

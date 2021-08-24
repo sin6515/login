@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.example.logindemo.dto.ReturnValue;
 import com.example.logindemo.error.ErrorController;
+import com.example.logindemo.error.IllegalInputException;
 import com.example.logindemo.service.RedisService;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.web.filter.AccessControlFilter;
@@ -49,11 +50,15 @@ public class ShiroFilter extends AccessControlFilter {
     @Override
     protected boolean onAccessDenied(ServletRequest request, ServletResponse response) {
         HttpServletRequest req = (HttpServletRequest) request;
-        if (req.getHeader(HEADER_EMPLOYEE_ID) == null || req.getHeader(HEADER_TOKEN) == null) {
+        try {
+            if (req.getHeader(HEADER_EMPLOYEE_ID) == null || req.getHeader(HEADER_TOKEN) == null) {
+                throw new IllegalInputException(NO_HAVE_HEARER);
+            }
+        } catch (IllegalInputException e) {
             try {
-                response.getWriter().write(JSON.toJSONString(ReturnValue.fail(BAD_REQUEST_CODE, NO_HAVE_HEARER, HEADER_EMPLOYEE_ID + " OR " + HEADER_TOKEN)));
-            } catch (IOException e) {
-                e.printStackTrace();
+                response.getWriter().write(JSON.toJSONString(errorController.handleError(e)));
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
             }
             return false;
         }
