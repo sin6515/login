@@ -7,7 +7,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import javax.transaction.Transactional;
-import java.util.Optional;
 
 /**
  * @author hrh13
@@ -18,9 +17,6 @@ public interface RoleDao extends JpaRepository<RoleEntity, Integer> {
     RoleEntity findByRoleName(String roleName);
 
     Boolean existsByRoleName(String roleName);
-
-    @Override
-    Optional<RoleEntity> findById(Integer roleId);
 
     @Transactional
     @Modifying
