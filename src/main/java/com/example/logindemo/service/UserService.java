@@ -62,11 +62,16 @@ public class UserService {
 
     public void deleteUser(Integer userId) {
         if (redisService.addDateBaseLock(userId, USER)) {
-            userDao.deleteById(userId);
-            if (redisService.existsRedis(userId, USER)) {
-                redisService.deleteRedis(userId, USER);
+            try {
+                userDao.deleteById(userId);
+                if (redisService.existsRedis(userId, USER)) {
+                    redisService.deleteRedis(userId, USER);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                redisService.deleteDataLock(userId, USER);
             }
-            redisService.deleteDataLock(userId, USER);
         }
     }
 
@@ -82,14 +87,19 @@ public class UserService {
 
     public UserDto updatePassword(Integer userId, String pd) {
         if (redisService.addDateBaseLock(userId, USER)) {
-            if (redisService.existsRedis(userId, USER)) {
-                LoginRequest request = new LoginRequest();
-                request.setAccount(request.getAccount());
-                request.setPassWord(DigestUtils.md5DigestAsHex(request.getPassWord().getBytes()));
-                updateUserRedis(request);
+            try {
+                if (redisService.existsRedis(userId, USER)) {
+                    LoginRequest request = new LoginRequest();
+                    request.setAccount(request.getAccount());
+                    request.setPassWord(DigestUtils.md5DigestAsHex(request.getPassWord().getBytes()));
+                    updateUserRedis(request);
+                }
+                userDao.updatePassWordById(DigestUtils.md5DigestAsHex(pd.getBytes()), System.currentTimeMillis(), userId);
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                redisService.deleteDataLock(userId, USER);
             }
-            userDao.updatePassWordById(DigestUtils.md5DigestAsHex(pd.getBytes()), System.currentTimeMillis(), userId);
-            redisService.deleteDataLock(userId, USER);
         }
         return findById(userId);
     }

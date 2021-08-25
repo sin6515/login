@@ -78,14 +78,19 @@ public class RoleService {
 
     public void deleteRole(Integer roleId) {
         if (redisService.addDateBaseLock(roleId, ROLE)) {
-            roleDao.deleteById(roleId);
-            if (rolePermissionService.existsByRoleId(roleId)) {
-                rolePermissionService.deleteByRoleId(roleId);
+            try {
+                roleDao.deleteById(roleId);
+                if (rolePermissionService.existsByRoleId(roleId)) {
+                    rolePermissionService.deleteByRoleId(roleId);
+                }
+                if (redisService.existsRedis(roleId, ROLE)) {
+                    redisService.deleteRedis(roleId, ROLE);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                redisService.deleteDataLock(roleId, ROLE);
             }
-            if (redisService.existsRedis(roleId, ROLE)) {
-                redisService.deleteRedis(roleId, ROLE);
-            }
-            redisService.deleteDataLock(roleId, ROLE);
         }
         List<Integer> employeeId = employeeRoleService.findEmployeeIdByRoleId(roleId);
         if (!employeeId.isEmpty()) {
@@ -96,9 +101,14 @@ public class RoleService {
 
     public RoleIdNameDto updateRoleName(Integer roleId, String roleName) {
         if (redisService.addDateBaseLock(roleId, ROLE)) {
-            roleDao.updateRoleName(roleName, System.currentTimeMillis(), roleId);
-            updateRoleRedis(roleId);
-            redisService.deleteDataLock(roleId, ROLE);
+            try {
+                roleDao.updateRoleName(roleName, System.currentTimeMillis(), roleId);
+                updateRoleRedis(roleId);
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                redisService.deleteDataLock(roleId, ROLE);
+            }
         }
         return findByRoleId(roleId);
     }

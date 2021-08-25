@@ -52,23 +52,33 @@ public class EmployeeRoleService {
 
     public void addEmployeeRole(Integer employeeId, List<Integer> roleId) {
         if (redisService.addDateBaseLock(employeeId, EMPLOYEE)) {
-            for (Integer integer : roleId) {
-                addEmployeeRole(employeeId, integer);
+            try {
+                for (Integer integer : roleId) {
+                    addEmployeeRole(employeeId, integer);
+                }
+                if (redisService.existsRedis(employeeId, EMPLOYEE)) {
+                    employeeService.updateEmployeeRedis(employeeId);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                redisService.deleteDataLock(employeeId, EMPLOYEE);
             }
-            if (redisService.existsRedis(employeeId, EMPLOYEE)) {
-                employeeService.updateEmployeeRedis(employeeId);
-            }
-            redisService.deleteDataLock(employeeId, EMPLOYEE);
         }
     }
 
     public void deleteEmployeeRole(Integer employeeId, Integer roleId) {
         if (redisService.addDateBaseLock(employeeId, EMPLOYEE)) {
-            employeeRoleDao.deleteByEmployeeIdAndRoleId(employeeId, roleId);
-            if (redisService.existsRedis(employeeId, EMPLOYEE)) {
-                employeeService.updateEmployeeRedis(employeeId);
+            try {
+                employeeRoleDao.deleteByEmployeeIdAndRoleId(employeeId, roleId);
+                if (redisService.existsRedis(employeeId, EMPLOYEE)) {
+                    employeeService.updateEmployeeRedis(employeeId);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                redisService.deleteDataLock(employeeId, EMPLOYEE);
             }
-            redisService.deleteDataLock(employeeId, EMPLOYEE);
         }
     }
 
@@ -78,18 +88,23 @@ public class EmployeeRoleService {
 
     public void updateEmployeeRole(Integer employeeId, List<Integer> roleIdDelete, List<Integer> roleIdAdd) {
         if (redisService.addDateBaseLock(employeeId, EMPLOYEE)) {
-            if (!roleIdDelete.isEmpty()) {
-                employeeRoleDao.deleteByEmployeeIdAndRoleIdIn(employeeId, roleIdDelete);
-            }
-            if (!roleIdAdd.isEmpty()) {
-                for (Integer integer : roleIdAdd) {
-                    addEmployeeRole(employeeId, integer);
+            try {
+                if (!roleIdDelete.isEmpty()) {
+                    employeeRoleDao.deleteByEmployeeIdAndRoleIdIn(employeeId, roleIdDelete);
                 }
+                if (!roleIdAdd.isEmpty()) {
+                    for (Integer integer : roleIdAdd) {
+                        addEmployeeRole(employeeId, integer);
+                    }
+                }
+                if (redisService.existsRedis(employeeId, EMPLOYEE)) {
+                    employeeService.updateEmployeeRedis(employeeId);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                redisService.deleteDataLock(employeeId, EMPLOYEE);
             }
-            if (redisService.existsRedis(employeeId, EMPLOYEE)) {
-                employeeService.updateEmployeeRedis(employeeId);
-            }
-            redisService.deleteDataLock(employeeId, EMPLOYEE);
         }
     }
 }

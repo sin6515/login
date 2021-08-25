@@ -51,9 +51,14 @@ public class RedisService {
 
     public void updateRedis(String key, String value) {
         if (addLock(key)) {
-            stringRedisTemplate.opsForValue().set(key, value);
-            stringRedisTemplate.expire(key, TIME_OUT, TimeUnit.DAYS);
-            deleteLock(key);
+            try {
+                stringRedisTemplate.opsForValue().set(key, value);
+                stringRedisTemplate.expire(key, TIME_OUT, TimeUnit.DAYS);
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                deleteLock(key);
+            }
         }
     }
 
@@ -64,8 +69,13 @@ public class RedisService {
     public void deleteRedis(Integer id, String redisName) {
         key = returnKey(id, redisName);
         if (addLock(key)) {
-            stringRedisTemplate.delete(key);
-            deleteLock(key);
+            try {
+                stringRedisTemplate.delete(key);
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                deleteLock(key);
+            }
         }
     }
 

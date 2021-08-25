@@ -55,23 +55,33 @@ public class RolePermissionService {
 
     public void addRolePermission(Integer roleId, List<Integer> permissionId) {
         if (redisService.addDateBaseLock(roleId, ROLE)) {
-            for (Integer integer : permissionId) {
-                addRolePermission(roleId, integer);
+            try {
+                for (Integer integer : permissionId) {
+                    addRolePermission(roleId, integer);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                redisService.deleteDataLock(roleId, ROLE);
             }
         }
         if (redisService.existsRedis(roleId, ROLE)) {
             roleService.updateRoleRedis(roleId);
         }
-        redisService.deleteDataLock(roleId, ROLE);
     }
 
     public void deleteByRoleIdAndPermissionId(Integer roleId, List<Integer> permissionId) {
         if (redisService.addDateBaseLock(roleId, ROLE)) {
-            rolePermissionDao.deleteByRoleIdAndPermissionIdIn(roleId, permissionId);
-            if (redisService.existsRedis(roleId, ROLE)) {
-                roleService.updateRoleRedis(roleId);
+            try {
+                rolePermissionDao.deleteByRoleIdAndPermissionIdIn(roleId, permissionId);
+                if (redisService.existsRedis(roleId, ROLE)) {
+                    roleService.updateRoleRedis(roleId);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                redisService.deleteDataLock(roleId, ROLE);
             }
-            redisService.deleteDataLock(roleId, ROLE);
         }
     }
 
@@ -90,18 +100,23 @@ public class RolePermissionService {
 
     public void updateRolePermission(Integer roleId, List<Integer> permissionIdDelete, List<Integer> permissionIdAdd) {
         if (redisService.addDateBaseLock(roleId, ROLE)) {
-            if (!permissionIdDelete.isEmpty()) {
-                rolePermissionDao.deleteByRoleIdAndPermissionIdIn(roleId, permissionIdDelete);
-            }
-            if (!permissionIdAdd.isEmpty()) {
-                for (Integer integer : permissionIdAdd) {
-                    addRolePermission(roleId, integer);
+            try {
+                if (!permissionIdDelete.isEmpty()) {
+                    rolePermissionDao.deleteByRoleIdAndPermissionIdIn(roleId, permissionIdDelete);
                 }
+                if (!permissionIdAdd.isEmpty()) {
+                    for (Integer integer : permissionIdAdd) {
+                        addRolePermission(roleId, integer);
+                    }
+                }
+                if (redisService.existsRedis(roleId, ROLE)) {
+                    roleService.updateRoleRedis(roleId);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                redisService.deleteDataLock(roleId, ROLE);
             }
-            if (redisService.existsRedis(roleId, ROLE)) {
-                roleService.updateRoleRedis(roleId);
-            }
-            redisService.deleteDataLock(roleId, ROLE);
         }
     }
 
