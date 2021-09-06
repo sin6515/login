@@ -8,8 +8,7 @@ import com.example.logindemo.dto.UserDto;
 import com.example.logindemo.entity.UserEntity;
 import com.example.logindemo.view.LoginRequest;
 import com.example.logindemo.view.RegisterRequest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
@@ -21,28 +20,29 @@ import static com.example.logindemo.dto.ConstantValue.*;
  * @date 2021/7/15
  */
 @Service
+@Slf4j
 public class UserService {
     @Autowired
     private UserDao userDao;
     @Autowired
     private RedisService redisService;
-    Logger logger= LoggerFactory.getLogger(Logger.class);
+
     public UserDto addUser(RegisterRequest request) {
         UserEntity userEntity = new UserEntity(request.getAccount(), DigestUtils.md5DigestAsHex(request.getPassWord().getBytes()),
                 request.getNickname(), request.getEmail(), request.getPhone(), System.currentTimeMillis());
         userDao.save(userEntity);
-        logger.info("用户注册成功");
+        log.info("用户" + userEntity.getAccount() + "注册成功");
         return new UserDto(userEntity);
     }
 
     public RedisDto findByRedis(Integer userId) {
         JSONObject jsonObject = JSON.parseObject(redisService.findRedis(userId, USER));
+        log.info("从redis中查询用户" + jsonObject.getString(ID) + "成功");
         return new RedisDto(jsonObject.getString(ID), jsonObject.getString(ACCOUNT),
                 jsonObject.getString(PASSWORD), jsonObject.getString(GMT_CREAT));
     }
 
     public UserEntity findByAccount(String account) {
-        logger.info("查询用户信息");
         return userDao.findByAccount(account);
     }
 
@@ -61,7 +61,6 @@ public class UserService {
     }
 
     public Boolean existsByAccount(String account) {
-        logger.info("判断用户是否存在");
         return userDao.existsByAccount(account);
     }
 
@@ -87,6 +86,7 @@ public class UserService {
         String key = redisService.returnKey(redisDto.getId(), USER);
         redisDto.setToken(redisService.creatToken(redisDto.getId(), USER));
         redisService.updateRedis(key, JSON.toJSONString(redisDto));
+        log.debug("更新用户" + redisDto.getAccount() + "的redis成功");
         return redisDto;
     }
 
@@ -106,6 +106,7 @@ public class UserService {
                 redisService.deleteDataLock(userId, USER);
             }
         }
+        log.info("已修改用户" + userId + "的密码");
         return findById(userId);
     }
 }

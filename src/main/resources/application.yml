@@ -10,7 +10,12 @@ spring:
     open-in-view: false
   redis:
     port: 6379
-    host: 192.168.1.116
+    host: 192.168.1.164
 logging:
   file:
-    name: F:/testLog/login.log
+    name: login.log
+  level:
+    com:
+      example:
+        logindemo:
+          service: debug

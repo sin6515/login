@@ -10,6 +10,7 @@ import com.example.logindemo.view.EmployeeRoleRequest;
 import com.example.logindemo.view.LoginRequest;
 import com.example.logindemo.view.RegisterRequest;
 import com.example.logindemo.view.UpdatePasswordRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -30,6 +31,7 @@ import static com.example.logindemo.error.ErrorConstantValue.NO_HAVE;
  */
 @Controller
 @RestController
+@Slf4j
 public class EmployeeController {
     @Autowired
     private EmployeeService employeeService;
@@ -59,7 +61,9 @@ public class EmployeeController {
         } else if (!employeeFound.getPassWord().equals(DigestUtils.md5DigestAsHex(request.getPassWord().getBytes()))) {
             throw new PasswordErrorException(PASSWORD + " : " + request.getPassWord());
         } else {
-            return ReturnValue.success(new LoginTokenDto(employeeService.updateEmployeeRedis(employeeFound.getId())));
+            RedisDto redisDto = employeeService.updateEmployeeRedis(employeeFound.getId());
+            log.info("员工" + request.getAccount() + "登录成功");
+            return ReturnValue.success(new LoginTokenDto(redisDto));
         }
     }
 
@@ -67,6 +71,7 @@ public class EmployeeController {
     @GetMapping("/employees/{employeeId}")
     public ReturnValue<RedisDto> findEmployeeRole(@PathVariable(EMPLOYEE_ID) Integer employeeId) throws NotFoundException {
         if (employeeService.existsByEmployeeId(employeeId)) {
+            log.info("正在查询员工id:" + employeeId + "拥有的角色");
             return ReturnValue.success(employeeService.updateEmployeeRedis(employeeId));
         } else {
             throw new NotFoundException(EMPLOYEE_ID + " : " + employeeId);
@@ -84,6 +89,7 @@ public class EmployeeController {
                     throw new RepeatAskException(ROLE_ID + " : " + roleId);
                 }
                 employeeRoleService.addEmployeeRole(request.getEmployeeId(), updateDto.getIdAdd());
+                log.info("添加员工id:" + request.getEmployeeId() + "的角色" + request.getRoleId() + "成功");
                 return ReturnValue.success(employeeService.updateEmployeeRedis(request.getEmployeeId()));
             }
             throw new NotFoundException(ROLE_ID + " : " + request.getRoleId());
@@ -103,8 +109,8 @@ public class EmployeeController {
                 if (!updateDto.getIdAdd().isEmpty() || !updateDto.getIdDelete().isEmpty()) {
                     employeeRoleService.updateEmployeeRole(request.getEmployeeId(), updateDto.getIdDelete(), updateDto.getIdAdd());
                 }
+                log.info("更改员工id:" + request.getEmployeeId() + "的角色" + request.getRoleId() + "成功");
                 return ReturnValue.success(employeeService.updateEmployeeRedis(request.getEmployeeId()));
-
             } else {
                 throw new NotFoundException(ROLE_ID + " : " + request.getRoleId());
             }
@@ -120,6 +126,7 @@ public class EmployeeController {
             if (roleService.existsByRoleId(roleId)) {
                 if (employeeRoleService.existByEmployeeIdAndRoleId(employeeId, roleId)) {
                     employeeRoleService.deleteEmployeeRole(employeeId, roleId);
+                    log.info("已删除员工id:" + employeeId + "的角色" + roleId);
                     return ReturnValue.success();
                 } else {
                     throw new NotFoundException(EMPLOYEE_ID + ":" + employeeId + " " + NO_HAVE + ROLE_ID + ": " + roleId);
@@ -154,6 +161,7 @@ public class EmployeeController {
     public ReturnValue<?> deleteUser(@PathVariable(USER_ID) Integer userId) throws NotFoundException {
         if (userService.existsById(userId)) {
             userService.deleteUser(userId);
+            log.info("已删除用户" + userId);
             return ReturnValue.success();
         } else {
             throw new NotFoundException(USER_ID + " : " + userId);

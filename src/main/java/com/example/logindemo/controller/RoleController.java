@@ -13,6 +13,7 @@ import com.example.logindemo.service.RoleService;
 import com.example.logindemo.view.AddRoleRequest;
 import com.example.logindemo.view.RolePermissionRequest;
 import com.example.logindemo.view.UpdateRoleNameRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -31,6 +32,7 @@ import static com.example.logindemo.dto.PermissionConstantValue.*;
  */
 @Controller
 @RestController
+@Slf4j
 public class RoleController {
     @Autowired
     private RoleService roleService;
@@ -46,7 +48,9 @@ public class RoleController {
             throw new RepeatAskException(ROLE_NAME + " : " + request.getRoleName());
         } else {
             roleService.addRole(request.getRoleName());
-            return ReturnValue.success(roleService.updateRoleRedis(roleService.findByRoleName(request.getRoleName()).getId()));
+            log.info("角色" + request.getRoleName() + "添加成功");
+            Integer roleId = roleService.findByRoleName(request.getRoleName()).getId();
+            return ReturnValue.success(roleService.updateRoleRedis(roleId));
         }
     }
 
@@ -55,6 +59,7 @@ public class RoleController {
     public ReturnValue<?> deleteRole(@PathVariable("id") Integer roleId) throws NotFoundException {
         if (roleService.existsByRoleId(roleId)) {
             roleService.deleteRole(roleId);
+            log.info("已删除角色" + roleId);
             return ReturnValue.success();
         } else {
             throw new NotFoundException(ROLE_ID + " : " + roleId);
@@ -82,6 +87,7 @@ public class RoleController {
     @GetMapping("/roles/{roleId}")
     public ReturnValue<RolePermissionRedisDto> findRole(@PathVariable(ROLE_ID) Integer roleId) throws NotFoundException {
         if (roleService.existsByRoleId(roleId)) {
+            log.info("正在查询角色" + roleId);
             return ReturnValue.success(roleService.updateRoleRedis(roleId));
         } else {
             throw new NotFoundException(ROLE_ID + " : " + roleId);
@@ -101,6 +107,7 @@ public class RoleController {
                     throw new RepeatAskException(PERMISSION_NAME + " : " + permissionName);
                 } else {
                     rolePermissionService.addRolePermission(roleId, updateDto.getIdAdd());
+                    log.info("添加角色" + roleId + "的权限" + request.getPermissionName() + "成功");
                     return ReturnValue.success(roleService.updateRoleRedis(roleId));
                 }
             } else {
@@ -123,6 +130,7 @@ public class RoleController {
                 if (!updateDto.getIdAdd().isEmpty() || !updateDto.getIdDelete().isEmpty()) {
                     rolePermissionService.updateRolePermission(roleId, updateDto.getIdDelete(), updateDto.getIdAdd());
                 }
+                log.info("更改角色" + roleId + "的权限" + request.getPermissionName() + "成功");
                 return ReturnValue.success(roleService.updateRoleRedis(roleId));
             } else {
                 throw new NotFoundException(ROLE_ID + " : " + roleId);
@@ -142,6 +150,7 @@ public class RoleController {
                 List<Integer> permissionId = permissionService.findIdByPermissionName(permissionName);
                 if (rolePermissionService.existsRolePermission(roleId, permissionId)) {
                     rolePermissionService.deleteByRoleIdAndPermissionId(roleId, permissionId);
+                    log.info("删除角色" + roleId + "的权限" + request.getPermissionName() + "成功");
                     return ReturnValue.success();
                 } else {
                     throw new NotFoundException(PERMISSION_NAME + " : " + permissionName);

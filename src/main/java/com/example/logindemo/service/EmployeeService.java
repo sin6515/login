@@ -7,6 +7,7 @@ import com.example.logindemo.dto.EmployeeDto;
 import com.example.logindemo.dto.RedisDto;
 import com.example.logindemo.entity.EmployeeEntity;
 import com.example.logindemo.view.RegisterRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
@@ -21,6 +22,7 @@ import static com.example.logindemo.dto.ConstantValue.*;
  * @date 2021/7/23
  */
 @Service
+@Slf4j
 public class EmployeeService {
     @Autowired
     private EmployeeDao employeeDao;
@@ -35,6 +37,7 @@ public class EmployeeService {
         EmployeeEntity employeeEntity = new EmployeeEntity(request.getAccount(), DigestUtils.md5DigestAsHex(request.getPassWord().getBytes()),
                 request.getNickname(), System.currentTimeMillis());
         employeeDao.save(employeeEntity);
+        log.info("员工" + employeeEntity.getAccount() + "注册成功");
         return new EmployeeDto(employeeEntity);
 
     }
@@ -78,6 +81,7 @@ public class EmployeeService {
         redisDto.setRoleId(employeeRoleService.findRoleIdByEmployeeId(redisDto.getId()));
         redisDto.setPermissionCode(rolePermissionService.findPermissionNameByRoleId(redisDto.getRoleId()));
         redisService.updateRedis(key, JSON.toJSONString(redisDto));
+        log.debug("更新员工" + redisDto.getAccount() + "的redis成功");
         return redisDto;
     }
 

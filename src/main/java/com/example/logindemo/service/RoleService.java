@@ -5,6 +5,7 @@ import com.example.logindemo.dao.RoleDao;
 import com.example.logindemo.dto.RoleIdNameDto;
 import com.example.logindemo.dto.RolePermissionRedisDto;
 import com.example.logindemo.entity.RoleEntity;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +18,7 @@ import static com.example.logindemo.dto.ConstantValue.ROLE;
  * @date 2021/7/26
  */
 @Service
+@Slf4j
 public class RoleService {
     @Autowired
     private RoleDao roleDao;
@@ -110,6 +112,7 @@ public class RoleService {
                 redisService.deleteDataLock(roleId, ROLE);
             }
         }
+        log.info("角色" + roleId + "名称已更改为" + roleName);
         return findByRoleId(roleId);
     }
 }

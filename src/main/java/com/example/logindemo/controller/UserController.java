@@ -1,6 +1,7 @@
 package com.example.logindemo.controller;
 
 import com.example.logindemo.dto.LoginTokenDto;
+import com.example.logindemo.dto.RedisDto;
 import com.example.logindemo.dto.ReturnValue;
 import com.example.logindemo.dto.UserDto;
 import com.example.logindemo.entity.UserEntity;
@@ -10,8 +11,7 @@ import com.example.logindemo.error.RepeatAskException;
 import com.example.logindemo.service.UserService;
 import com.example.logindemo.view.LoginRequest;
 import com.example.logindemo.view.RegisterRequest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.DigestUtils;
@@ -31,21 +31,21 @@ import static com.example.logindemo.dto.ConstantValue.PASSWORD;
 
 @Controller
 @RestController
+@Slf4j
 public class UserController {
     @Autowired
     private UserService userService;
-    Logger logger= LoggerFactory.getLogger(Logger.class);
+
     @PostMapping("/users")
     public ReturnValue<UserDto> add(@RequestBody @Valid RegisterRequest request) throws RepeatAskException {
         if (userService.existsByAccount(request.getAccount())) {
             throw new RepeatAskException(ACCOUNT + " : " + request.getAccount());
         } else {
-//            logger.info("用户注册成功");
             return ReturnValue.success(userService.addUser(request));
         }
     }
 
-    @PostMapping(path = "/users/login")
+    @PostMapping("/users/login")
     public ReturnValue<LoginRequest> login(@RequestBody @Valid LoginRequest request) throws NotFoundException, PasswordErrorException {
         UserEntity loginFound = userService.findByAccount(request.getAccount());
         if (null == loginFound) {
@@ -53,8 +53,9 @@ public class UserController {
         } else if (!loginFound.getPassWord().equals(DigestUtils.md5DigestAsHex(request.getPassWord().getBytes()))) {
             throw new PasswordErrorException(PASSWORD + " : " + request.getPassWord());
         } else {
-            logger.info("用户登录成功");
-            return ReturnValue.success(new LoginTokenDto(userService.updateUserRedis(new LoginRequest(loginFound))));
+            RedisDto redisDto = userService.updateUserRedis(new LoginRequest(loginFound));
+            log.info("用户" + request.getAccount() + "登录成功");
+            return ReturnValue.success(new LoginTokenDto(redisDto));
         }
     }
 }
