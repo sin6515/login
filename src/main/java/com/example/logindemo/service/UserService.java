@@ -8,6 +8,8 @@ import com.example.logindemo.dto.UserDto;
 import com.example.logindemo.entity.UserEntity;
 import com.example.logindemo.view.LoginRequest;
 import com.example.logindemo.view.RegisterRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
@@ -24,11 +26,12 @@ public class UserService {
     private UserDao userDao;
     @Autowired
     private RedisService redisService;
-
+    Logger logger= LoggerFactory.getLogger(Logger.class);
     public UserDto addUser(RegisterRequest request) {
         UserEntity userEntity = new UserEntity(request.getAccount(), DigestUtils.md5DigestAsHex(request.getPassWord().getBytes()),
                 request.getNickname(), request.getEmail(), request.getPhone(), System.currentTimeMillis());
         userDao.save(userEntity);
+        logger.info("用户注册成功");
         return new UserDto(userEntity);
     }
 
@@ -39,6 +42,7 @@ public class UserService {
     }
 
     public UserEntity findByAccount(String account) {
+        logger.info("查询用户信息");
         return userDao.findByAccount(account);
     }
 
@@ -57,6 +61,7 @@ public class UserService {
     }
 
     public Boolean existsByAccount(String account) {
+        logger.info("判断用户是否存在");
         return userDao.existsByAccount(account);
     }
 

@@ -10,6 +10,8 @@ import com.example.logindemo.error.RepeatAskException;
 import com.example.logindemo.service.UserService;
 import com.example.logindemo.view.LoginRequest;
 import com.example.logindemo.view.RegisterRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.DigestUtils;
@@ -32,12 +34,13 @@ import static com.example.logindemo.dto.ConstantValue.PASSWORD;
 public class UserController {
     @Autowired
     private UserService userService;
-
+    Logger logger= LoggerFactory.getLogger(Logger.class);
     @PostMapping("/users")
     public ReturnValue<UserDto> add(@RequestBody @Valid RegisterRequest request) throws RepeatAskException {
         if (userService.existsByAccount(request.getAccount())) {
             throw new RepeatAskException(ACCOUNT + " : " + request.getAccount());
         } else {
+//            logger.info("用户注册成功");
             return ReturnValue.success(userService.addUser(request));
         }
     }
@@ -50,6 +53,7 @@ public class UserController {
         } else if (!loginFound.getPassWord().equals(DigestUtils.md5DigestAsHex(request.getPassWord().getBytes()))) {
             throw new PasswordErrorException(PASSWORD + " : " + request.getPassWord());
         } else {
+            logger.info("用户登录成功");
             return ReturnValue.success(new LoginTokenDto(userService.updateUserRedis(new LoginRequest(loginFound))));
         }
     }
