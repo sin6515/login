@@ -1,7 +1,6 @@
 package com.example.logindemo.aop;
 
 import com.example.logindemo.service.OperationRecordService;
-import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.AfterThrowing;
@@ -16,7 +15,6 @@ import org.springframework.stereotype.Component;
  */
 @Aspect
 @Component
-@Slf4j
 public class OperationRecord {
     @Autowired
     private OperationRecordService recordService;

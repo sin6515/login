@@ -12,9 +12,12 @@ import com.example.logindemo.service.UserService;
 import com.example.logindemo.view.LoginRequest;
 import com.example.logindemo.view.RegisterRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.DigestUtils;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -35,7 +38,16 @@ import static com.example.logindemo.dto.ConstantValue.PASSWORD;
 public class UserController {
     @Autowired
     private UserService userService;
-
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
+    @GetMapping("/users")
+    public void send(){
+        rabbitTemplate.convertAndSend("firstQueue","this is rabbitMq");
+    }
+    @RabbitListener(queues = "firstQueue")
+    public void receive(String message){
+        System.out.println(message);
+    }
     @PostMapping("/users")
     public ReturnValue<UserDto> add(@RequestBody @Valid RegisterRequest request) throws RepeatAskException {
         if (userService.existsByAccount(request.getAccount())) {
