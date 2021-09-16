@@ -8,6 +8,7 @@ import com.example.logindemo.dto.RedisDto;
 import com.example.logindemo.entity.EmployeeEntity;
 import com.example.logindemo.view.RegisterRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
@@ -32,14 +33,16 @@ public class EmployeeService {
     private EmployeeRoleService employeeRoleService;
     @Autowired
     private RolePermissionService rolePermissionService;
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
 
     public EmployeeDto addEmployee(RegisterRequest request) {
         EmployeeEntity employeeEntity = new EmployeeEntity(request.getAccount(), DigestUtils.md5DigestAsHex(request.getPassWord().getBytes()),
                 request.getNickname(), System.currentTimeMillis());
         employeeDao.save(employeeEntity);
         log.info("员工" + employeeEntity.getAccount() + "注册成功");
+        rabbitTemplate.convertAndSend("registerEmployeeQueue", employeeEntity.getId());
         return new EmployeeDto(employeeEntity);
-
     }
 
     public EmployeeEntity findByEmployeeAccount(String account) {

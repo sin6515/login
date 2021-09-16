@@ -27,24 +27,24 @@ public class OperationRecordService {
     private OperationRecordDao operationRecordDao;
 
     public void createRecord(JoinPoint joinPoint, Object returnValue) {
-        Signature signature=joinPoint.getSignature();
-        ServletRequestAttributes attributes= (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        assert attributes != null;
-        HttpServletRequest request= attributes.getRequest();
-        String jsonString = JSON.toJSONString(joinPoint.getArgs());
-        String args = jsonString.substring(1, jsonString.length() - 1);
-
-        OperationRecordEntity recordEntity = new OperationRecordEntity();
-        recordEntity.setOperator(request.getHeader(HEADER_EMPLOYEE_ID));
-        recordEntity.setParameter(args);
-        recordEntity.setUrl(request.getRequestURI());
-        recordEntity.setPacketName(signature.getDeclaringTypeName());
-        recordEntity.setFuncName(signature.getName());
-        recordEntity.setGmtCreate(System.currentTimeMillis());
-        if (returnValue != null) {
-            recordEntity.setResult(SUCCEED);
+        Signature signature = joinPoint.getSignature();
+        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        if (attributes != null) {
+            HttpServletRequest request = attributes.getRequest();
+            String jsonString = JSON.toJSONString(joinPoint.getArgs());
+            String args = jsonString.substring(1, jsonString.length() - 1);
+            OperationRecordEntity recordEntity = new OperationRecordEntity();
+            recordEntity.setOperator(request.getHeader(HEADER_EMPLOYEE_ID));
+            recordEntity.setParameter(args);
+            recordEntity.setUrl(request.getRequestURI());
+            recordEntity.setPacketName(signature.getDeclaringTypeName());
+            recordEntity.setFuncName(signature.getName());
+            recordEntity.setGmtCreate(System.currentTimeMillis());
+            if (returnValue != null) {
+                recordEntity.setResult(SUCCEED);
+            }
+            operationRecordDao.save(recordEntity);
         }
-        operationRecordDao.save(recordEntity);
     }
 
 }

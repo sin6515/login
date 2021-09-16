@@ -7,6 +7,7 @@ import com.example.logindemo.dto.UpdateDto;
 import com.example.logindemo.error.IllegalInputException;
 import com.example.logindemo.error.NotFoundException;
 import com.example.logindemo.error.RepeatAskException;
+import com.example.logindemo.service.EmployeeRoleService;
 import com.example.logindemo.service.PermissionService;
 import com.example.logindemo.service.RolePermissionService;
 import com.example.logindemo.service.RoleService;
@@ -14,7 +15,9 @@ import com.example.logindemo.view.AddRoleRequest;
 import com.example.logindemo.view.RolePermissionRequest;
 import com.example.logindemo.view.UpdateRoleNameRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.shiro.authz.UnauthorizedException;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -40,6 +43,13 @@ public class RoleController {
     private RolePermissionService rolePermissionService;
     @Autowired
     private PermissionService permissionService;
+    @Autowired
+    private EmployeeRoleService employeeRoleService;
+
+    @RabbitListener(queues = "registerEmployeeQueue")
+    public void addEmployeeInitialRole(Integer employeeId) {
+        employeeRoleService.addEmployeeRole(employeeId, 1);
+    }
 
     @RequiresPermissions(ROLE_ADD)
     @PostMapping("/roles")
@@ -56,8 +66,11 @@ public class RoleController {
 
     @RequiresPermissions(ROLE_DELETE)
     @DeleteMapping("/roles/{id}")
-    public ReturnValue<?> deleteRole(@PathVariable("id") Integer roleId) throws NotFoundException {
+    public ReturnValue<?> deleteRole(@PathVariable("id") Integer roleId) throws NotFoundException, UnauthorizedException {
         if (roleService.existsByRoleId(roleId)) {
+            if (roleId.equals(1)) {
+                throw new UnauthorizedException();
+            }
             roleService.deleteRole(roleId);
             log.info("已删除角色" + roleId);
             return ReturnValue.success();
@@ -70,6 +83,9 @@ public class RoleController {
     @PutMapping("/roles")
     public ReturnValue<RoleIdNameDto> updateRole(@RequestBody @Valid UpdateRoleNameRequest request) throws NotFoundException, RepeatAskException {
         if (roleService.existsByRoleId(request.getRoleId())) {
+            if (request.getRoleId().equals(1)) {
+                throw new UnauthorizedException();
+            }
             if (roleService.findByRoleId(request.getRoleId()).getRoleName().equals(request.getRoleName())) {
                 throw new RepeatAskException(ROLE_ID + " : " + request.getRoleId() + "名称已为" + request.getRoleName());
             } else if (roleService.existsByRoleName(request.getRoleName())) {
@@ -99,6 +115,9 @@ public class RoleController {
     public ReturnValue<RolePermissionRedisDto> addRolePermission(@RequestBody @Valid RolePermissionRequest request) throws NotFoundException, RepeatAskException, IllegalInputException {
         List<String> permissionName = request.getPermissionName().stream().distinct().collect(Collectors.toList());
         Integer roleId = request.getRoleId();
+        if (roleId.equals(1)) {
+            throw new UnauthorizedException();
+        }
         if (permissionService.existsPermission(permissionName)) {
             if (roleService.existsByRoleId(roleId)) {
                 List<Integer> permissionId = permissionService.findIdByPermissionName(permissionName);
@@ -123,6 +142,9 @@ public class RoleController {
     public ReturnValue<RolePermissionRedisDto> updateRolePermission(@RequestBody @Valid RolePermissionRequest request) throws NotFoundException, IllegalInputException {
         List<String> permissionName = request.getPermissionName().stream().distinct().collect(Collectors.toList());
         Integer roleId = request.getRoleId();
+        if (roleId.equals(1)) {
+            throw new UnauthorizedException();
+        }
         if (permissionService.existsPermission(permissionName)) {
             if (roleService.existsByRoleId(roleId)) {
                 List<Integer> permissionId = permissionService.findIdByPermissionName(permissionName);
@@ -145,6 +167,9 @@ public class RoleController {
     public ReturnValue<?> deleteRolePermission(@RequestBody @Valid RolePermissionRequest request) throws NotFoundException, IllegalInputException {
         List<String> permissionName = request.getPermissionName().stream().distinct().collect(Collectors.toList());
         Integer roleId = request.getRoleId();
+        if (roleId.equals(1)) {
+            throw new UnauthorizedException();
+        }
         if (permissionService.existsPermission(permissionName)) {
             if (roleService.existsByRoleId(roleId)) {
                 List<Integer> permissionId = permissionService.findIdByPermissionName(permissionName);

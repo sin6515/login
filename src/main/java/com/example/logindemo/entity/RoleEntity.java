@@ -19,9 +19,6 @@ public class RoleEntity {
     private Integer id;
     @Column(name = "role_name")
     private String roleName;
-
-    @Column(name = "permission_lv")
-    private Integer permissionLv;
     @Column(name = "gmt_create")
     private long gmtCreate;
     @Column(name = "gmt_modified")

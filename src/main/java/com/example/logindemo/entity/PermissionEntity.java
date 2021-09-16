@@ -17,9 +17,6 @@ public class PermissionEntity {
     private Integer id;
     @Column(name = "permission_code")
     private String permissionName;
-
-    @Column(name = "permission_lv")
-    private Integer permissionLv;
     @Column(name = "gmt_create")
     private long gmtCreate;
     @Column(name = "gmt_modified")
