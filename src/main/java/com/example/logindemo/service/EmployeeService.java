@@ -42,7 +42,6 @@ public class EmployeeService {
         employeeDao.save(employeeEntity);
         log.info("员工" + employeeEntity.getAccount() + "注册成功");
         rabbitTemplate.convertAndSend("registerEmployeeQueue", employeeEntity.getId());
-        
         return new EmployeeDto(employeeEntity);
     }
 

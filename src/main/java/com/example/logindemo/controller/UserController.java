@@ -13,6 +13,8 @@ import com.example.logindemo.view.LoginRequest;
 import com.example.logindemo.view.RegisterRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.stream.function.StreamBridge;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.util.function.Consumer;
 
 import static com.example.logindemo.dto.ConstantValue.ACCOUNT;
 import static com.example.logindemo.dto.ConstantValue.PASSWORD;
@@ -35,7 +38,21 @@ import static com.example.logindemo.dto.ConstantValue.PASSWORD;
 public class UserController {
     @Autowired
     private UserService userService;
-
+    @Autowired
+    private StreamBridge streamBridge;
+    //        若测试结束，请及时删除
+    @PostMapping("/users/try")
+    public void send(@RequestBody String body)  {
+        System.out.println("Sending " + body);
+        streamBridge.send("log-in-0", body);
+    }
+    @Bean
+    public Consumer<String> log() {
+        return s -> {
+            System.out.println("Received: " + s);
+        };
+    }
+    //到此测试代码结束
     @PostMapping("/users")
     public ReturnValue<UserDto> add(@RequestBody @Valid RegisterRequest request) throws RepeatAskException {
         if (userService.existsByAccount(request.getAccount())) {
