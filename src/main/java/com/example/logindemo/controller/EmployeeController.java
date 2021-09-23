@@ -2,6 +2,7 @@ package com.example.logindemo.controller;
 
 import com.example.logindemo.dto.*;
 import com.example.logindemo.entity.EmployeeEntity;
+import com.example.logindemo.entity.LoginRecordEntity;
 import com.example.logindemo.error.NotFoundException;
 import com.example.logindemo.error.PasswordErrorException;
 import com.example.logindemo.error.RepeatAskException;
@@ -13,6 +14,7 @@ import com.example.logindemo.view.UpdatePasswordRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
@@ -43,6 +45,8 @@ public class EmployeeController {
     private EmployeeRoleService employeeRoleService;
     @Autowired
     private RoleService roleService;
+    @Autowired
+    private StreamBridge streamBridge;
 
     @PostMapping("/employees")
     public ReturnValue<EmployeeDto> registerEmployee(@RequestBody @Valid RegisterRequest request) throws RepeatAskException {
@@ -57,12 +61,15 @@ public class EmployeeController {
     public ReturnValue<LoginRequest> loginEmployee(@RequestBody @Valid LoginRequest request) throws NotFoundException, PasswordErrorException {
         EmployeeEntity employeeFound = employeeService.findByEmployeeAccount(request.getAccount());
         if (null == employeeFound) {
+            streamBridge.send("loginRecord-in-0", new LoginRecordEntity(request));
             throw new NotFoundException(ACCOUNT + " : " + request.getAccount());
         } else if (!employeeFound.getPassWord().equals(DigestUtils.md5DigestAsHex(request.getPassWord().getBytes()))) {
+            streamBridge.send("loginRecord-in-0", new LoginRecordEntity(request));
             throw new PasswordErrorException(PASSWORD + " : " + request.getPassWord());
         } else {
             RedisDto redisDto = employeeService.updateEmployeeRedis(employeeFound.getId());
             log.info("员工" + request.getAccount() + "登录成功");
+            streamBridge.send("loginRecord-in-0", new LoginRecordEntity(employeeFound));
             return ReturnValue.success(new LoginTokenDto(redisDto));
         }
     }

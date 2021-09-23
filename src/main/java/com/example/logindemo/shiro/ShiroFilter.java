@@ -39,8 +39,6 @@ public class ShiroFilter extends AccessControlFilter {
         Set<String> passUrl = new HashSet<>();
         //配置不需要认证即可访问的地址，如登录接口
         passUrl.add("/users/login");
-//        若测试结束，请及时删除
-        passUrl.add("/users/try");
         passUrl.add("/users");
         passUrl.add("/employees");
         passUrl.add("/employees/login");
